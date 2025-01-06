@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 
+	"internal/dbaser"
+
 	"github.com/jackc/pgx/v5"
 	//	"github.com/jackc/pgx"
 )
@@ -34,28 +36,28 @@ func main() {
 	//log.Printf("perr %v\n conn port %v\n host %v\n", perr, db.Config().DefaultQueryExecMode, db.Config().Host)
 
 	//crea := "CREATE TABLE IF NOT EXISTS t1 (c1 INT, c2 VARCHAR(10) ); "
-	err = tableCreation(ctx, db)
+	err = dbaser.TableCreation(ctx, db)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to create tables: %v\n", err)
 		os.Exit(1)
 	}
-	err = tablePutGauge(ctx, db, "Alloc", 33.88)
+	err = dbaser.TablePutGauge(ctx, db, "Alloc", 33.88)
 	if err != nil {
 		log.Printf("update err %v\n", err)
 	}
-	err = tablePutCounter(ctx, db, "Someint", 188)
+	err = dbaser.TablePutCounter(ctx, db, "Someint", 188)
 	if err != nil {
 		log.Printf("update err %v\n", err)
 	}
 	mname := "Alloc"
-	f, err := tableGetGauge(ctx, db, mname)
+	f, err := dbaser.TableGetGauge(ctx, db, mname)
 	if err != nil {
 		log.Printf("bad get %s %v\n", mname, err)
 	} else {
 		fmt.Printf("value of %s is %f\n", mname, f)
 	}
 	mname = "Someint"
-	i, err := tableGetCounter(ctx, db, mname)
+	i, err := dbaser.TableGetCounter(ctx, db, mname)
 	if err != nil {
 		log.Printf("bad get %s %v\n", mname, err)
 	} else {
