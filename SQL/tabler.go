@@ -47,6 +47,7 @@ func tableGetGauge(ctx context.Context, db *pgx.Conn, mname string) (float64, er
 	}
 	return flo, nil
 }
+
 func tablePutCounter(ctx context.Context, db *pgx.Conn, mname string, value int64) error {
 	order := fmt.Sprintf("INSERT INTO Counter(metricname, value) VALUES ('%[1]s',%[2]d);", mname, value)
 	tag1, err := db.Exec(ctx, order)

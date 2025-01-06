@@ -39,7 +39,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Unable to create tables: %v\n", err)
 		os.Exit(1)
 	}
-	err = tablePutGauge(ctx, db, "Alloc", 188.88)
+	err = tablePutGauge(ctx, db, "Alloc", 33.88)
 	if err != nil {
 		log.Printf("update err %v\n", err)
 	}
