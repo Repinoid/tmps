@@ -16,8 +16,8 @@ func main() {
 
 	url, _ = os.LookupEnv("DATABASE_DSN")
 
-	//url = "postgres://postgres:passwordas@forgo.c7wegmiakpkw.us-west-1.rds.amazonaws.com:5432/postgres"
-	url = "postgres://postgres:passwordas@localhost:5432/forgo"
+	url = "postgres://postgres:passwordas@forgo.c7wegmiakpkw.us-west-1.rds.amazonaws.com:5432/forgo"
+	//url = "postgres://postgres:passwordas@localhost:5432/forgo"
 	//	postgres://postgres:mypassword@rds-postgres.xxxxx.amazonaws.com:5432
 	//	postgres://postgres:zalupa77@rds-postgres.xxxxx.amazonaws.com:5432
 
@@ -39,7 +39,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Unable to create tables: %v\n", err)
 		os.Exit(1)
 	}
-	err = tablePutGauge(ctx, db, "Something", 188.88)
+	err = tablePutGauge(ctx, db, "Alloc", 188.88)
 	if err != nil {
 		log.Printf("update err %v\n", err)
 	}
