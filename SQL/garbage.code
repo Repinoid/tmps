@@ -1,0 +1,44 @@
+//perr := db.Ping(ctx)
+	//log.Printf("perr %v\n conn port %v\n host %v\n", perr, db.Config().DefaultQueryExecMode, db.Config().Host)
+
+	//crea := "CREATE TABLE IF NOT EXISTS t1 (c1 INT, c2 VARCHAR(10) ); "
+	// err = dbaser.TableCreation(ctx, db)
+	// if err != nil {
+	// 	fmt.Fprintf(os.Stderr, "Unable to create tables: %v\n", err)
+	// 	os.Exit(1)
+	// }
+	// err = dbaser.TablePutGauge(ctx, db, "Alloc", 33.88)
+	// if err != nil {
+	// 	log.Printf("update err %v\n", err)
+	// }
+	// err = dbaser.TablePutCounter(ctx, db, "iiiiiiiiii", 678188)
+	// if err != nil {
+	// 	log.Printf("update err %v\n", err)
+	// }
+	// mname := "Alloc"
+	// f, err := dbaser.TableGetGauge(ctx, db, mname)
+	// if err != nil {
+	// 	log.Printf("bad get %s %v\n", mname, err)
+	// } else {
+	// 	fmt.Printf("value of %s is %f\n", mname, f)
+	// }
+	// mname = "Someint"
+	// i, err := dbaser.TableGetCounter(ctx, db, mname)
+	// if err != nil {
+	// 	log.Printf("bad get %s %v\n", mname, err)
+	// } else {
+	// 	fmt.Printf("value of %s is %d\n", mname, i)
+	// }
+	// str := "SELECT tablename, schemaname FROM pg_catalog.pg_tables WHERE schemaname = $1;"
+	// //result, err := db.QueryRow   (ctx, str)
+	// rows, err := db.Query(ctx, str, "public")
+	// if err != nil {
+	// 	log.Printf("bad query %v\n", err)
+	// }
+
+	//	var tablename string
+	// var tablespace string
+	// for rows.Next() {
+	// 	err = rows.Scan(&tablename, &tablespace)
+	// 	fmt.Printf("%s %s \n", tablename, tablespace)
+	// }

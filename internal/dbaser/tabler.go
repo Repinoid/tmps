@@ -7,6 +7,43 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
+func TableGetAllCounters(ctx context.Context, db *pgx.Conn) (map[string]int64, error) {
+	var inta int64
+	var str string
+	mappa := map[string]int64{}
+	zapros := "SELECT * FROM counter;"
+	rows, err := db.Query(ctx, zapros)
+	if err != nil {
+		return nil, fmt.Errorf("error Query %[2]s:%[3]d database  %[1]w", err, db.Config().Host, db.Config().Port)
+	}
+	for rows.Next() {
+		err = rows.Scan(&str, &inta)
+		if err != nil {
+			return nil, fmt.Errorf("error counter table Scan %[2]s:%[3]d database\n%[1]w", err, db.Config().Host, db.Config().Port)
+		}
+		mappa[str] = inta
+	}
+	return mappa, nil
+}
+func TableGetAllGauges(ctx context.Context, db *pgx.Conn) (map[string]float64, error) {
+	var flo float64
+	var str string
+	mappa := map[string]float64{}
+	zapros := "SELECT * FROM gauge;"
+	rows, err := db.Query(ctx, zapros)
+	if err != nil {
+		return nil, fmt.Errorf("error Query %[2]s:%[3]d database  %[1]w", err, db.Config().Host, db.Config().Port)
+	}
+	for rows.Next() {
+		err = rows.Scan(&str, &flo)
+		if err != nil {
+			return nil, fmt.Errorf("error gauge table Scan %[2]s:%[3]d database\n%[1]w", err, db.Config().Host, db.Config().Port)
+		}
+		mappa[str] = flo
+	}
+	return mappa, nil
+}
+
 func TableCreation(ctx context.Context, db *pgx.Conn) error {
 	crea := "CREATE TABLE IF NOT EXISTS Gauge(metricname VARCHAR(30) PRIMARY KEY, value FLOAT8);"
 	tag, err := db.Exec(ctx, crea)
