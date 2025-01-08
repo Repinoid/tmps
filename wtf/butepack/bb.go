@@ -1,12 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
-	"io"
-	"log"
-	"strings"
-	"time"
+	"strconv"
 
 	"go.uber.org/zap"
 )
@@ -15,32 +11,38 @@ var sugar zap.SugaredLogger
 
 func main() {
 
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		panic("cannot initialize zap")
-	}
-	defer logger.Sync()
-	sugar = *logger.Sugar()
+	d := map[string]int{}
 
-	var b bytes.Buffer // A Buffer needs no initialization.
-	b.Grow(100)
-	fmt.Printf(" %v %v\n", b, &b)
+	fmt.Println(wis(5))
+	fmt.Println(wis(5.5))
+	fmt.Println(wisa("str"))
+	fmt.Println(wis(d))
 
-	b.WriteString("0123456789")
-
-	var r io.Reader
-	r = strings.NewReader("my request")
-	//	buf := make([]byte, 18)
-	buf, err := io.ReadAll(r)
-	if err != nil {
-		log.Printf("%v\n%s\n", err, buf)
-	}
-	sugar.Infoln(
-		"buf", string(buf),
-		zap.String("buf", string(buf)),
-	)
-	t:= time.Now()
-	
-	f:= "Mon, 01 Jan 2006 15:04:05.0000 -07 MST "
-	fmt.Println(t.Format(f))
 }
+
+func wisa(wa interface{}) string {
+	switch fmt.Sprintf("%T", wa) {
+	case "string":
+		return "string " + wa.(string)
+	default:
+		return "hz"
+	}
+}
+
+func wis(wa interface{}) string {
+	switch wa.(type) {
+	case string:
+		return "string " + wa.(string)
+	case float64:
+		return "float " + retflo(wa)
+	case int64, int32, int:
+		return "int"
+	default:
+		return "hz"
+	}
+}
+func retflo(flo interface{}) string {
+	return strconv.FormatFloat(flo.(float64), 'f', -1, 64)
+}
+
+// assigning the result of this type assertion to a variable (switch wa := wa.(type)) could eliminate type assertions in switch cases (S1034)
