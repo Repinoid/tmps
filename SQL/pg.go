@@ -2,11 +2,15 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"internal/dbaser"
+	"log"
 	"os"
 
+	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 func main() {
@@ -15,8 +19,8 @@ func main() {
 
 	url, _ = os.LookupEnv("DATABASE_DSN")
 
-	url = "postgres://postgres:passwordas@forgo.c7wegmiakpkw.us-west-1.rds.amazonaws.com:5432/forgo"
-	//url = "postgres://postgres:passwordas@localhost:5432/forgo"
+	//url = "postgres://postgres:passwordas@forgo.c7wegmiakpkw.us-west-1.rds.amazonaws.com:5432/forgo"
+	url = "postgres://postgres:passwordas@localhost:5432/forgot"
 	//	postgres://postgres:mypassword@rds-postgres.xxxxx.amazonaws.com:5432
 	//	postgres://postgres:zalupa77@rds-postgres.xxxxx.amazonaws.com:5432
 
@@ -24,12 +28,19 @@ func main() {
 
 	db, err := pgx.Connect(ctx, url)
 	if err != nil {
+
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			log.Printf("err code is %v", pgErr.Code)
+			pgErr.
+		}
+
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
 		os.Exit(1)
 	}
 	defer db.Close(ctx)
 
-	 mname := "aaaa"
+	mname := "aaaa"
 	tx, err := db.Begin(ctx)
 	if err != nil {
 		fmt.Printf("no db.Begin   %v\n", err)
@@ -38,6 +49,11 @@ func main() {
 	_, err = tx.Exec(ctx, order)
 	if err != nil {
 		// если ошибка, то откатываем изменения
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.UniqueViolation {
+			log.Printf("metric %s already exists", mname)
+		}
+
 		fmt.Printf("bad tx.exec %s %v\n", mname, err)
 		tx.Rollback(ctx)
 	}

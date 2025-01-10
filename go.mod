@@ -11,6 +11,9 @@ require (
 	golang.org/x/text v0.21.0 // indirect
 )
 
-require internal/dbaser v1.0.0
+require (
+	github.com/jackc/pgerrcode v0.0.0-20240316143900-6e2875d9b438
+	internal/dbaser v1.0.0
+)
 
 replace internal/dbaser => ./internal/dbaser
