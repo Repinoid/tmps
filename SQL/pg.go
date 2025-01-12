@@ -49,7 +49,7 @@ func main() {
 		fmt.Printf("error ...  %[1]v", err)
 	}
 	m := map[string]float64{}
-	err = TableWrapper[float64](dbaser.TableGetAllTables)(ctx, db, &m)
+	err = TableWrapper[float64](dbaser.TableGetAllGauges)(ctx, db, &m)
 	//err = fu(ctx, db, &m)
 	//	err = TableWrapper(dbaser.TableGetAllCounters(ctx, db, &m))
 	//err = dbaser.TableGetAllCounters(ctx, db, &m)
