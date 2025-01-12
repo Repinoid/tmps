@@ -5,12 +5,15 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"internal/dbaser"
 
 	"github.com/jackc/pgx/v5"
 	//	"github.com/jackc/pgx"
 )
+
+var AttemptDelays = []int{1, 3, 5}
 
 type gauge = dbaser.Gauge
 type counter = dbaser.Counter
@@ -46,7 +49,7 @@ func main() {
 		fmt.Printf("error ...  %[1]v", err)
 	}
 	m := map[string]float64{}
-	err = TableWrapper[float64](dbaser.TableGetAllCounters)(ctx, db, &m)
+	err = TableWrapper[float64](dbaser.TableGetAllTables)(ctx, db, &m)
 	//err = fu(ctx, db, &m)
 	//	err = TableWrapper(dbaser.TableGetAllCounters(ctx, db, &m))
 	//err = dbaser.TableGetAllCounters(ctx, db, &m)
@@ -55,21 +58,31 @@ func main() {
 	}
 	fmt.Println(len(m))
 	mi := map[string]int64{}
-	err = TableWrapper[int64](dbaser.TableGetAllCounters)(ctx, db, &mi)
+	err = TableWrapper[int64](dbaser.TableGetAllTables)(ctx, db, &mi)
 	if err != nil {
 		log.Printf("bad allgauges\n %v\n", err)
 	}
 	fmt.Println("countr", len(mi))
 }
+
 //func TableGetAllCounters[T Number](ctx context.Context, db *pgx.Conn, mappa *map[string]T) error
 
-func TableWrapper[T dbaser.Number](origFunc func(ctx context.Context, db *pgx.Conn, mappa *(map[string]T)) error) func(ctx context.Context,
-	db *pgx.Conn, mappa *(map[string]T)) error {
+func TableWrapper[MV dbaser.MetricValueTypes](origFunc func(ctx context.Context, db *pgx.Conn, mappa *(map[string]MV)) error) func(ctx context.Context,
+	db *pgx.Conn, mappa *(map[string]MV)) error {
+	wrappedFunc := func(ctx context.Context, db *pgx.Conn, mappa *(map[string]MV)) error {
 
-	// wra := func(ctx context.Context, db *pgx.Conn) (map[string]int64, error) {
-	// 	return origFunc(ctx, db)
-	// }
-	fmt.Println("wrapped !")
-	return origFunc
+		err := origFunc(ctx, db, mappa)
+		if err != nil {
+			for _, delay := range AttemptDelays {
+				time.Sleep(time.Duration(delay) * time.Second)
+				if err = origFunc(ctx, db, mappa); err == nil {
+					break
+				}
+				fmt.Println(delay, " wrapped !")
+			}
+		}
+		return err
+	}
+	return wrappedFunc
 
 }

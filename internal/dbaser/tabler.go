@@ -9,41 +9,39 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-type Number interface {
-	int64 | float64 // Может быть int или float64.
+type MetricValueTypes interface {
+	int64 | float64 
 }
 
-func TableGetAllCounters[T Number](ctx context.Context, db *pgx.Conn, mappa *map[string]T) error {
-	//func TableGetAllCounters[ctx context.Context, db *pgx.Conn, T Number] error {
-	var value T
+func TableGetAllTables[MV MetricValueTypes](ctx context.Context, db *pgx.Conn, mappa *map[string]MV) error {
+	var value MV
 	var str string
-
 	inTypeStr := reflect.TypeOf(mappa).String()
-	//	fmt.Println(inTypeStr)
-
 	var zapros string
+
 	switch inTypeStr {
 	case "*map[string]int64":
 		zapros = "SELECT * FROM counter;"
 	case "*map[string]float64":
-		zapros = "SELECT * FROM gauge;"
+		zapros = "SELECT * FROM gauge1;"
 	default:
 		return fmt.Errorf("wrong value type. %s ", inTypeStr)
 	}
 	rows, err := db.Query(ctx, zapros)
 	if err != nil {
-		return fmt.Errorf("error Query %[2]s:%[3]d database  %[1]w", err, db.Config().Host, db.Config().Port)
+		return fmt.Errorf("error Query %[2]s:%[3]d  %[1]w", err, db.Config().Host, db.Config().Port)
 	}
 	for rows.Next() {
 		err = rows.Scan(&str, &value)
 		if err != nil {
-			return fmt.Errorf("error counter table Scan %[2]s:%[3]d database\n%[1]w", err, db.Config().Host, db.Config().Port)
+			return fmt.Errorf("error table Scan %[2]s:%[3]d  %[1]w", err, db.Config().Host, db.Config().Port)
 		}
 
 		(*mappa)[str] = value
 	}
 	return nil
 }
+
 func TableGetAllGauges(ctx context.Context, db *pgx.Conn, mappa *(map[string]float64)) error {
 	var flo float64
 	var str string
