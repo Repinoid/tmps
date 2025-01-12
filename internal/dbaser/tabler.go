@@ -19,7 +19,7 @@ func TableGetAllCounters[T Number](ctx context.Context, db *pgx.Conn, mappa *map
 	var str string
 
 	inTypeStr := reflect.TypeOf(mappa).String()
-	fmt.Println(inTypeStr)
+	//	fmt.Println(inTypeStr)
 
 	var zapros string
 	switch inTypeStr {

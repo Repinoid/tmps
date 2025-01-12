@@ -46,25 +46,25 @@ func main() {
 		fmt.Printf("error ...  %[1]v", err)
 	}
 	m := map[string]float64{}
-//	err = TableWrapper(dbaser.TableGetAllCounters(ctx, db, &m))
-	err = dbaser.TableGetAllCounters(ctx, db, &m)
+	err = TableWrapper[float64](dbaser.TableGetAllCounters)(ctx, db, &m)
+	//err = fu(ctx, db, &m)
+	//	err = TableWrapper(dbaser.TableGetAllCounters(ctx, db, &m))
+	//err = dbaser.TableGetAllCounters(ctx, db, &m)
 	if err != nil {
 		log.Printf("bad allgauges\n %v\n", err)
 	}
 	fmt.Println(len(m))
 	mi := map[string]int64{}
-	err = dbaser.TableGetAllCounters(ctx, db, &mi)
+	err = TableWrapper[int64](dbaser.TableGetAllCounters)(ctx, db, &mi)
 	if err != nil {
 		log.Printf("bad allgauges\n %v\n", err)
 	}
 	fmt.Println("countr", len(mi))
 }
-type Number interface {
-	int64 | float64 // Может быть int или float64.
-}
+//func TableGetAllCounters[T Number](ctx context.Context, db *pgx.Conn, mappa *map[string]T) error
 
-func TableWrapper[T Number](origFunc func(ctx context.Context, db *pgx.Conn,
-	mappa *(map[string]T)) error) func(ctx context.Context, db *pgx.Conn, mappa *(map[string]T)) error {
+func TableWrapper[T dbaser.Number](origFunc func(ctx context.Context, db *pgx.Conn, mappa *(map[string]T)) error) func(ctx context.Context,
+	db *pgx.Conn, mappa *(map[string]T)) error {
 
 	// wra := func(ctx context.Context, db *pgx.Conn) (map[string]int64, error) {
 	// 	return origFunc(ctx, db)
