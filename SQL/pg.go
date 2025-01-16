@@ -5,13 +5,20 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync"
 	"time"
 
-	"internal/dbaser"
+	"oppa/internal/dbaser"
 
 	"github.com/jackc/pgx/v5"
 	//	"github.com/jackc/pgx"
 )
+
+type MemStorage struct {
+	Gaugemetr map[string]gauge
+	Countmetr map[string]counter
+	Mutter    sync.RWMutex
+}
 
 var AttemptDelays = []int{1, 3, 5}
 
@@ -48,8 +55,16 @@ func main() {
 	if err != nil {
 		fmt.Printf("error ...  %[1]v", err)
 	}
-	m := map[string]float64{}
-	err = TableWrapper[float64](dbaser.TableGetAllGauges)(ctx, db, &m)
+	flo := 6.5
+	meme := dbaser.Metrics{ID: "hz", MType: "gauge", Delta: nil, Value: &flo}
+	err = dbaser.TableOnSert(ctx, db, meme)
+	if err != nil {
+		log.Printf("bad ONSERT\n %v\n", err)
+	}
+
+
+	m := []dbaser.Metrics{}
+	err = dbaser.TableGetAllTables(ctx, db, &m)
 	//err = fu(ctx, db, &m)
 	//	err = TableWrapper(dbaser.TableGetAllCounters(ctx, db, &m))
 	//err = dbaser.TableGetAllCounters(ctx, db, &m)
@@ -57,12 +72,12 @@ func main() {
 		log.Printf("bad allgauges\n %v\n", err)
 	}
 	fmt.Println(len(m))
-	mi := map[string]int64{}
-	err = TableWrapper[int64](dbaser.TableGetAllTables)(ctx, db, &mi)
-	if err != nil {
-		log.Printf("bad allgauges\n %v\n", err)
-	}
-	fmt.Println("countr", len(mi))
+	// mi := map[string]int64{}
+	// err = TableWrapper[int64](dbaser.TableGetAllTables)(ctx, db, &mi)
+	// if err != nil {
+	// 	log.Printf("bad allgauges\n %v\n", err)
+	// }
+	// fmt.Println("countr", len(mi))
 }
 
 //func TableGetAllCounters[T Number](ctx context.Context, db *pgx.Conn, mappa *map[string]T) error

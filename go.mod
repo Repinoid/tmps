@@ -1,6 +1,6 @@
-module main
+module oppa
 
-go 1.22.3
+go 1.23.2
 
 require github.com/jackc/pgx/v5 v5.7.2
 
@@ -10,7 +10,3 @@ require (
 	golang.org/x/crypto v0.31.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 )
-
-require internal/dbaser v1.0.0
-
-replace internal/dbaser => ./internal/dbaser

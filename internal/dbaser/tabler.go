@@ -4,44 +4,58 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"reflect"
 
 	"github.com/jackc/pgx/v5"
 )
 
 type MetricValueTypes interface {
-	int64 | float64 
+	int64 | float64
+}
+type Metrics struct {
+	ID    string   `json:"id"`              // имя метрики
+	MType string   `json:"type"`            // параметр, принимающий значение gauge или counter
+	Delta *int64   `json:"delta,omitempty"` // значение метрики в случае передачи counter
+	Value *float64 `json:"value,omitempty"` // значение метрики в случае передачи gauge
 }
 
-func TableGetAllTables[MV MetricValueTypes](ctx context.Context, db *pgx.Conn, mappa *map[string]MV) error {
-	var value MV
-	var str string
-	inTypeStr := reflect.TypeOf(mappa).String()
-	var zapros string
+func TableOnSert(ctx context.Context, db *pgx.Conn, metr Metrics) error {
 
-	switch inTypeStr {
-	case "*map[string]int64":
-		zapros = "SELECT * FROM counter;"
-	case "*map[string]float64":
-		zapros = "SELECT * FROM gauge1;"
-	default:
-		return fmt.Errorf("wrong value type. %s ", inTypeStr)
+	order := fmt.Sprintf("INSERT INTO Gauge(metricname, value) VALUES ('%[1]s',%[2]g) ", metr.ID, *metr.Value)
+	order += fmt.Sprintf("ON CONFLICT (metricname) DO UPDATE SET metricname='%[1]s', value=%[2]g;", metr.ID, *metr.Value)
+	tag1, err := db.Exec(ctx, order)
+	if err == nil {
+		return nil
 	}
+	return fmt.Errorf("error UPDATE Gauge %s with %g value. Tag is \"%s\" error is %w",
+		metr.ID, *metr.Value, tag1.String(), err)
+
+}
+func TableGetAllTables(ctx context.Context, db *pgx.Conn, metro *([]Metrics)) error {
+	zapros := `select 'counter' AS metrictype, metricname AS name, null AS value, value AS delta from counter
+		UNION
+	select 'gauge' AS metrictype, metricname as name, value as value, null as delta from gauge
+	`
+	var inta int64
+	var flo float64
+	metr := Metrics{ID: "", MType: "", Value: &flo, Delta: &inta}
+
 	rows, err := db.Query(ctx, zapros)
 	if err != nil {
 		return fmt.Errorf("error Query %[2]s:%[3]d  %[1]w", err, db.Config().Host, db.Config().Port)
 	}
 	for rows.Next() {
-		err = rows.Scan(&str, &value)
+		err = rows.Scan(&metr.MType, &metr.ID, &metr.Value, &metr.Delta)
 		if err != nil {
 			return fmt.Errorf("error table Scan %[2]s:%[3]d  %[1]w", err, db.Config().Host, db.Config().Port)
 		}
-
-		(*mappa)[str] = value
+		(*metro) = append((*metro), metr)
+	}
+	if err:= rows.Err(); err != nil {
+		return err
 	}
 	return nil
 }
-
+//-------------------------------------------------------------------------------------------------------------
 func TableGetAllGauges(ctx context.Context, db *pgx.Conn, mappa *(map[string]float64)) error {
 	var flo float64
 	var str string
