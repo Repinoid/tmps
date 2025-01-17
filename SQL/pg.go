@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"sync"
-	"time"
 
 	"oppa/internal/dbaser"
 
@@ -24,6 +23,7 @@ var AttemptDelays = []int{1, 3, 5}
 
 type gauge = dbaser.Gauge
 type counter = dbaser.Counter
+type Metrics = dbaser.Metrics
 
 func main() {
 	ctx := context.Background()
@@ -33,10 +33,6 @@ func main() {
 
 	//url = "postgres://postgres:passwordas@forgo.c7wegmiakpkw.us-west-1.rds.amazonaws.com:5432/forgo"
 	url = "postgres://postgres:passwordas@localhost:5432/forgo"
-	//	postgres://postgres:mypassword@rds-postgres.xxxxx.amazonaws.com:5432
-	//	postgres://postgres:zalupa77@rds-postgres.xxxxx.amazonaws.com:5432
-
-	//db, err := sql.Open("pgx", url)
 
 	db, err := pgx.Connect(ctx, url)
 	if err != nil {
@@ -45,59 +41,59 @@ func main() {
 	}
 	defer db.Close(ctx)
 
-	gamap := map[string]gauge{"one": 1.11, "two2": 2.22, "tri3": 3.33}
-	err = dbaser.TableBunchGauges(ctx, db, gamap)
+	var intGag int64 = 6
+	var floatGag float64 = 6.77777777777
+
+	metrga := Metrics{ID: "aname3", MType: "gauge", Value: &floatGag}
+	metrco := Metrics{ID: "aname1", MType: "counter", Delta: &intGag}
+
+	me := []Metrics{metrga, metrco}
+	err = dbaser.TableBuncher(ctx, db, &me)
 	if err != nil {
-		fmt.Printf("error ...  %[1]v", err)
+		log.Printf("bad bunch\n %v\n", err)
 	}
-	comap := map[string]counter{"one": 1, "two2": 2, "tri3": 3}
-	err = dbaser.TableBunchCounters(ctx, db, comap)
-	if err != nil {
-		fmt.Printf("error ...  %[1]v", err)
-	}
+
 	flo := 6.5
 	meme := dbaser.Metrics{ID: "hz", MType: "gauge", Delta: nil, Value: &flo}
-	err = dbaser.TableOnSert(ctx, db, meme)
+	err = dbaser.TableUpSert(ctx, db, &meme)
+	if err != nil {
+		log.Printf("bad ONSERT\n %v\n", err)
+	}
+	meme = dbaser.Metrics{ID: "hzz", MType: "counter", Delta: &intGag, Value: nil}
+	err = dbaser.TableUpSert(ctx, db, &meme)
 	if err != nil {
 		log.Printf("bad ONSERT\n %v\n", err)
 	}
 
-
 	m := []dbaser.Metrics{}
 	err = dbaser.TableGetAllTables(ctx, db, &m)
-	//err = fu(ctx, db, &m)
-	//	err = TableWrapper(dbaser.TableGetAllCounters(ctx, db, &m))
-	//err = dbaser.TableGetAllCounters(ctx, db, &m)
 	if err != nil {
 		log.Printf("bad allgauges\n %v\n", err)
 	}
 	fmt.Println(len(m))
-	// mi := map[string]int64{}
-	// err = TableWrapper[int64](dbaser.TableGetAllTables)(ctx, db, &mi)
-	// if err != nil {
-	// 	log.Printf("bad allgauges\n %v\n", err)
-	// }
-	// fmt.Println("countr", len(mi))
-}
 
-//func TableGetAllCounters[T Number](ctx context.Context, db *pgx.Conn, mappa *map[string]T) error
-
-func TableWrapper[MV dbaser.MetricValueTypes](origFunc func(ctx context.Context, db *pgx.Conn, mappa *(map[string]MV)) error) func(ctx context.Context,
-	db *pgx.Conn, mappa *(map[string]MV)) error {
-	wrappedFunc := func(ctx context.Context, db *pgx.Conn, mappa *(map[string]MV)) error {
-
-		err := origFunc(ctx, db, mappa)
-		if err != nil {
-			for _, delay := range AttemptDelays {
-				time.Sleep(time.Duration(delay) * time.Second)
-				if err = origFunc(ctx, db, mappa); err == nil {
-					break
-				}
-				fmt.Println(delay, " wrapped !")
-			}
-		}
-		return err
+	alloc := Metrics{ID: "Alloc", MType: "gauge"}
+	err = dbaser.TableGetMetric(ctx, db, &alloc)
+	if err != nil {
+		log.Printf("bad GET alloc %v\n", err)
 	}
-	return wrappedFunc
+	fmt.Printf("alloc %+v  value %f\n", alloc, *alloc.Value)
+	poll := Metrics{ID: "PollCount", MType: "counter"}
+	err = dbaser.TableGetMetric(ctx, db, &poll)
+	if err != nil {
+		log.Printf("bad GET alloc %v\n", err)
+	}
+	fmt.Printf("alloc %+v  value %d\n", poll, *poll.Delta)
 
+	i, err := dbaser.TableGetCounter(ctx, db, "aname1")
+	if err != nil {
+		log.Printf("bad GET\n %v\n", err)
+	}
+	fmt.Println(i)
+
+	f, err := dbaser.TableGetGauge(ctx, db, "aname3")
+	if err != nil {
+		log.Printf("bad GET\n %v\n", err)
+	}
+	fmt.Println(f)
 }
