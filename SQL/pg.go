@@ -10,7 +10,6 @@ import (
 	"oppa/internal/dbaser"
 
 	"github.com/jackc/pgx/v5"
-	//	"github.com/jackc/pgx"
 )
 
 type MemStorage struct {
@@ -27,12 +26,9 @@ type Metrics = dbaser.Metrics
 
 func main() {
 	ctx := context.Background()
-	url := os.Getenv("DATABASE_DSN")
-
-	url, _ = os.LookupEnv("DATABASE_DSN")
 
 	//url = "postgres://postgres:passwordas@forgo.c7wegmiakpkw.us-west-1.rds.amazonaws.com:5432/forgo"
-	url = "postgres://postgres:passwordas@localhost:5432/forgo"
+	url := "postgres://postgres:passwordas@localhost:5432/forgo"
 
 	db, err := pgx.Connect(ctx, url)
 	if err != nil {
@@ -42,7 +38,7 @@ func main() {
 	defer db.Close(ctx)
 
 	var intGag int64 = 6
-	var floatGag float64 = 6.77777777777
+	var floatGag float64 = 345.345
 
 	metrga := Metrics{ID: "aname3", MType: "gauge", Value: &floatGag}
 	metrco := Metrics{ID: "aname1", MType: "counter", Delta: &intGag}
