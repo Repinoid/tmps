@@ -28,6 +28,7 @@ func main() {
 	ctx := context.Background()
 
 	//url = "postgres://postgres:passwordas@forgo.c7wegmiakpkw.us-west-1.rds.amazonaws.com:5432/forgo"
+
 	url := "postgres://postgres:passwordas@localhost:5432/forgo"
 
 	db, err := pgx.Connect(ctx, url)
@@ -80,16 +81,18 @@ func main() {
 		log.Printf("bad GET alloc %v\n", err)
 	}
 	fmt.Printf("alloc %+v  value %d\n", poll, *poll.Delta)
-
-	i, err := dbaser.TableGetCounter(ctx, db, "aname1")
+	
+	poll = Metrics{ID: "aname1", MType: "counter"}
+	err = dbaser.TableGetMetric(ctx, db, &poll)
 	if err != nil {
 		log.Printf("bad GET\n %v\n", err)
 	}
-	fmt.Println(i)
-
-	f, err := dbaser.TableGetGauge(ctx, db, "aname3")
+	fmt.Println(*poll.Delta)
+	
+	poll = Metrics{ID: "aname3", MType: "gauge"}
+	err = dbaser.TableGetMetric(ctx, db, &poll)
 	if err != nil {
 		log.Printf("bad GET\n %v\n", err)
 	}
-	fmt.Println(f)
+	fmt.Println(*poll.Value)
 }

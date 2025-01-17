@@ -8,13 +8,23 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
+type Metrics struct {
+	ID    string   `json:"id"`              // имя метрики
+	MType string   `json:"type"`            // параметр, принимающий значение gauge или counter
+	Delta *int64   `json:"delta,omitempty"` // значение метрики в случае передачи counter
+	Value *float64 `json:"value,omitempty"` // значение метрики в случае передачи gauge
+}
+type Gauge float64
+type Counter int64
+
+
 func TableCreation(ctx context.Context, db *pgx.Conn) error {
-	crea := "CREATE TABLE IF NOT EXISTS Gauge(metricname VARCHAR(30) PRIMARY KEY, value FLOAT8);"
+	crea := "CREATE TABLE IF NOT EXISTS Gauge(metricname VARCHAR(50) PRIMARY KEY, value FLOAT8);"
 	tag, err := db.Exec(ctx, crea)
 	if err != nil {
 		return fmt.Errorf("error create Gauge table. Tag is \"%s\" error is %w", tag.String(), err)
 	}
-	crea = "CREATE TABLE IF NOT EXISTS Counter(metricname VARCHAR(30) PRIMARY KEY, value BIGINT);"
+	crea = "CREATE TABLE IF NOT EXISTS Counter(metricname VARCHAR(50) PRIMARY KEY, value BIGINT);"
 	tag, err = db.Exec(ctx, crea)
 	if err != nil {
 		return fmt.Errorf("error create Counter table. Tag is \"%s\" error is %w", tag.String(), err)
@@ -99,8 +109,7 @@ func TableBuncher(ctx context.Context, db *pgx.Conn, metras *[]Metrics) error {
 		}
 		_, err := tx.Exec(ctx, order)
 		if err != nil {
-			log.Printf("error put %+v. error is %v",
-				metr, err)
+			log.Printf("error put %+v. error is %v", metr, err)
 		}
 	}
 	return tx.Commit(ctx)
@@ -128,7 +137,7 @@ func TableGetAllTables(ctx context.Context, db *pgx.Conn, metras *[]Metrics) err
 		*metras = append(*metras, metr)
 	}
 	if err := rows.Err(); err != nil {
-		return err
+		return fmt.Errorf("err := rows.Err()  %w", err)
 	}
 	return nil
 }
