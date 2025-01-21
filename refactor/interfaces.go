@@ -3,33 +3,40 @@ package main
 import "fmt"
 
 type Inter interface {
-	getty()
-	putty()
+	getty(a *int, b *string)
+//	putty()
 }
 
 type mem struct {
 	a int
 }
 type baz struct {
-	a int
+	b int
 }
 
-func (t mem) getty() {
-	fmt.Println("mem ", t.a)
+func (t mem) getty(a *int,  b *string) {
+	fmt.Println("mem ", *a, b)
 }
-func (t mem) putty() {
-	fmt.Println("mem ", t.a)
-}
-func (t baz) getty() {
-	fmt.Println("baz ", t.a)
+// func (t mem) putty() {
+// 	fmt.Println("mem ", t.a)
+// }
+// func (t baz) putty() {
+// 	fmt.Println("mem ", t.b)
+// }
+
+func (t baz) getty(a *int,  b *string) {
+	fmt.Println("baz ", *b)
 }
 
 func main() {
 	var v Inter
 
+	i := 3
+	str := "qwerty"
+
 	v = mem{}
-	v.getty()
+	v.getty(&i, nil)
 	v = baz{}
-	v.getty()
+	v.getty(nil, &str)
 
 }

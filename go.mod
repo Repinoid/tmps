@@ -1,35 +1,19 @@
 module oppa
 
-go 1.22
+go 1.22.0
+
+toolchain go1.22.3
 
 require github.com/jackc/pgx/v5 v5.7.2
 
 require (
-	github.com/cilium/ebpf v0.17.1 // indirect
-	github.com/cosiner/argv v0.1.0 // indirect
-	github.com/cpuguy83/go-md2man/v2 v2.0.6 // indirect
-	github.com/derekparker/trie v0.0.0-20230829180723-39f4de51ef7d // indirect
-	github.com/go-delve/delve v1.24.0 // indirect
-	github.com/go-delve/liner v1.2.3-0.20231231155935-4726ab1d7f62 // indirect
-	github.com/google/go-dap v0.12.0 // indirect
-	github.com/hashicorp/golang-lru v1.0.2 // indirect
-	github.com/inconshreveable/mousetrap v1.1.0 // indirect
-	github.com/mattn/go-colorable v0.1.14 // indirect
-	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/mattn/go-runewidth v0.0.16 // indirect
+	github.com/cockroachdb/apd v1.1.0 // indirect
+	github.com/gofrs/uuid v4.4.0+incompatible // indirect
+	github.com/jackc/fake v0.0.0-20150926172116-812a484cc733 // indirect
+	github.com/lib/pq v1.10.9 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/rivo/uniseg v0.4.7 // indirect
-	github.com/russross/blackfriday/v2 v2.1.0 // indirect
-	github.com/sirupsen/logrus v1.9.3 // indirect
-	github.com/spf13/cobra v1.8.1 // indirect
-	github.com/spf13/pflag v1.0.5 // indirect
-	go.starlark.net v0.0.0-20241226192728-8dfa5b98479f // indirect
-	golang.org/x/arch v0.13.0 // indirect
-	golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8 // indirect
-	golang.org/x/sync v0.10.0 // indirect
-	golang.org/x/sys v0.29.0 // indirect
-	golang.org/x/telemetry v0.0.0-20250105011419-6d9ea865d014 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
+	github.com/shopspring/decimal v1.4.0 // indirect
+	github.com/stretchr/testify v1.8.4 // indirect
 )
 
 require (
