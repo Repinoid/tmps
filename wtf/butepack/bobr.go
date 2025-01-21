@@ -1,77 +1,50 @@
 package main
 
 import (
-	"crypto/aes"
-	"crypto/cipher"
+	"crypto/hmac"
 	"crypto/rand"
+	"crypto/sha256"
 
 	//	"encoding/base64"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 )
 
 func main() {
 
+	controlMetric := Metrics{MType: "gauge", ID: "Alloc", Value: Ptr[float64](78)}
+//	cmMarshalled, _ := json.Marshal(controlMetric)
+	controlMetric1 := Metrics{MType: "gauge", ID: "Alloc", Value: Ptr[float64](77)}
+//	cmMarshalled1, _ := json.Marshal(controlMetric1)
+
+	bunch := []Metrics{controlMetric, controlMetric1}
+	bunchOnMarsh, _ := json.Marshal(bunch)
+
+
+	//secret := "This is my password"
+
 	//generate a random 32 byte key
 	key, _ := GenerateRandomKey()
 
+	h := hmac.New(sha256.New, []byte(key))
+	h.Write(bunchOnMarsh)
+	dst := h.Sum(nil)
+	fmt.Printf("\nsha ! %x LEN %d\n", dst, len(dst))
+
 	//your secret text
-	secret := "This is my password"
 
 	//encryption
-	encrypted, _ := encrypt(secret, key)
-	fmt.Printf("encrypted data: %s\n", encrypted)
+	encrypted, _ := encryptS2B(string(bunchOnMarsh), key)
+	enhex := fmt.Sprintf("%x", encrypted)
+	fmt.Printf("encrypted data: %s\n", enhex)
 
 	//decryption
-	decrypted, _ := decrypt((encrypted), (key))
+	decrypted, _ := decryptS2S(enhex, (key))
 	fmt.Printf("decrypted data: %s\n", decrypted)
 }
 
-func encrypt(stringToEncrypt string, keyString string) (encryptedString string, err error) {
-	key, err := hex.DecodeString(keyString)
-	if err != nil {
-		return "", err
-	}
-	plaintext := []byte(stringToEncrypt)
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		return "", err
-	}
-	aesGCM, err := cipher.NewGCM(block)
-	if err != nil {
-		return "", err
-	}
-	nonce, _ := RandBytes(aesGCM.NonceSize())
-	ciphertext := aesGCM.Seal(nonce, nonce, plaintext, nil)
-	return fmt.Sprintf("%x", ciphertext), nil
-}
-
-func decrypt(encryptedString, keyString string) (decryptedString string, err error) {
-
-	key, err := hex.DecodeString(keyString) // hex.DecodeString(text)
-	if err != nil {
-		return "", err
-	}
-	enc, err := hex.DecodeString(encryptedString)
-	if err != nil {
-		return "", err
-	}
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		return "", err
-	}
-	aesGCM, err := cipher.NewGCM(block)
-	if err != nil {
-		return "", err
-	}
-	nonceSize := aesGCM.NonceSize()
-	nonce, ciphertext := enc[:nonceSize], enc[nonceSize:]
-	plaintext, err := aesGCM.Open(nil, nonce, ciphertext, nil)
-	if err != nil {
-		return "", err
-	}
-	return string(plaintext), nil
-}
+// func encrypt(stringToEncrypt string, keyString string) (encryptedString string, err error) {
 
 // generate a random 32 byte key
 func GenerateRandomKey() (string, error) {
