@@ -1,12 +1,9 @@
 package main
 
 import (
-	"crypto/hmac"
-	"crypto/rand"
-	"crypto/sha256"
 
 	//	"encoding/base64"
-	"encoding/hex"
+
 	"encoding/json"
 	"fmt"
 )
@@ -24,12 +21,8 @@ func main() {
 	//key, _ := GenerateByteKey()
 	keyB, _ := RandBytes(32)
 
-	ade := []byte("12345")
-	h := hmac.New(sha256.New, keyB) // New returns a new HMAC hash using the given hash.Hash type and key.
-	h.Write(bunchOnMarsh)           // func (hash.Hash) Sum(b []byte) []byte
-	dst := h.Sum(ade)               //Sum appends the current hash to b and returns the resulting slice. It does not change the underlying hash state.
+	dst := makeHash(nil, bunchOnMarsh, keyB)
 	fmt.Printf("\nsha ! %x LEN %d\n", dst, len(dst))
-	fmt.Printf("\nade %s\n", dst[:5])
 
 	//your secret textB
 
@@ -44,31 +37,28 @@ func main() {
 	decrypted, _ := decryptB2B(encrypted, keyB)
 	fmt.Printf("decrypted data: %s\n", decrypted)
 
-	
 	err := json.Unmarshal(decrypted, &bu)
 	fmt.Printf("metr %+v err %v\n", bu, err)
 }
+func Ptr[PP int64 | float64](w PP) *PP {
+	i := w
+	return &i
+}
+
+type Metrics struct {
+	ID    string   `json:"id"`              // имя метрики
+	MType string   `json:"type"`            // параметр, принимающий значение gauge или counter
+	Delta *int64   `json:"delta,omitempty"` // значение метрики в случае передачи counter
+	Value *float64 `json:"value,omitempty"` // значение метрики в случае передачи gauge
+}
+type Gauge float64
+type Counter int64
 
 // func encrypt(stringToEncrypt string, keyString string) (encryptedString string, err error) {
 
 // generate a random 32 byte key
-func GenerateRandomKey() (string, error) {
-	b, _ := RandBytes(32)
-	key := hex.EncodeToString(b)
-	return key, nil
-}
-func GenerateByteKey() (byteKey []byte, err error) {
-	rb, err := RandBytes(32)
-	byteKey = make([]byte, len(rb)*2)
-	n := hex.Encode(byteKey, rb)
-	return byteKey[:n], err
-}
-func RandBytes(n int) ([]byte, error) {
-	b := make([]byte, n)
-	_, err := rand.Read(b)
-	if err != nil {
-		return nil, err
-	}
-	return b, nil
-	//  return base64.StdEncoding.EncodeToString(b), nil
-}
+// func GenerateRandomKey() (string, error) {
+// 	b, _ := RandBytes(32)
+// 	key := hex.EncodeToString(b)
+// 	return key, nil
+// }

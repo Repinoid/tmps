@@ -3,30 +3,13 @@ package main
 import (
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/hmac"
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/hex"
 )
 
-func Ptr[PP int64 | float64](w PP) *PP {
-	i := w
-	return &i
-}
-
-type Metrics struct {
-	ID    string   `json:"id"`              // имя метрики
-	MType string   `json:"type"`            // параметр, принимающий значение gauge или counter
-	Delta *int64   `json:"delta,omitempty"` // значение метрики в случае передачи counter
-	Value *float64 `json:"value,omitempty"` // значение метрики в случае передачи gauge
-}
-type Gauge float64
-type Counter int64
-
 func encryptB2B(bytesToEncrypt, key []byte) (encryptedString []byte, err error) {
-	// key := make([]byte, len(keyByte))
-	// n, err := hex.Decode(key, keyByte)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	//plaintext := []byte(stringToEncrypt)
-
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
@@ -37,10 +20,8 @@ func encryptB2B(bytesToEncrypt, key []byte) (encryptedString []byte, err error) 
 	}
 	nonce, _ := RandBytes(aesGCM.NonceSize())
 	ciphertext := aesGCM.Seal(nonce, nonce, bytesToEncrypt, nil)
-	//	return fmt.Sprintf("%x", ciphertext), nil
 	return ciphertext, nil
 }
-
 func decryptB2B(encrypted, key []byte) (decrypted []byte, err error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -57,4 +38,25 @@ func decryptB2B(encrypted, key []byte) (decrypted []byte, err error) {
 		return nil, err
 	}
 	return plaintext, nil
+}
+func GenerateByteKey() (byteKey []byte, err error) {
+	rb, err := RandBytes(32)
+	byteKey = make([]byte, len(rb)*2)
+	n := hex.Encode(byteKey, rb)
+	return byteKey[:n], err
+}
+func RandBytes(n int) ([]byte, error) {
+	b := make([]byte, n)
+	_, err := rand.Read(b)
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+func makeHash(prior, data, keyB []byte) []byte {
+	h := hmac.New(sha256.New, keyB) // New returns a new HMAC hash using the given hash.Hash type and key.
+	h.Write(data)                   // func (hash.Hash) Sum(b []byte) []byte
+	dst := h.Sum(prior)             //Sum appends the current hash to b and returns the resulting slice. It does not change the underlying hash state.
+	return dst
+
 }
