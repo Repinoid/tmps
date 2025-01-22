@@ -42,15 +42,6 @@ func encryptB2B(bytesToEncrypt, key []byte) (encryptedString []byte, err error) 
 }
 
 func decryptB2B(encrypted, key []byte) (decrypted []byte, err error) {
-
-	// key, err := hex.DecodeString(keyString) // hex.DecodeString(text)
-	// if err != nil {
-	// 	return "", err
-	// }
-	// enc, err := hex.DecodeString(encryptedString)
-	// if err != nil {
-	// 	return "", err
-	// }
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err

@@ -38,10 +38,15 @@ func main() {
 	enhex := fmt.Sprintf("%x", encrypted)
 	fmt.Printf("encrypted data: %s\n", enhex)
 
+	bu := []Metrics{}
 	//decryption
 	//decrypted, _ := decryptS2S(enhex, string(keyB))
 	decrypted, _ := decryptB2B(encrypted, keyB)
 	fmt.Printf("decrypted data: %s\n", decrypted)
+
+	
+	err := json.Unmarshal(decrypted, &bu)
+	fmt.Printf("metr %+v err %v\n", bu, err)
 }
 
 // func encrypt(stringToEncrypt string, keyString string) (encryptedString string, err error) {
