@@ -3,7 +3,6 @@ package main
 import (
 	"crypto/aes"
 	"crypto/cipher"
-	"encoding/hex"
 )
 
 func Ptr[PP int64 | float64](w PP) *PP {
@@ -20,13 +19,13 @@ type Metrics struct {
 type Gauge float64
 type Counter int64
 
-
-func encryptS2B(stringToEncrypt string, keyString string) (encryptedString []byte, err error) {
-	key, err := hex.DecodeString(keyString)
-	if err != nil {
-		return nil, err
-	}
-	plaintext := []byte(stringToEncrypt)
+func encryptB2B(bytesToEncrypt, key []byte) (encryptedString []byte, err error) {
+	// key := make([]byte, len(keyByte))
+	// n, err := hex.Decode(key, keyByte)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	//plaintext := []byte(stringToEncrypt)
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -37,34 +36,34 @@ func encryptS2B(stringToEncrypt string, keyString string) (encryptedString []byt
 		return nil, err
 	}
 	nonce, _ := RandBytes(aesGCM.NonceSize())
-	ciphertext := aesGCM.Seal(nonce, nonce, plaintext, nil)
+	ciphertext := aesGCM.Seal(nonce, nonce, bytesToEncrypt, nil)
 	//	return fmt.Sprintf("%x", ciphertext), nil
 	return ciphertext, nil
 }
 
-func decryptS2S(encryptedString, keyString string) (decryptedString string, err error) {
+func decryptB2B(encrypted, key []byte) (decrypted []byte, err error) {
 
-	key, err := hex.DecodeString(keyString) // hex.DecodeString(text)
-	if err != nil {
-		return "", err
-	}
-	enc, err := hex.DecodeString(encryptedString)
-	if err != nil {
-		return "", err
-	}
+	// key, err := hex.DecodeString(keyString) // hex.DecodeString(text)
+	// if err != nil {
+	// 	return "", err
+	// }
+	// enc, err := hex.DecodeString(encryptedString)
+	// if err != nil {
+	// 	return "", err
+	// }
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	aesGCM, err := cipher.NewGCM(block)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	nonceSize := aesGCM.NonceSize()
-	nonce, ciphertext := enc[:nonceSize], enc[nonceSize:]
+	nonce, ciphertext := encrypted[:nonceSize], encrypted[nonceSize:]
 	plaintext, err := aesGCM.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return string(plaintext), nil
+	return plaintext, nil
 }
