@@ -17,10 +17,6 @@ func ConnectUsersTable(ctx context.Context, dbEndPoint string) (*DBstruct, error
 	if err != nil {
 		return nil, fmt.Errorf("can't connect to DB %s err %w", dbEndPoint, err)
 	}
-	// err = dataBase.UsersTableCreation(ctx)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("can't create tables in DB %s err %w", dbEndPoint, err)
-	// }
 	dataBase.DB = baza
 	return dataBase, nil
 }
@@ -41,7 +37,7 @@ func (dataBase *DBstruct) AddUser(ctx context.Context, userName string, password
 	order := "INSERT INTO accounts (login, password) VALUES ($1, crypt($2, gen_salt('md5'))) ;"
 	_, err := db.Exec(ctx, order, userName, password)
 	if err != nil {
-		return fmt.Errorf("error add user error is %w", err)
+		return fmt.Errorf("add user error is %w", err)
 	}
 	return nil
 }
