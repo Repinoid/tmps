@@ -4,7 +4,10 @@ go 1.22.0
 
 toolchain go1.22.3
 
-require github.com/jackc/pgx/v5 v5.7.2
+require (
+	github.com/golang-jwt/jwt/v4 v4.5.1
+	github.com/jackc/pgx/v5 v5.7.2
+)
 
 require (
 	github.com/cockroachdb/apd v1.1.0 // indirect

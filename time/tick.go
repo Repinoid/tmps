@@ -11,9 +11,9 @@ func main() {
 	doneCh := make(chan struct{})
 	defer close(doneCh)
 
-	addCh := generator(doneCh, numbers)
+	addCh := generator(numbers)
 
-	resultCh := multiply(doneCh, addCh)
+	resultCh := multiply(addCh)
 
 	// выводим результаты
 	for res := range resultCh {
@@ -21,22 +21,18 @@ func main() {
 	}
 }
 
-func generator(doneCh chan struct{}, numbers []int) chan int {
+func generator(numbers []int) chan int {
 	outputCh := make(chan int)
 	go func() {
 		defer close(outputCh)
 		for _, num := range numbers {
-			select {
-//			case <-doneCh:
-//				return
-			case outputCh <- num:
-			}
+			outputCh <- num
 		}
 	}()
 	return outputCh
 }
 
-func multiply(doneCh chan struct{}, inputCh chan int) chan int {
+func multiply(inputCh chan int) chan int {
 	resultCh := make(chan int)
 
 	go func() {
@@ -46,11 +42,7 @@ func multiply(doneCh chan struct{}, inputCh chan int) chan int {
 
 			if value > 3 {
 				result := value
-				select {
-//				case <-doneCh:
-//					return
-				case resultCh <- result:
-				}
+				resultCh <- result
 			}
 		}
 	}()
