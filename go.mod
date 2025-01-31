@@ -6,7 +6,9 @@ toolchain go1.22.3
 
 require (
 	github.com/golang-jwt/jwt/v4 v4.5.1
+	github.com/gorilla/mux v1.8.1
 	github.com/jackc/pgx/v5 v5.7.2
+	go.uber.org/zap v1.27.0
 )
 
 require (
@@ -17,6 +19,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/stretchr/testify v1.8.4 // indirect
+	go.uber.org/multierr v1.10.0 // indirect
 )
 
 require (
