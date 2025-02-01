@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/jackc/pgx/v5"
+	//	"github.com/jackc/pgx/v4"
+	pgx "github.com/jackc/pgx/v5"
 )
 
 type DBstruct struct {
@@ -22,10 +23,11 @@ func ConnectUsersTable(ctx context.Context, dbEndPoint string) (*DBstruct, error
 	return dataBase, nil
 }
 
-func (dataBase *DBstruct) UsersTableCreation(ctx context.Context) error {	//  task_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+func (dataBase *DBstruct) UsersTableCreation(ctx context.Context, tableName string) error { //  task_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 	db := dataBase.DB
-	creatorOrder := `CREATE TABLE IF NOT EXISTS accounts (identifier SERIAL, 
-					login VARCHAR(100) PRIMARY KEY, password VARCHAR(100));`
+	// В PostgreSQL нельзя передавать название таблицы в качестве параметра, so Sprintf
+	creatorOrder := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s (id INT GENERATED ALWAYS AS IDENTITY,", tableName)
+	creatorOrder += "login VARCHAR(100) PRIMARY KEY, password VARCHAR(100)) ;"
 	tag, err := db.Exec(ctx, creatorOrder)
 	if err != nil {
 		return fmt.Errorf("error create users table. Tag is \"%s\" error is %w", tag.String(), err)
@@ -56,6 +58,8 @@ func (dataBase *DBstruct) CheckUserPassword(ctx context.Context, userName string
 	}
 	return nil
 }
+
+// nil - user exists
 func (dataBase *DBstruct) IfUserExists(ctx context.Context, userName string) error {
 	db := dataBase.DB
 	order := "SELECT 7 from accounts WHERE login= $1 ;"

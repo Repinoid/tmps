@@ -42,7 +42,7 @@ func run() error {
 		fmt.Printf("database connection error  %v", err)
 		return err
 	}
-	err = DB.UsersTableCreation(ctx)
+	err = DB.UsersTableCreation(ctx, "accounts")
 	if err != nil {
 		fmt.Printf("error  table creation %v", err)
 		return err
