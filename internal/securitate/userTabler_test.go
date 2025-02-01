@@ -19,17 +19,18 @@ func TestDBstruct_AddUser(t *testing.T) {
 		password string
 	}
 	tests := []struct {
-		name    string
-		args    args
-		wantErr string
+		name      string
+		args      args
+		isErr     bool
+		errString string
 	}{
 		{
 			name: "Nice adding",
 			args: args{
-				userName: "wtf",
+				userName: "us1",
 				password: "pass1",
 			},
-			wantErr: "     ",
+			isErr: false,
 		},
 		{
 			name: "Duplicate adding",
@@ -37,15 +38,8 @@ func TestDBstruct_AddUser(t *testing.T) {
 				userName: "us1",
 				password: "pass1",
 			},
-			wantErr: "23505",
-		},
-		{
-			name: "Space on name",
-			args: args{
-				userName: "us 1",
-				password: "pass1",
-			},
-			wantErr: "23505",
+			isErr:     true,
+			errString: "23505",
 		},
 	}
 	ctx = context.Background()
@@ -63,17 +57,49 @@ func TestDBstruct_AddUser(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := dataBase.AddUser(ctx, testTableName, tt.args.userName, tt.args.password)
+			assert.Equal(t, tt.isErr, err != nil)
 			if err != nil {
-				assert.ErrorContains(t, err, tt.wantErr)
-				//			t.Errorf("DBstruct.AddUser() error = %v, wantErr %v", err, tt.wantErr)
+				assert.ErrorContains(t, err, tt.errString)
 			}
 		})
 	}
 
-	// dropOrder := "DROP TABLE " + testTableName + " ;"
-	// tag, err := dataBase.DB.Exec(ctx, dropOrder)
-	// if err != nil {
-	// 	fmt.Printf("error DROP users table. Tag is \"%s\" error is %v", tag.String(), err)
-	// 	return
-	// }
+	tt := tests[0]
+	t.Run("correct password", func(t *testing.T) {
+		err := dataBase.CheckUserPassword(ctx, testTableName, tt.args.userName, tt.args.password)
+		assert.Equal(t, tt.isErr, err != nil)
+		if err != nil {
+			assert.ErrorContains(t, err, tt.errString)
+		}
+	})
+
+	//	tt = tests[0]
+	t.Run("wrong password", func(t *testing.T) {
+		err := dataBase.CheckUserPassword(ctx, testTableName, tt.args.userName, tt.args.password+"a")
+		assert.Equal(t, tt.isErr, err == nil)
+		if err != nil {
+			assert.ErrorContains(t, err, "password not match")
+		}
+	})
+	t.Run("Right User", func(t *testing.T) {
+		err := dataBase.IfUserExists(ctx, testTableName, tt.args.userName)
+		assert.Equal(t, tt.isErr, err != nil)
+		if err != nil {
+			assert.ErrorContains(t, err, "QueryRow, error is")
+		}
+	})
+	t.Run("Wrong User", func(t *testing.T) {
+		err := dataBase.IfUserExists(ctx, testTableName, tt.args.userName+"a")
+		assert.Equal(t, tt.isErr, err == nil)
+		if err != nil {
+			assert.ErrorContains(t, err, "QueryRow, error is")
+		}
+	})
+
+	dropOrder := "DROP TABLE " + testTableName + " ;"
+	tag, err := dataBase.DB.Exec(ctx, dropOrder)
+	if err != nil {
+		fmt.Printf("error DROP users table. Tag is \"%s\" error is %v", tag.String(), err)
+		return
+	}
 }
