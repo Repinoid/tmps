@@ -11,6 +11,7 @@ import (
 )
 
 var host = "localhost:8088"
+var tableName = "accounts"
 
 const dbEndPoint = "postgres://postgres:passwordas@forgo.c7wegmiakpkw.us-west-1.rds.amazonaws.com:5432/forgo"
 

@@ -9,7 +9,7 @@ import (
 )
 
 const dbEndPoint = "postgres://postgres:passwordas@forgo.c7wegmiakpkw.us-west-1.rds.amazonaws.com:5432/forgo"
-const testTableName = "testTable"
+const testTableName = "testable"
 
 var ctx context.Context
 
@@ -26,10 +26,10 @@ func TestDBstruct_AddUser(t *testing.T) {
 		{
 			name: "Nice adding",
 			args: args{
-				userName: "us1",
+				userName: "wtf",
 				password: "pass1",
 			},
-			wantErr: "",
+			wantErr: "     ",
 		},
 		{
 			name: "Duplicate adding",
@@ -37,7 +37,15 @@ func TestDBstruct_AddUser(t *testing.T) {
 				userName: "us1",
 				password: "pass1",
 			},
-			wantErr: "",
+			wantErr: "23505",
+		},
+		{
+			name: "Space on name",
+			args: args{
+				userName: "us 1",
+				password: "pass1",
+			},
+			wantErr: "23505",
 		},
 	}
 	ctx = context.Background()
@@ -54,7 +62,7 @@ func TestDBstruct_AddUser(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := dataBase.AddUser(ctx, tt.args.userName, tt.args.password)
+			err := dataBase.AddUser(ctx, testTableName, tt.args.userName, tt.args.password)
 			if err != nil {
 				assert.ErrorContains(t, err, tt.wantErr)
 				//			t.Errorf("DBstruct.AddUser() error = %v, wantErr %v", err, tt.wantErr)
@@ -62,10 +70,10 @@ func TestDBstruct_AddUser(t *testing.T) {
 		})
 	}
 
-	dropOrder := "DROP TABLE " + testTableName + " ;"
-	tag, err := dataBase.DB.Exec(ctx, dropOrder)
-	if err != nil {
-		fmt.Printf("error create users table. Tag is \"%s\" error is %v", tag.String(), err)
-		return
-	}
+	// dropOrder := "DROP TABLE " + testTableName + " ;"
+	// tag, err := dataBase.DB.Exec(ctx, dropOrder)
+	// if err != nil {
+	// 	fmt.Printf("error DROP users table. Tag is \"%s\" error is %v", tag.String(), err)
+	// 	return
+	// }
 }
