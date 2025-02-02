@@ -106,24 +106,6 @@ func TestDBstruct_AddUser(t *testing.T) {
 		}
 	})
 
-	// dropOrder := "DROP TABLE " + OrdersTable + " ;"
-	// tag, err := dataBase.DB.Exec(ctx, dropOrder)
-	// if err != nil {
-	// 	fmt.Printf("error DROP users table. Tag is \"%s\" error is %v", tag.String(), err)
-	// 	return
-	// }
-	// dropOrder = "DROP TABLE " + TokensTable + " ;"
-	// tag, err = dataBase.DB.Exec(ctx, dropOrder)
-	// if err != nil {
-	// 	fmt.Printf("error DROP users table. Tag is \"%s\" error is %v", tag.String(), err)
-	// 	return
-	// }
-	// dropOrder = "DROP TABLE " + UsersTable + " ;" // c юзерами удалять в послед. очередь, на неё указывают Foreign Key
-	// tag, err = dataBase.DB.Exec(ctx, dropOrder)
-	// if err != nil {
-	// 	fmt.Printf("error DROP users table. Tag is \"%s\" error is %v", tag.String(), err)
-	// 	return
-	// }
 }
 func TestDBstruct_AddOrder(t *testing.T) {
 	UsersTable = "tA"
@@ -132,29 +114,34 @@ func TestDBstruct_AddOrder(t *testing.T) {
 	type args struct {
 		userName    string
 		orderNumber int64
+		tokenStr    string
 	}
 	tests := []struct {
-		name      string
-		args      args
-		isErr     bool
-		errString string
+		name     string
+		args     args
+		noErr    bool
+		errOrder string
+		errToken string
 	}{
 		{
 			name: "Nice Order",
 			args: args{
-				userName:    "us111",
+				userName:    "us1",
 				orderNumber: 1234,
+				tokenStr:    "userexists",
 			},
-			isErr: false,
+			noErr: true,
 		},
 		{
 			name: "No user",
 			args: args{
 				userName:    "us2222",
 				orderNumber: 3456,
+				tokenStr:    "no user",
 			},
-			isErr:     true,
-			errString: "hzwtf",
+			noErr:    false,
+			errOrder: "add ORDER",
+			errToken: "add TOKEN",
 		},
 	}
 	ctx = context.Background()
@@ -167,29 +154,25 @@ func TestDBstruct_AddOrder(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := dataBase.AddOrder(ctx, tt.args.userName, tt.args.orderNumber)
-			assert.Equal(t, tt.isErr, err != nil)
+			assert.Equal(t, tt.noErr, err == nil)
 			if err != nil {
-				assert.ErrorContains(t, err, tt.errString)
+				assert.ErrorContains(t, err, tt.errOrder)
+			}
+			err = dataBase.AddToken(ctx, tt.args.userName, tt.args.tokenStr)
+			assert.Equal(t, tt.noErr, err == nil)
+			if err != nil {
+				assert.ErrorContains(t, err, tt.errToken)
 			}
 		})
 	}
 
-	// dropOrder := "DROP TABLE " + OrdersTable + " ;"
-	// tag, err := dataBase.DB.Exec(ctx, dropOrder)
-	// if err != nil {
-	// 	fmt.Printf("error DROP users table. Tag is \"%s\" error is %v", tag.String(), err)
-	// 	return
-	// }
-	// dropOrder = "DROP TABLE " + TokensTable + " ;"
-	// tag, err = dataBase.DB.Exec(ctx, dropOrder)
-	// if err != nil {
-	// 	fmt.Printf("error DROP users table. Tag is \"%s\" error is %v", tag.String(), err)
-	// 	return
-	// }
-	// dropOrder = "DROP TABLE " + UsersTable + " ;" // c юзерами удалять в послед. очередь, на неё указывают Foreign Key
-	// tag, err = dataBase.DB.Exec(ctx, dropOrder)
-	// if err != nil {
-	// 	fmt.Printf("error DROP users table. Tag is \"%s\" error is %v", tag.String(), err)
-	// 	return
-	// }
+	for _, tab := range []string{OrdersTable, TokensTable, UsersTable} {
+		dropOrder := "DROP TABLE " + tab + " ;"
+		tag, err := dataBase.DB.Exec(ctx, dropOrder)
+		if err != nil {
+			fmt.Printf("error DROP users table. Tag is \"%s\" error is %v", tag.String(), err)
+			return
+		}
+	}
+
 }

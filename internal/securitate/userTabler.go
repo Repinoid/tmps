@@ -35,7 +35,7 @@ func (dataBase *DBstruct) UsersTableCreation(ctx context.Context) error {
 		"CREATE TABLE IF NOT EXISTS " + UsersTable +
 			"(id INT GENERATED ALWAYS AS IDENTITY UNIQUE," +
 			"login VARCHAR(100) PRIMARY KEY," +
-			"password VARCHAR(200)," +
+			"password VARCHAR(200) NOT NULL," +
 			"user_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);"
 
 	_, err := db.Exec(ctx, creatorOrder)
@@ -49,8 +49,8 @@ func (dataBase *DBstruct) OrdersTableCreation(ctx context.Context) error {
 	creatorOrder :=
 		"CREATE TABLE IF NOT EXISTS " + OrdersTable +
 			"(id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY," +
-			"userCode INT," +
-			"orderNumber BIGINT," +
+			"userCode INT NOT NULL," +
+			"orderNumber BIGINT NOT NULL," +
 			"order_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
 			"FOREIGN KEY (userCode) REFERENCES " + UsersTable + "(id) ON DELETE CASCADE);"
 
@@ -65,10 +65,10 @@ func (dataBase *DBstruct) TokensTableCreation(ctx context.Context) error {
 	creatorOrder :=
 		"CREATE TABLE IF NOT EXISTS " + TokensTable +
 			"(id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY," +
-			"userCode INT," +
+			"userCode INT NOT NULL," +
 			"balance BIGINT," +
 			"bonus BIGINT," +
-			"token VARCHAR(1000)," +
+			"token VARCHAR(1000) NOT NULL," +
 			"token_valid_until TIMESTAMP," +
 			"token_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
 			"FOREIGN KEY (userCode) REFERENCES " + UsersTable + "(id) ON DELETE CASCADE);"
@@ -156,11 +156,23 @@ func (dataBase *DBstruct) ChangePassword(ctx context.Context, userName string, p
 func (dataBase *DBstruct) AddOrder(ctx context.Context, userName string, orderNumber int64) error {
 	db := dataBase.DB
 
-	order := fmt.Sprintf("INSERT INTO %s(userCode, ordernumber) VALUES ((select id from %s where login = '%s'), %d) ;", OrdersTable, UsersTable, userName, orderNumber)
+	order := fmt.Sprintf("INSERT INTO %s(userCode, ordernumber) VALUES ((select id from %s where login = '%s'), %d) ;",
+		OrdersTable, UsersTable, userName, orderNumber)
 	//INSERT INTO Order (userCode, ordernumber) VALUES ((select id from usera where login = 'user2'), 12345) ;
 	_, err := db.Exec(ctx, order)
 	if err != nil {
 		return fmt.Errorf("add ORDER %w", err)
+	}
+	return nil
+}
+func (dataBase *DBstruct) AddToken(ctx context.Context, userName string, tokenString string) error {
+	db := dataBase.DB
+
+	order := fmt.Sprintf("INSERT INTO %s(userCode, token) VALUES ((select id from %s where login = '%s'), '%s') ;",
+		TokensTable, UsersTable, userName, tokenString)
+	_, err := db.Exec(ctx, order)
+	if err != nil {
+		return fmt.Errorf("add TOKEN %w", err)
 	}
 	return nil
 }
