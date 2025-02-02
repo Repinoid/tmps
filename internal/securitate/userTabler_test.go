@@ -9,11 +9,13 @@ import (
 )
 
 const dbEndPoint = "postgres://postgres:passwordas@forgo.c7wegmiakpkw.us-west-1.rds.amazonaws.com:5432/forgo"
-const testTableName = "testable"
+
+//const UsersTable = "testable"
 
 var ctx context.Context
 
 func TestDBstruct_AddUser(t *testing.T) {
+	UsersTable = "testAccountsTable"
 	type args struct {
 		userName string
 		password string
@@ -48,7 +50,7 @@ func TestDBstruct_AddUser(t *testing.T) {
 		fmt.Printf("database connection error  %v", err)
 		return
 	}
-	err = dataBase.UsersTableCreation(ctx, testTableName)
+	err = dataBase.UsersTableCreation(ctx)
 	if err != nil {
 		fmt.Printf("error  table creation %v", err)
 		return
@@ -56,7 +58,7 @@ func TestDBstruct_AddUser(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := dataBase.AddUser(ctx, testTableName, tt.args.userName, tt.args.password)
+			err := dataBase.AddUser(ctx, tt.args.userName, tt.args.password)
 			assert.Equal(t, tt.isErr, err != nil)
 			if err != nil {
 				assert.ErrorContains(t, err, tt.errString)
@@ -66,7 +68,7 @@ func TestDBstruct_AddUser(t *testing.T) {
 
 	tt := tests[0]
 	t.Run("correct password", func(t *testing.T) {
-		err := dataBase.CheckUserPassword(ctx, testTableName, tt.args.userName, tt.args.password)
+		err := dataBase.CheckUserPassword(ctx, tt.args.userName, tt.args.password)
 		assert.Equal(t, tt.isErr, err != nil)
 		if err != nil {
 			assert.ErrorContains(t, err, tt.errString)
@@ -75,28 +77,28 @@ func TestDBstruct_AddUser(t *testing.T) {
 
 	//	tt = tests[0]
 	t.Run("wrong password", func(t *testing.T) {
-		err := dataBase.CheckUserPassword(ctx, testTableName, tt.args.userName, tt.args.password+"a")
+		err := dataBase.CheckUserPassword(ctx, tt.args.userName, tt.args.password+"a")
 		assert.Equal(t, tt.isErr, err == nil)
 		if err != nil {
 			assert.ErrorContains(t, err, "password not match")
 		}
 	})
 	t.Run("Right User", func(t *testing.T) {
-		err := dataBase.IfUserExists(ctx, testTableName, tt.args.userName)
+		err := dataBase.IfUserExists(ctx, tt.args.userName)
 		assert.Equal(t, tt.isErr, err != nil)
 		if err != nil {
 			assert.ErrorContains(t, err, "QueryRow, error is")
 		}
 	})
 	t.Run("Wrong User", func(t *testing.T) {
-		err := dataBase.IfUserExists(ctx, testTableName, tt.args.userName+"a")
+		err := dataBase.IfUserExists(ctx, tt.args.userName+"a")
 		assert.Equal(t, tt.isErr, err == nil)
 		if err != nil {
 			assert.ErrorContains(t, err, "QueryRow, error is")
 		}
 	})
 
-	dropOrder := "DROP TABLE " + testTableName + " ;"
+	dropOrder := "DROP TABLE " + UsersTable + " ;"
 	tag, err := dataBase.DB.Exec(ctx, dropOrder)
 	if err != nil {
 		fmt.Printf("error DROP users table. Tag is \"%s\" error is %v", tag.String(), err)

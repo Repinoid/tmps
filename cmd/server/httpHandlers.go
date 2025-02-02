@@ -34,14 +34,14 @@ func registerUser(rwr http.ResponseWriter, req *http.Request) {
 	}
 	sugar.Debugf("json.Unmarshal %+v err %+v\n", logos, err)
 
-	err = DB.IfUserExists(ctx, tableName, logos.UserName)
+	err = DB.IfUserExists(ctx, logos.UserName)
 	if err == nil {
 		fmt.Printf("User exists %v\n", err)
 		rwr.WriteHeader(http.StatusConflict) // 409 — логин уже занят;
 		fmt.Fprintf(rwr, `{"status":"StatusConflict"}`)
 		return
 	}
-	err = DB.AddUser(ctx, tableName, logos.UserName, logos.Password)
+	err = DB.AddUser(ctx, logos.UserName, logos.Password)
 	if err != nil {
 		fmt.Printf("error user add %v\n", err)
 		return
@@ -84,14 +84,14 @@ func loginUser(rwr http.ResponseWriter, req *http.Request) {
 	}
 	sugar.Debugf("json.Unmarshal %+v err %+v\n", logos, err)
 
-	err = DB.IfUserExists(ctx, tableName, logos.UserName)
+	err = DB.IfUserExists(ctx, logos.UserName)
 	if err != nil {
 		fmt.Printf("User does NOT exist ERR %v\n", err)
 		rwr.WriteHeader(http.StatusUnauthorized) // 401 — неверная пара логин/пароль;
 		fmt.Fprintf(rwr, `{"status":"StatusUnauthorized"}`)
 		return
 	}
-	err = DB.CheckUserPassword(ctx, tableName, logos.UserName, logos.Password)
+	err = DB.CheckUserPassword(ctx, logos.UserName, logos.Password)
 	if err != nil {
 		fmt.Printf("Wrong password ERR %v\n", err)
 		rwr.WriteHeader(http.StatusUnauthorized) // 401 — неверная пара логин/пароль;

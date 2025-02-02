@@ -12,6 +12,8 @@ type DBstruct struct {
 	DB *pgx.Conn
 }
 
+var UsersTable = "accounts"
+
 // соединение с базой данных
 func ConnectUsersTable(ctx context.Context, dbEndPoint string) (*DBstruct, error) {
 	dataBase := &DBstruct{}
@@ -23,10 +25,10 @@ func ConnectUsersTable(ctx context.Context, dbEndPoint string) (*DBstruct, error
 	return dataBase, nil
 }
 
-func (dataBase *DBstruct) UsersTableCreation(ctx context.Context, tableName string) error { //  task_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+func (dataBase *DBstruct) UsersTableCreation(ctx context.Context) error { //  task_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 	db := dataBase.DB
 	// В PostgreSQL нельзя передавать название таблицы в качестве параметра, so Sprintf
-	creatorOrder := "CREATE TABLE IF NOT EXISTS " + tableName + " (id INT GENERATED ALWAYS AS IDENTITY,"
+	creatorOrder := "CREATE TABLE IF NOT EXISTS " + UsersTable + " (id INT GENERATED ALWAYS AS IDENTITY,"
 	creatorOrder += "login VARCHAR(100) PRIMARY KEY, password VARCHAR(100)) ;"
 	tag, err := db.Exec(ctx, creatorOrder)
 	if err != nil {
@@ -35,18 +37,18 @@ func (dataBase *DBstruct) UsersTableCreation(ctx context.Context, tableName stri
 	return nil
 }
 
-func (dataBase *DBstruct) AddUser(ctx context.Context, tableName string, userName string, password string) error {
+func (dataBase *DBstruct) AddUser(ctx context.Context, userName string, password string) error {
 	db := dataBase.DB
-	order := "INSERT INTO " + tableName + " (login, password) VALUES ($1, crypt($2, gen_salt('md5'))) ;"
+	order := "INSERT INTO " + UsersTable + " (login, password) VALUES ($1, crypt($2, gen_salt('md5'))) ;"
 	_, err := db.Exec(ctx, order, userName, password)
 	if err != nil {
 		return fmt.Errorf("add user error is %w", err)
 	}
 	return nil
 }
-func (dataBase *DBstruct) CheckUserPassword(ctx context.Context, tableName, userName, password string) error {
+func (dataBase *DBstruct) CheckUserPassword(ctx context.Context, userName, password string) error {
 	db := dataBase.DB
-	order := "SELECT (password = crypt($2, password)) AS password_match FROM " + tableName + " WHERE login= $1 ;"
+	order := "SELECT (password = crypt($2, password)) AS password_match FROM " + UsersTable + " WHERE login= $1 ;"
 	row := db.QueryRow(ctx, order, userName, password) // password here - what was entered
 	var yes bool
 	err := row.Scan(&yes)
@@ -60,9 +62,9 @@ func (dataBase *DBstruct) CheckUserPassword(ctx context.Context, tableName, user
 }
 
 // nil - user exists
-func (dataBase *DBstruct) IfUserExists(ctx context.Context, tableName, userName string) error {
+func (dataBase *DBstruct) IfUserExists(ctx context.Context, userName string) error {
 	db := dataBase.DB
-	order := "SELECT 7 from " + tableName + " WHERE login= $1 ;"
+	order := "SELECT 7 from " + UsersTable + " WHERE login= $1 ;"
 	row := db.QueryRow(ctx, order, userName) // password here - what was entered
 	var yes int
 	err := row.Scan(&yes)
@@ -75,9 +77,9 @@ func (dataBase *DBstruct) IfUserExists(ctx context.Context, tableName, userName 
 	return nil
 }
 
-func (dataBase *DBstruct) ChangePassword(ctx context.Context, tableName, userName string, password string) error {
+func (dataBase *DBstruct) ChangePassword(ctx context.Context, userName string, password string) error {
 	db := dataBase.DB
-	order := "UPDATE " + tableName + " SET password = crypt($2, gen_salt('md5')) WHERE login= $1 ;"
+	order := "UPDATE " + UsersTable + " SET password = crypt($2, gen_salt('md5')) WHERE login= $1 ;"
 	_, err := db.Exec(ctx, order, userName, password)
 	if err != nil {
 		return fmt.Errorf("change password error %w", err)
