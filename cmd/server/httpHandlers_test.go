@@ -100,20 +100,19 @@ func Test_UserRegister(t *testing.T) {
 				require.NoError(t, err)
 				require.NotEqual(t, tok.Token, "")
 
-				//	assert.JSONEq(t, tt.want.response, string(resBody))
+				var tokenFromBase string
+				err = DB.GetToken(ctx, tt.userName, &tokenFromBase)
+				if err != nil {
+					fmt.Printf("tst %v", err)
+					return
+				}
+				assert.Equal(t, tok.Token, tokenFromBase, "токен из базы не равен токену из ответа хандлера")
 				assert.Equal(t, tt.want.contentType, res.Header.Get("Content-Type"))
 			}
 		})
 
 	}
-	// for _, tab := range []string{securitate.OrdersTable, securitate.TokensTable, securitate.UsersTable} {
-	// 	dropOrder := "DROP TABLE " + tab + " ;"
-	// 	tag, err := DB.DB.Exec(ctx, dropOrder)
-	// 	if err != nil {
-	// 		fmt.Printf("error DROP users table. Tag is \"%s\" error is %v", tag.String(), err)
-	// 		return
-	// 	}
-	// }
+
 }
 func Test_UserLogin(t *testing.T) {
 	type logos struct {

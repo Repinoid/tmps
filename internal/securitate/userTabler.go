@@ -65,8 +65,8 @@ func (dataBase *DBstruct) TokensTableCreation(ctx context.Context) error {
 		"CREATE TABLE IF NOT EXISTS " + TokensTable +
 			"(id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY," +
 			"userCode INT NOT NULL," +
-			"balance BIGINT," +
-			"bonus BIGINT," +
+			"balance BIGINT DEFAULT 0," +
+			"bonus BIGINT DEFAULT 0," +
 			"token VARCHAR(1000) NOT NULL," +
 			"token_valid_until TIMESTAMP," +
 			"token_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
@@ -102,15 +102,29 @@ func ConnectToDB(ctx context.Context) (*DBstruct, error) {
 	return DB, nil
 }
 
-func (dataBase *DBstruct) AddUser(ctx context.Context, userName string, password string) error {
+func (dataBase *DBstruct) AddUser(ctx context.Context, userName, password, tokenString string) error {
 	db := dataBase.DB
+
+	tx, err := db.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("error db.Begin  %[1]w", err)
+	}
+	defer tx.Rollback(ctx)
+
 	order := "INSERT INTO " + UsersTable + " (login, password) VALUES ($1, crypt($2, gen_salt('md5'))) ;"
-	_, err := db.Exec(ctx, order, userName, password)
+	_, err = tx.Exec(ctx, order, userName, password)
 	if err != nil {
 		return fmt.Errorf("add user error is %w", err)
 	}
-	return nil
+	order = fmt.Sprintf("INSERT INTO %s(userCode, token) VALUES ((select id from %s where login = '%s'), '%s') ;",
+		TokensTable, UsersTable, userName, tokenString)
+	_, err = tx.Exec(ctx, order)
+	if err != nil {
+		return fmt.Errorf("add TOKEN %w", err)
+	}
+	return tx.Commit(ctx)
 }
+
 func (dataBase *DBstruct) CheckUserPassword(ctx context.Context, userName, password string) error {
 	db := dataBase.DB
 	order := "SELECT (password = crypt($2, password)) AS password_match FROM " + UsersTable + " WHERE login= $1 ;"
@@ -173,5 +187,18 @@ func (dataBase *DBstruct) AddToken(ctx context.Context, userName string, tokenSt
 	if err != nil {
 		return fmt.Errorf("add TOKEN %w", err)
 	}
+	return nil
+}
+func (dataBase *DBstruct) GetToken(ctx context.Context, userName string, tokenString *string) error {
+	db := dataBase.DB
+	//				получить токен из токен-таблицы  где код пользователя равен коду юзера из юзер-таблицы с именем UserName
+	order := "SELECT token from " + TokensTable + " WHERE userCode = (select id from " + UsersTable + " where login = $1) ;"
+	row := db.QueryRow(ctx, order, userName)
+	var str string
+	err := row.Scan(&str)
+	if err != nil {
+		return fmt.Errorf("GT %w", err)
+	}
+	*tokenString = str
 	return nil
 }

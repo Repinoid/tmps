@@ -21,6 +21,14 @@ func registerUser(rwr http.ResponseWriter, req *http.Request) {
 
 	rwr.Header().Set("Content-Type", "application/json")
 
+	Token, err := securitate.BuildJWTString("someID", []byte(securitate.SECRET_KEY))
+	if err != nil {
+		rwr.WriteHeader(http.StatusInternalServerError) //500 — внутренняя ошибка сервера.
+		fmt.Fprintf(rwr, `{"status":"StatusInternalServerError"}`)
+		sugar.Debugf("BuildJWTString %+v\n", err)
+		return
+	}
+
 	telo, err := io.ReadAll(req.Body)
 	if err != nil {
 		rwr.WriteHeader(http.StatusInternalServerError) //500 — внутренняя ошибка сервера.
@@ -50,14 +58,11 @@ func registerUser(rwr http.ResponseWriter, req *http.Request) {
 		fmt.Fprintf(rwr, `{"status":"StatusConflict"}`)
 		return
 	}
-	err = DB.AddUser(ctx, logos.UserName, logos.Password)
+	err = DB.AddUser(ctx, logos.UserName, logos.Password, Token)
 	if err != nil {
-		fmt.Printf("error user add %v\n", err)
-		return
-	}
-	Token, err = securitate.BuildJWTString("someID", []byte(securitate.SECRET_KEY))
-	if err != nil {
-		fmt.Printf("%v\n", err)
+		rwr.WriteHeader(http.StatusBadRequest) // 400 — неверный формат запроса;
+		fmt.Fprintf(rwr, `{"status":"StatusBadRequest"}`)
+		sugar.Debugf("addUser %+v err %+v\n", logos, err)
 		return
 	}
 	tok := struct {
@@ -125,3 +130,4 @@ func loginUser(rwr http.ResponseWriter, req *http.Request) {
 	rwr.WriteHeader(http.StatusOK) // 200 — пользователь успешно зарегистрирован и аутентифицирован;
 	json.NewEncoder(rwr).Encode(tok)
 }
+
