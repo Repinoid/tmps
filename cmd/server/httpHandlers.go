@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"oppa/internal/securitate"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -118,7 +119,7 @@ func loginUser(rwr http.ResponseWriter, req *http.Request) {
 		fmt.Fprintf(rwr, `{"status":"StatusUnauthorized"}`)
 		return
 	}
-	Token, err = securitate.BuildJWTString("someID", []byte(securitate.SECRET_KEY))
+	Token, err := securitate.BuildJWTString("someID", []byte(securitate.SECRET_KEY))
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		return
@@ -131,3 +132,55 @@ func loginUser(rwr http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(rwr).Encode(tok)
 }
 
+// --------------------------------------------------------------------------------------------------
+func PutOrder(rwr http.ResponseWriter, req *http.Request) {
+
+	rwr.Header().Set("Content-Type", "application/json")
+
+	if !strings.Contains(req.Header.Get("Content-Type"), "text/plain") {
+		rwr.WriteHeader(http.StatusBadRequest) //400 — неверный формат запроса; не text/plain
+		fmt.Fprintf(rwr, `{"status":"StatusBadRequest"}`)
+		sugar.Debug("not text/plain \n")
+		return
+	}
+	tokenStr := req.Header.Get("Authorization")
+	tokenStr, niceP := strings.CutPrefix(tokenStr, "Bearer <") // обрезаем -- Bearer <token>
+	tokenStr, niceS := strings.CutSuffix(tokenStr, ">")
+
+	var tokenID int64
+	err := DB.GetIDByToken(ctx, tokenStr, &tokenID)
+
+	if (!niceP) || (!niceS) || (err != nil) {
+		rwr.WriteHeader(http.StatusUnauthorized) // 401 — неверная пара логин/пароль;
+		fmt.Fprintf(rwr, `{"status":"StatusUnauthorized"}`)
+		sugar.Debug("Authorization header\n")
+		return
+	}
+
+	telo, err := io.ReadAll(req.Body)
+	if err != nil {
+		rwr.WriteHeader(http.StatusInternalServerError) //500 — внутренняя ошибка сервера.
+		fmt.Fprintf(rwr, `{"status":"StatusInternalServerError"}`)
+		sugar.Debugf("io.ReadAll %+v\n", err)
+		return
+	}
+	defer req.Body.Close()
+	orderStr := string(telo)
+	orderNum, err := strconv.ParseInt(orderStr, 10, 64)
+	if err != nil {
+		rwr.WriteHeader(http.StatusUnprocessableEntity) // 422 — неверный формат номера заказа;
+		fmt.Fprintf(rwr, `{"status":"StatusUnprocessableEntity"}`)
+		sugar.Debug("ordernum err\n")
+		return
+	}
+	err = DB.UpLoadOrderByID(ctx, tokenID, orderNum)
+	if err != nil {
+		rwr.WriteHeader(http.StatusConflict) // 409 — номер заказа уже был загружен другим пользователем;
+		fmt.Fprintf(rwr, `{"status":"StatusConflict"}`)
+		sugar.Debug("ordernum err\n")
+		return
+	}
+	rwr.WriteHeader(http.StatusAccepted) //202 — новый номер заказа принят в обработку;
+	fmt.Fprintf(rwr, `{"status":"StatusAccepted"}`)
+
+}

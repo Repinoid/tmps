@@ -202,3 +202,29 @@ func (dataBase *DBstruct) GetToken(ctx context.Context, userName string, tokenSt
 	*tokenString = str
 	return nil
 }
+
+func (dataBase *DBstruct) UpLoadOrderByID(ctx context.Context, userID int64, orderNumber int64) error {
+	db := dataBase.DB
+
+	order := fmt.Sprintf("INSERT INTO %s(userCode, orderNumber) VALUES (%d, %d) ;",
+		OrdersTable, userID, orderNumber)
+	_, err := db.Exec(ctx, order)
+	if err != nil {
+		return fmt.Errorf("add ORDER %w", err)
+	}
+	return nil
+}
+
+func (dataBase *DBstruct) GetIDByToken(ctx context.Context, token string, tokenID *int64) error {
+	db := dataBase.DB
+
+	order := "SELECT id from " + TokensTable + " WHERE token =  $1 ;"
+	row := db.QueryRow(ctx, order, token)
+	var id int64
+	err := row.Scan(&id)
+	if err != nil {
+		return fmt.Errorf("GT %w", err)
+	}
+	*tokenID = id
+	return nil
+}

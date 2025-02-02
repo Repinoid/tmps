@@ -12,12 +12,9 @@ import (
 
 var host = "localhost:8088"
 
-
-
 var sugar zap.SugaredLogger
 var ctx context.Context
 var DB *securitate.DBstruct
-var Token string
 
 func main() {
 	logger, err := zap.NewDevelopment()
@@ -38,7 +35,7 @@ func run() error {
 
 	DB, err = securitate.ConnectToDB(ctx)
 
-//	DB, err = ConnectUsersTable(ctx, dbEndPoint)
+	//	DB, err = ConnectUsersTable(ctx, dbEndPoint)
 
 	if err != nil {
 		fmt.Printf("database connection error  %v", err)
@@ -49,6 +46,7 @@ func run() error {
 
 	router.HandleFunc("/api/user/register", registerUser).Methods("POST")
 	router.HandleFunc("/api/user/login", loginUser).Methods("POST")
+	router.HandleFunc("/api/user/orders", PutOrder).Methods("POST")
 
 	return http.ListenAndServe(host, router)
 }
