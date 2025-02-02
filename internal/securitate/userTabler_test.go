@@ -8,10 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const dbEndPoint = "postgres://postgres:passwordas@forgo.c7wegmiakpkw.us-west-1.rds.amazonaws.com:5432/forgo"
-
-//const UsersTable = "testable"
-
 var ctx context.Context
 
 func TestDBstruct_AddUser(t *testing.T) {
@@ -63,25 +59,10 @@ func TestDBstruct_AddUser(t *testing.T) {
 		},
 	}
 	ctx = context.Background()
-	dataBase, err := ConnectUsersTable(ctx, dbEndPoint)
+	dataBase, err := ConnectToDB(ctx)
 	if err != nil {
 		fmt.Printf("database connection error  %v", err)
 		return
-	}
-	err = dataBase.UsersTableCreation(ctx)
-	if err != nil {
-		fmt.Printf("error  table creation %v", err)
-		return
-	}
-	err = dataBase.OrdersTableCreation(ctx)
-	if err != nil {
-		fmt.Printf("main:%v", err)
-		return 
-	}
-	err = dataBase.TokensTableCreation(ctx)
-	if err != nil {
-		fmt.Printf("main:%v", err)
-		return 
 	}
 
 	for _, tt := range tests {
@@ -126,8 +107,20 @@ func TestDBstruct_AddUser(t *testing.T) {
 		}
 	})
 
-	dropOrder := "DROP TABLE " + UsersTable + " ;"
+	dropOrder := "DROP TABLE " + OrdersTable + " ;"
 	tag, err := dataBase.DB.Exec(ctx, dropOrder)
+	if err != nil {
+		fmt.Printf("error DROP users table. Tag is \"%s\" error is %v", tag.String(), err)
+		return
+	}
+	dropOrder = "DROP TABLE " + TokensTable + " ;"
+	tag, err = dataBase.DB.Exec(ctx, dropOrder)
+	if err != nil {
+		fmt.Printf("error DROP users table. Tag is \"%s\" error is %v", tag.String(), err)
+		return
+	}
+	dropOrder = "DROP TABLE " + UsersTable + " ;" // c юзерами удалять в послед. очередь, на неё указывают Foreign Key
+	tag, err = dataBase.DB.Exec(ctx, dropOrder)
 	if err != nil {
 		fmt.Printf("error DROP users table. Tag is \"%s\" error is %v", tag.String(), err)
 		return

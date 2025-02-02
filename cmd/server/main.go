@@ -12,7 +12,7 @@ import (
 
 var host = "localhost:8088"
 
-const dbEndPoint = "postgres://postgres:passwordas@forgo.c7wegmiakpkw.us-west-1.rds.amazonaws.com:5432/forgo"
+
 
 var sugar zap.SugaredLogger
 var ctx context.Context
@@ -36,25 +36,12 @@ func run() error {
 	var err error
 	ctx = context.Background()
 
-	DB, err = securitate.ConnectUsersTable(ctx, dbEndPoint)
+	DB, err = securitate.ConnectToDB(ctx)
+
+//	DB, err = ConnectUsersTable(ctx, dbEndPoint)
 
 	if err != nil {
 		fmt.Printf("database connection error  %v", err)
-		return err
-	}
-	err = DB.UsersTableCreation(ctx)
-	if err != nil {
-		fmt.Printf("main: %v", err)
-		return err
-	}
-	err = DB.OrdersTableCreation(ctx)
-	if err != nil {
-		fmt.Printf("main:%v", err)
-		return err
-	}
-	err = DB.TokensTableCreation(ctx)
-	if err != nil {
-		fmt.Printf("main:%v", err)
 		return err
 	}
 

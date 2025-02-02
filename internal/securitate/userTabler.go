@@ -12,6 +12,7 @@ type DBstruct struct {
 	DB *pgx.Conn
 }
 
+var dbEndPoint = "postgres://postgres:passwordas@forgo.c7wegmiakpkw.us-west-1.rds.amazonaws.com:5432/forgo"
 var UsersTable = "accounts"
 var OrdersTable = "orders"
 var TokensTable = "tokens"
@@ -76,6 +77,30 @@ func (dataBase *DBstruct) TokensTableCreation(ctx context.Context) error {
 		return fmt.Errorf("create orders table. %w", err)
 	}
 	return nil
+}
+
+func ConnectToDB(ctx context.Context) (*DBstruct, error) {
+	DB, err := ConnectUsersTable(ctx, dbEndPoint)
+	if err != nil {
+		fmt.Printf("database connection error  %v", err)
+		return nil, err
+	}
+	err = DB.UsersTableCreation(ctx)
+	if err != nil {
+		fmt.Printf("tbl: %v", err)
+		return nil, err
+	}
+	err = DB.OrdersTableCreation(ctx)
+	if err != nil {
+		fmt.Printf("tbl: %v", err)
+		return nil, err
+	}
+	err = DB.TokensTableCreation(ctx)
+	if err != nil {
+		fmt.Printf("tbl: %v", err)
+		return nil, err
+	}
+	return DB, nil
 }
 
 func (dataBase *DBstruct) AddUser(ctx context.Context, userName string, password string) error {
