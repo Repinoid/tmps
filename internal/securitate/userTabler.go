@@ -152,3 +152,15 @@ func (dataBase *DBstruct) ChangePassword(ctx context.Context, userName string, p
 	}
 	return nil
 }
+
+func (dataBase *DBstruct) AddOrder(ctx context.Context, userName string, orderNumber int64) error {
+	db := dataBase.DB
+
+	order := fmt.Sprintf("INSERT INTO %s(userCode, ordernumber) VALUES ((select id from %s where login = '%s'), %d) ;", OrdersTable, UsersTable, userName, orderNumber)
+	//INSERT INTO Order (userCode, ordernumber) VALUES ((select id from usera where login = 'user2'), 12345) ;
+	_, err := db.Exec(ctx, order)
+	if err != nil {
+		return fmt.Errorf("add ORDER %w", err)
+	}
+	return nil
+}
