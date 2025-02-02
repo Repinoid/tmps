@@ -16,6 +16,8 @@ var ctx context.Context
 
 func TestDBstruct_AddUser(t *testing.T) {
 	UsersTable = "testAccountsTable"
+	OrdersTable = "testOrdersTable"
+	TokensTable = "testTokensTable"
 	type args struct {
 		userName string
 		password string
@@ -27,7 +29,23 @@ func TestDBstruct_AddUser(t *testing.T) {
 		errString string
 	}{
 		{
-			name: "Nice adding",
+			name: "Nice adding1",
+			args: args{
+				userName: "us1",
+				password: "pass1",
+			},
+			isErr: false,
+		},
+		{
+			name: "Nice adding2",
+			args: args{
+				userName: "us2",
+				password: "pass1",
+			},
+			isErr: false,
+		},
+		{
+			name: "Nice adding3",
 			args: args{
 				userName: "us3",
 				password: "pass1",
@@ -54,6 +72,16 @@ func TestDBstruct_AddUser(t *testing.T) {
 	if err != nil {
 		fmt.Printf("error  table creation %v", err)
 		return
+	}
+	err = dataBase.OrdersTableCreation(ctx)
+	if err != nil {
+		fmt.Printf("main:%v", err)
+		return 
+	}
+	err = dataBase.TokensTableCreation(ctx)
+	if err != nil {
+		fmt.Printf("main:%v", err)
+		return 
 	}
 
 	for _, tt := range tests {
