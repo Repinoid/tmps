@@ -13,6 +13,8 @@ type DBstruct struct {
 }
 
 var UsersTable = "accounts"
+var OrdersTable = "orders"
+var TokensTable = "tokens"
 
 // соединение с базой данных
 func ConnectUsersTable(ctx context.Context, dbEndPoint string) (*DBstruct, error) {
@@ -25,14 +27,53 @@ func ConnectUsersTable(ctx context.Context, dbEndPoint string) (*DBstruct, error
 	return dataBase, nil
 }
 
-func (dataBase *DBstruct) UsersTableCreation(ctx context.Context) error { //  task_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+func (dataBase *DBstruct) UsersTableCreation(ctx context.Context) error {
 	db := dataBase.DB
-	// В PostgreSQL нельзя передавать название таблицы в качестве параметра, so Sprintf
-	creatorOrder := "CREATE TABLE IF NOT EXISTS " + UsersTable + " (id INT GENERATED ALWAYS AS IDENTITY,"
-	creatorOrder += "login VARCHAR(100) PRIMARY KEY, password VARCHAR(100)) ;"
-	tag, err := db.Exec(ctx, creatorOrder)
+	// В PostgreSQL нельзя передавать название таблицы в качестве параметра
+	creatorOrder :=
+		"CREATE TABLE IF NOT EXISTS " + UsersTable +
+			"(id INT GENERATED ALWAYS AS IDENTITY UNIQUE," +
+			"login VARCHAR(100) PRIMARY KEY," +
+			"password VARCHAR(200)," +
+			"user_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);"
+
+	_, err := db.Exec(ctx, creatorOrder)
 	if err != nil {
-		return fmt.Errorf("error create users table. Tag is \"%s\" error is %w", tag.String(), err)
+		return fmt.Errorf("create users table. %w", err)
+	}
+	return nil
+}
+func (dataBase *DBstruct) OrdersTableCreation(ctx context.Context) error {
+	db := dataBase.DB
+	creatorOrder :=
+		"CREATE TABLE IF NOT EXISTS " + OrdersTable +
+			"(id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY," +
+			"userCode INT," +
+			"orderNumber BIGINT," +
+			"order_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+			"FOREIGN KEY (userCode) REFERENCES " + UsersTable + "(id) ON DELETE CASCADE);"
+
+	_, err := db.Exec(ctx, creatorOrder)
+	if err != nil {
+		return fmt.Errorf("create orders table. %w", err)
+	}
+	return nil
+}
+func (dataBase *DBstruct) TokensTableCreation(ctx context.Context) error {
+	db := dataBase.DB
+	creatorOrder :=
+		"CREATE TABLE IF NOT EXISTS " + TokensTable +
+			"(id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY," +
+			"userCode INT," +
+			"balance BIGINT," +
+			"bonus BIGINT," +
+			"token VARCHAR(1000)," +
+			"token_valid_until TIMESTAMP," +
+			"token_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+			"FOREIGN KEY (userCode) REFERENCES " + UsersTable + "(id) ON DELETE CASCADE);"
+	_, err := db.Exec(ctx, creatorOrder)
+	if err != nil {
+		return fmt.Errorf("create orders table. %w", err)
 	}
 	return nil
 }

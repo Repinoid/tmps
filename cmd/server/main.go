@@ -11,7 +11,6 @@ import (
 )
 
 var host = "localhost:8088"
-var usersTable = "accounts"
 
 const dbEndPoint = "postgres://postgres:passwordas@forgo.c7wegmiakpkw.us-west-1.rds.amazonaws.com:5432/forgo"
 
@@ -45,7 +44,17 @@ func run() error {
 	}
 	err = DB.UsersTableCreation(ctx)
 	if err != nil {
-		fmt.Printf("error  table creation %v", err)
+		fmt.Printf("main: %v", err)
+		return err
+	}
+	err = DB.OrdersTableCreation(ctx)
+	if err != nil {
+		fmt.Printf("main:%v", err)
+		return err
+	}
+	err = DB.TokensTableCreation(ctx)
+	if err != nil {
+		fmt.Printf("main:%v", err)
 		return err
 	}
 
