@@ -6,10 +6,19 @@ import (
 	"io"
 	"net/http"
 	"oppa/internal/securitate"
+	"strings"
 	"time"
 )
 
 func registerUser(rwr http.ResponseWriter, req *http.Request) {
+
+	if !strings.Contains(req.Header.Get("Content-Type"), "application/json") {
+		rwr.WriteHeader(http.StatusBadRequest) //400 — неверный формат запроса;
+		fmt.Fprintf(rwr, `{"status":"StatusBadRequest"}`)
+		sugar.Debug("not application/json\n")
+		return
+	}
+
 	rwr.Header().Set("Content-Type", "application/json")
 
 	telo, err := io.ReadAll(req.Body)
@@ -60,6 +69,12 @@ func registerUser(rwr http.ResponseWriter, req *http.Request) {
 }
 
 func loginUser(rwr http.ResponseWriter, req *http.Request) {
+	if !strings.Contains(req.Header.Get("Content-Type"), "application/json") {
+		rwr.WriteHeader(http.StatusBadRequest) //400 — неверный формат запроса;
+		fmt.Fprintf(rwr, `{"status":"StatusBadRequest"}`)
+		sugar.Debug("not application/json\n")
+		return
+	}
 	rwr.Header().Set("Content-Type", "application/json")
 
 	telo, err := io.ReadAll(req.Body)

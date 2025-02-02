@@ -82,6 +82,7 @@ func Test_UserRegister(t *testing.T) {
 		t.Run(tt.testName, func(t *testing.T) {
 			lo, _ := json.Marshal(logos{UserName: tt.userName, Password: tt.password})
 			request := httptest.NewRequest(http.MethodPost, tt.urla, bytes.NewBuffer(lo))
+			request.Header.Set("Content-Type", "application/json")
 			w := httptest.NewRecorder()
 			registerUser(w, request)
 			res := w.Result()
@@ -191,6 +192,7 @@ func Test_UserLogin(t *testing.T) {
 			lo, _ := json.Marshal(logos{UserName: tt.userName, Password: tt.password})
 			request := httptest.NewRequest(http.MethodPost, tt.urla, bytes.NewBuffer(lo))
 			w := httptest.NewRecorder()
+			request.Header.Set("Content-Type", "application/json")
 			loginUser(w, request)
 			res := w.Result()
 			defer res.Body.Close()
