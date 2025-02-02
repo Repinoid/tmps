@@ -29,7 +29,7 @@ func TestDBstruct_AddUser(t *testing.T) {
 		{
 			name: "Nice adding",
 			args: args{
-				userName: "us1",
+				userName: "us3",
 				password: "pass1",
 			},
 			isErr: false,
@@ -37,7 +37,7 @@ func TestDBstruct_AddUser(t *testing.T) {
 		{
 			name: "Duplicate adding",
 			args: args{
-				userName: "us1",
+				userName: "us3",
 				password: "pass1",
 			},
 			isErr:     true,
