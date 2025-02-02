@@ -49,7 +49,7 @@ func (dataBase *DBstruct) OrdersTableCreation(ctx context.Context) error {
 		"CREATE TABLE IF NOT EXISTS " + OrdersTable +
 			"(id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY," +
 			"userCode INT NOT NULL," +
-			"orderNumber BIGINT NOT NULL," +
+			"orderNumber BIGINT NOT NULL UNIQUE," +
 			"order_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
 			"FOREIGN KEY (userCode) REFERENCES " + UsersTable + "(id) ON DELETE CASCADE);"
 
@@ -220,6 +220,19 @@ func (dataBase *DBstruct) GetIDByToken(ctx context.Context, token string, tokenI
 
 	order := "SELECT id from " + TokensTable + " WHERE token =  $1 ;"
 	row := db.QueryRow(ctx, order, token)
+	var id int64
+	err := row.Scan(&id)
+	if err != nil {
+		return fmt.Errorf("GT %w", err)
+	}
+	*tokenID = id
+	return nil
+}
+func (dataBase *DBstruct) GetIDByOrder(ctx context.Context, orderNum int64, tokenID *int64) error {
+	db := dataBase.DB
+
+	order := "SELECT id from " + OrdersTable + " WHERE token =  $1 ;"
+	row := db.QueryRow(ctx, order, orderNum)
 	var id int64
 	err := row.Scan(&id)
 	if err != nil {
