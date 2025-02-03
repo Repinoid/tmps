@@ -49,6 +49,28 @@ func Test_UserRegister(t *testing.T) {
 			},
 		},
 		{
+			testName: "Right case",
+			urla:     "/api/user/register",
+			userName: "us111",
+			password: "pass1",
+			want: want{
+				code:        http.StatusOK,
+				noMarshErr:  true,
+				contentType: "application/json",
+			},
+		},
+		{
+			testName: "Right case",
+			urla:     "/api/user/register",
+			userName: "us222",
+			password: "pass1",
+			want: want{
+				code:        http.StatusOK,
+				noMarshErr:  true,
+				contentType: "application/json",
+			},
+		},
+		{
 			testName: "User already exists",
 			urla:     "/api/user/register",
 			userName: "us1",
@@ -235,6 +257,7 @@ func Test_PutOrder(t *testing.T) {
 		userName    string
 		orderNum    int
 		ContentType string
+		TokenSuffix string
 
 		want want
 	}{
@@ -242,37 +265,93 @@ func Test_PutOrder(t *testing.T) {
 			testName:    "Right PUT",
 			urla:        "/api/user/orders",
 			userName:    "us1",
-			orderNum:    1111111,
+			orderNum:    111,
 			ContentType: "text/plain",
 			want: want{
 				code:        http.StatusAccepted,
 				response:    `{"status":"StatusAccepted"}`,
 				contentType: "application/json",
 			},
+			TokenSuffix: ">",
 		},
+		{
+			testName:    "Right PUT 222",
+			urla:        "/api/user/orders",
+			userName:    "us222",
+			orderNum:    222,
+			ContentType: "text/plain",
+			want: want{
+				code:        http.StatusAccepted,
+				response:    `{"status":"StatusAccepted"}`,
+				contentType: "application/json",
+			},
+			TokenSuffix: ">",
+		},
+		{
+			testName:    "Already PUT",
+			urla:        "/api/user/orders",
+			userName:    "us1",
+			orderNum:    111,
+			ContentType: "text/plain",
+			want: want{
+				code:        http.StatusOK,
+				response:    `{"status":"StatusOK"}`,
+				contentType: "application/json",
+			},
+			TokenSuffix: ">",
+		},
+		{
+			testName:    "Other PUT",
+			urla:        "/api/user/orders",
+			userName:    "us1",
+			orderNum:    222,
+			ContentType: "text/plain",
+			want: want{
+				code:        http.StatusConflict,
+				response:    `{"status":"StatusConflict"}`,
+				contentType: "application/json",
+			},
+			TokenSuffix: ">",
+		},
+
 		{
 			testName:    "Wrong Content Type",
 			urla:        "/api/user/orders",
 			userName:    "us1",
-			orderNum:    1111111,
+			orderNum:    111,
 			ContentType: "application/json",
 			want: want{
 				code:        http.StatusBadRequest,
 				response:    `{"status":"StatusBadRequest"}`,
 				contentType: "application/json",
 			},
+			TokenSuffix: ">",
 		},
 		{
 			testName:    "Wrong PUT user not exist",
 			urla:        "/api/user/orders",
 			userName:    "us10",
-			orderNum:    1111111,
+			orderNum:    111,
 			ContentType: "text/plain",
 			want: want{
 				code:        http.StatusUnauthorized,
 				response:    `{"status":"StatusUnauthorized"}`,
 				contentType: "application/json",
 			},
+			TokenSuffix: ">",
+		},
+		{
+			testName:    "Wrong TOKEN string",
+			urla:        "/api/user/orders",
+			userName:    "us1",
+			orderNum:    111,
+			ContentType: "text/plain",
+			want: want{
+				code:        http.StatusUnauthorized,
+				response:    `{"status":"StatusUnauthorized"}`,
+				contentType: "application/json",
+			},
+			TokenSuffix: ">>",
 		},
 	}
 	logger, err := zap.NewDevelopment()
@@ -298,7 +377,7 @@ func Test_PutOrder(t *testing.T) {
 		t.Run(tt.testName, func(t *testing.T) {
 			var token string
 			err = DB.GetToken(ctx, tt.userName, &token)
-			tokenStr := "Bearer <" + token + ">"
+			tokenStr := "Bearer <" + token + tt.TokenSuffix
 
 			request := httptest.NewRequest(http.MethodPost, tt.urla, bytes.NewBufferString(strconv.Itoa(tt.orderNum)))
 			w := httptest.NewRecorder()

@@ -151,8 +151,8 @@ func PutOrder(rwr http.ResponseWriter, req *http.Request) {
 	err := DB.GetIDByToken(ctx, tokenStr, &tokenID)
 
 	if (!niceP) || (!niceS) || (err != nil) {
-		rwr.WriteHeader(http.StatusUnauthorized) // 401 — неверная пара логин/пароль;
-		fmt.Fprintf(rwr, `{"status":"StatusUnauthorized"}`)
+		rwr.WriteHeader(http.StatusUnauthorized)            // 401 — неверная пара логин/пароль;
+		fmt.Fprintf(rwr, `{"status":"StatusUnauthorized"}`) // либо токена неверный формат, либо по нему нет юзера в базе
 		sugar.Debug("Authorization header\n")
 		return
 	}
@@ -165,22 +165,36 @@ func PutOrder(rwr http.ResponseWriter, req *http.Request) {
 		return
 	}
 	defer req.Body.Close()
-	orderStr := string(telo)
-	orderNum, err := strconv.ParseInt(orderStr, 10, 64)
+
+	orderStr := string(telo)                            // telo - []byte
+	orderNum, err := strconv.ParseInt(orderStr, 10, 64) //
 	if err != nil {
 		rwr.WriteHeader(http.StatusUnprocessableEntity) // 422 — неверный формат номера заказа;
 		fmt.Fprintf(rwr, `{"status":"StatusUnprocessableEntity"}`)
 		sugar.Debug("ordernum err\n")
 		return
 	}
-	err = DB.UpLoadOrderByID(ctx, tokenID, orderNum)
-	if err != nil {
-		rwr.WriteHeader(http.StatusConflict) // 409 — номер заказа уже был загружен другим пользователем;
-		fmt.Fprintf(rwr, `{"status":"StatusConflict"}`)
+	var orderID int64
+	err = DB.GetIDByOrder(ctx, orderNum, &orderID)
+	if err != nil { // если такого номера заказа нет в базе записываем его
+		err = DB.UpLoadOrderByID(ctx, tokenID, orderNum)
+		if err != nil {
+			rwr.WriteHeader(http.StatusInternalServerError) //500 — внутренняя ошибка сервера.
+			fmt.Fprintf(rwr, `{"status":"StatusInternalServerError"}`)
+			sugar.Debug("ordernum err\n")
+			return
+		}
+		rwr.WriteHeader(http.StatusAccepted) //202 — новый номер заказа принят в обработку;
+		fmt.Fprintf(rwr, `{"status":"StatusAccepted"}`)
+		return
+	}
+	if orderID == tokenID {
+		rwr.WriteHeader(http.StatusOK) // 200 — номер заказа уже был загружен ЭТИМ пользователем;
+		fmt.Fprintf(rwr, `{"status":"StatusOK"}`)
 		sugar.Debug("ordernum err\n")
 		return
 	}
-	rwr.WriteHeader(http.StatusAccepted) //202 — новый номер заказа принят в обработку;
-	fmt.Fprintf(rwr, `{"status":"StatusAccepted"}`)
-
+	rwr.WriteHeader(http.StatusConflict) // 409 — номер заказа уже был загружен другим пользователем;
+	fmt.Fprintf(rwr, `{"status":"StatusConflict"}`)
+	sugar.Debug("ordernum err\n")
 }

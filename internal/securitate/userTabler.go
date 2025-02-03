@@ -64,7 +64,7 @@ func (dataBase *DBstruct) TokensTableCreation(ctx context.Context) error {
 	creatorOrder :=
 		"CREATE TABLE IF NOT EXISTS " + TokensTable +
 			"(id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY," +
-			"userCode INT NOT NULL," +
+			"userCode INT NOT NULL UNIQUE," +
 			"balance BIGINT DEFAULT 0," +
 			"bonus BIGINT DEFAULT 0," +
 			"token VARCHAR(1000) NOT NULL," +
@@ -218,7 +218,7 @@ func (dataBase *DBstruct) UpLoadOrderByID(ctx context.Context, userID int64, ord
 func (dataBase *DBstruct) GetIDByToken(ctx context.Context, token string, tokenID *int64) error {
 	db := dataBase.DB
 
-	order := "SELECT id from " + TokensTable + " WHERE token =  $1 ;"
+	order := "SELECT usercode from " + TokensTable + " WHERE token =  $1 ;"
 	row := db.QueryRow(ctx, order, token)
 	var id int64
 	err := row.Scan(&id)
@@ -228,16 +228,16 @@ func (dataBase *DBstruct) GetIDByToken(ctx context.Context, token string, tokenI
 	*tokenID = id
 	return nil
 }
-func (dataBase *DBstruct) GetIDByOrder(ctx context.Context, orderNum int64, tokenID *int64) error {
+func (dataBase *DBstruct) GetIDByOrder(ctx context.Context, orderNum int64, orderID *int64) error {
 	db := dataBase.DB
 
-	order := "SELECT id from " + OrdersTable + " WHERE token =  $1 ;"
+	order := "SELECT usercode from " + OrdersTable + " WHERE orderNumber =  $1 ;"
 	row := db.QueryRow(ctx, order, orderNum)
 	var id int64
 	err := row.Scan(&id)
 	if err != nil {
 		return fmt.Errorf("GT %w", err)
 	}
-	*tokenID = id
+	*orderID = id
 	return nil
 }
