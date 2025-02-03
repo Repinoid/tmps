@@ -18,6 +18,24 @@ import (
 	"go.uber.org/zap"
 )
 
+func Test_DropTables(t *testing.T) {
+	ctx = context.Background()
+	//	var err error
+	DB, err := securitate.ConnectToDB(ctx)
+	if err != nil {
+		fmt.Printf("database connection error  %v", err)
+		return
+	}
+	for _, tab := range []string{"orders", "tokens", "accounts"} {
+		dropOrder := "DROP TABLE " + tab + " ;"
+		tag, err := DB.DB.Exec(ctx, dropOrder)
+		if err != nil {
+			fmt.Printf("error DROP users table. Tag is \"%s\" error is %v", tag.String(), err)
+			return
+		}
+	}
+}
+
 func Test_UserRegister(t *testing.T) {
 	type logos struct {
 		UserName string `json:"login"`
@@ -88,10 +106,6 @@ func Test_UserRegister(t *testing.T) {
 	}
 	defer logger.Sync()
 	sugar = *logger.Sugar()
-
-	securitate.UsersTable = "tutab"
-	securitate.TokensTable = "tttab"
-	securitate.OrdersTable = "totab"
 
 	ctx = context.Background()
 	//	var err error
@@ -196,10 +210,6 @@ func Test_UserLogin(t *testing.T) {
 	defer logger.Sync()
 	sugar = *logger.Sugar()
 
-	securitate.UsersTable = "tutab"
-	securitate.TokensTable = "tttab"
-	securitate.OrdersTable = "totab"
-
 	ctx = context.Background()
 	//	var err error
 	DB, err = securitate.ConnectToDB(ctx)
@@ -236,14 +246,6 @@ func Test_UserLogin(t *testing.T) {
 		})
 
 	}
-	// for _, tab := range []string{securitate.OrdersTable, securitate.TokensTable, securitate.UsersTable} {
-	// 	dropOrder := "DROP TABLE " + tab + " ;"
-	// 	tag, err := DB.DB.Exec(ctx, dropOrder)
-	// 	if err != nil {
-	// 		fmt.Printf("error DROP users table. Tag is \"%s\" error is %v", tag.String(), err)
-	// 		return
-	// 	}
-	// }
 }
 func Test_PutOrder(t *testing.T) {
 	type want struct {
@@ -361,10 +363,6 @@ func Test_PutOrder(t *testing.T) {
 	defer logger.Sync()
 	sugar = *logger.Sugar()
 
-	securitate.UsersTable = "tutab"
-	securitate.TokensTable = "tttab"
-	securitate.OrdersTable = "totab"
-
 	ctx = context.Background()
 	//	var err error
 	DB, err = securitate.ConnectToDB(ctx)
@@ -395,12 +393,5 @@ func Test_PutOrder(t *testing.T) {
 		})
 
 	}
-	for _, tab := range []string{securitate.OrdersTable, securitate.TokensTable, securitate.UsersTable} {
-		dropOrder := "DROP TABLE " + tab + " ;"
-		tag, err := DB.DB.Exec(ctx, dropOrder)
-		if err != nil {
-			fmt.Printf("error DROP users table. Tag is \"%s\" error is %v", tag.String(), err)
-			return
-		}
-	}
+
 }
