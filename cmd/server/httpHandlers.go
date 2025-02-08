@@ -4,11 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"oppa/internal/securitate"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/go-resty/resty/v2"
+	"github.com/gorilla/mux"
 )
 
 func registerUser(rwr http.ResponseWriter, req *http.Request) {
@@ -148,9 +152,9 @@ func PutOrder(rwr http.ResponseWriter, req *http.Request) {
 	tokenStr, niceS := strings.CutSuffix(tokenStr, ">")
 
 	var tokenID int64
-	err := DB.GetIDByToken(ctx, tokenStr, &tokenID)
+	//	err := DB.GetIDByToken(ctx, tokenStr, &tokenID)	// получаем ID пользователя по полученному токену
 
-	if (!niceP) || (!niceS) || (err != nil) {
+	if (!niceP) || (!niceS) || (DB.GetIDByToken(ctx, tokenStr, &tokenID) != nil) { // если неверная строка в Authorization - до GetIDByToken дело не дойдёт
 		rwr.WriteHeader(http.StatusUnauthorized)            // 401 — неверная пара логин/пароль;
 		fmt.Fprintf(rwr, `{"status":"StatusUnauthorized"}`) // либо токена неверный формат, либо по нему нет юзера в базе
 		sugar.Debug("Authorization header\n")
@@ -197,4 +201,25 @@ func PutOrder(rwr http.ResponseWriter, req *http.Request) {
 	rwr.WriteHeader(http.StatusConflict) // 409 — номер заказа уже был загружен другим пользователем;
 	fmt.Fprintf(rwr, `{"status":"StatusConflict"}`)
 	sugar.Debug("ordernum err\n")
+}
+
+func GetOrders(rwr http.ResponseWriter, req *http.Request) {
+	rwr.Header().Set("Content-Type", "application/json")
+	vars := mux.Vars(req)
+	namba := vars["number"]
+	var orderStat orderStatus
+	//	getCMD := fmt.Sprintf("/api/orders/%s", strconv.Itoa(Luhner(number)))
+	getCMD := fmt.Sprintf("/api/orders/%s", namba)
+	httpc := resty.New() //
+	httpc.SetBaseURL("http://" + host)
+	getReq := httpc.R()
+	// 	SetHeader("Content-Type", "application/json").
+	// 	SetBody(wts)
+	resp, err := getReq.
+		SetResult(&orderStat).
+		SetDoNotParseResponse(false).
+		Get(getCMD) //
+	rwr.WriteHeader(resp.StatusCode())
+	log.Printf("GET %s order %+v  body is %+v err is %+v\n", namba, resp.StatusCode(), orderStat, err)
+
 }

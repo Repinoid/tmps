@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"oppa/internal/securitate"
 
+	"github.com/theplant/luhn"
+
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
 )
@@ -47,9 +49,22 @@ func run() error {
 	router.HandleFunc("/api/user/register", registerUser).Methods("POST")
 	router.HandleFunc("/api/user/login", loginUser).Methods("POST")
 	router.HandleFunc("/api/user/orders", PutOrder).Methods("POST")
+	router.HandleFunc("/api/orders/{number}", GetOrders).Methods("GET")
 
 	return http.ListenAndServe(host, router)
 }
 
 // curl localhost:8088/api/user/register -H "Content-Type":"application/json" -d "{\"login\":\"user1\",\"password\":\"thePass\"}"
 // curl localhost:8088/api/user/login -H "Content-Type":"application/json" -d "{\"login\":\"user1\",\"password\":\"thePass\"}"
+
+func Luhner(numb int) int {
+	// if luhn.Valid(numb) {
+	// 	return numb
+	// }
+	return 10*numb + luhn.CalculateLuhn(numb)
+}
+type orderStatus struct {
+	Order   string  `json:"order"`
+	Status  string  `json:"status"`
+	Accrual float64 `json:"accrual"`
+}

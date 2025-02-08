@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand/v2"
 	"strconv"
 
 	"github.com/go-resty/resty/v2"
@@ -45,7 +46,6 @@ func run() error {
 
 	marks := []buyback{{Match: "Bork", Reward: 10, Reward_type: "%"},
 		{Match: "Acer", Reward: 20, Reward_type: "pt"},
-		{Match: "HP", Reward: 15, Reward_type: "%"},
 		{Match: "Samsung", Reward: 25, Reward_type: "%"},
 		{Match: "Apple", Reward: 35, Reward_type: "%"},
 	}
@@ -54,26 +54,23 @@ func run() error {
 		poster("/api/goods", buyM)
 	}
 
-	ord := orda{Order: strconv.Itoa(Luhner(10000)), Goods: []tovar{
-		{Description: "Tea Bork", Price: 111},
-		{Description: "Monitor Samsung", Price: 2222},
-		{Description: "Apple pc", Price: 111},
-		{Description: "HP printer", Price: 2222},
-	}}
-	ord1 := orda{Order: strconv.Itoa(Luhner(30000)), Goods: []tovar{
-		{Description: "Tea Bork", Price: 111},
-		{Description: "Monitor Acer", Price: 2222},
-		{Description: "Apple watch", Price: 111},
-		{Description: "Display Samsung", Price: 2222},
-	}}
-	buyM, _ := json.Marshal(ord)
-	poster("/api/orders", buyM)
-	buyM, _ = json.Marshal(ord1)
-	poster("/api/orders", buyM)
+	ordera := []orda{}
+	for i := range 30 {
+		ord := orda{Order: strconv.Itoa(Luhner(i)), Goods: []tovar{
+			{Description: "Smth " + marks[i%4].Match + " " + strconv.Itoa(i), Price: rand.IntN(1000)}, //+ " " + strconv.Itoa(Luhner(i+rand.IntN(777) + 11111))
+		}}
+		//	log.Printf("desc %s", ord.Order)
+		ordera = append(ordera, ord)
+	}
 
-	getorder(10000)
-	getorder(20000)
-	getorder(30000)
+	for _, ord := range ordera {
+		buyM, _ := json.Marshal(ord)
+		poster("/api/orders", buyM)
+	}
+
+	getorder(1)
+	getorder(2)
+	getorder(3)
 
 	return nil
 }
@@ -87,7 +84,7 @@ func poster(postCMD string, wts []byte) error {
 	resp, err := req.
 		SetDoNotParseResponse(false).
 		Post(postCMD) //
-	log.Printf("AGENT responce from server %+v  body is %s\n", resp.StatusCode(), resp.Body())
+	log.Printf("%s responce from server %+v  body is %s\n", postCMD, resp.StatusCode(), resp.Body())
 	return err
 }
 

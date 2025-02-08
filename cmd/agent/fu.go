@@ -5,8 +5,8 @@ import (
 )
 
 func Luhner(numb int) int {
-	if luhn.Valid(numb) {
-		return numb
-	}
+	// if luhn.Valid(numb) {
+	// 	return numb
+	// }
 	return 10*numb + luhn.CalculateLuhn(numb)
 }
