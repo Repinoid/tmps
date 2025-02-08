@@ -60,6 +60,7 @@ func (dataBase *DBstruct) OrdersTableCreation(ctx context.Context) error {
 	}
 	return nil
 }
+
 func (dataBase *DBstruct) TokensTableCreation(ctx context.Context) error {
 	db := dataBase.DB
 	creatorOrder :=
@@ -169,7 +170,7 @@ func (dataBase *DBstruct) ChangePassword(ctx context.Context, userName string, p
 func (dataBase *DBstruct) AddOrder(ctx context.Context, userName string, orderNumber int64) error {
 	db := dataBase.DB
 
-	order := "INSERT INTO orders(userCode, ordernumber) VALUES ((select id from accounts where login = $1), $1) ;"
+	order := "INSERT INTO orders(userCode, ordernumber) VALUES ((select id from accounts where login = $1), $2) ;"
 
 	_, err := db.Exec(ctx, order, userName, orderNumber)
 	if err != nil {
@@ -177,16 +178,17 @@ func (dataBase *DBstruct) AddOrder(ctx context.Context, userName string, orderNu
 	}
 	return nil
 }
-func (dataBase *DBstruct) AddToken(ctx context.Context, userName string, tokenString string) error {
-	db := dataBase.DB
 
-	order := "INSERT INTO tokens(userCode, token) VALUES ((select id from accounts where login = $1), $2) ;"
-	_, err := db.Exec(ctx, order, userName, tokenString)
-	if err != nil {
-		return fmt.Errorf("add TOKEN %w", err)
-	}
-	return nil
-}
+//	func (dataBase *DBstruct) AddToken(ctx context.Context, userName string, tokenString string) error {
+//		db := dataBase.DB
+//		order := "INSERT INTO tokens(userCode, token) VALUES ((select id from accounts where login = $1), $2) ;"
+//		_, err := db.Exec(ctx, order, userName, tokenString)
+//		if err != nil {
+//			return fmt.Errorf("add TOKEN %w", err)
+//		}
+//		return nil
+//	}
+
 func (dataBase *DBstruct) GetToken(ctx context.Context, userName string, tokenString *string) error {
 	db := dataBase.DB
 	//				получить токен из токен-таблицы  где код пользователя равен коду юзера из юзер-таблицы с именем UserName
@@ -203,7 +205,6 @@ func (dataBase *DBstruct) GetToken(ctx context.Context, userName string, tokenSt
 
 func (dataBase *DBstruct) UpLoadOrderByID(ctx context.Context, userID int64, orderNumber int64) error {
 	db := dataBase.DB
-
 	order := "INSERT INTO orders(userCode, orderNumber) VALUES ($1, $2) ;"
 	_, err := db.Exec(ctx, order, userID, orderNumber)
 	if err != nil {
@@ -214,7 +215,6 @@ func (dataBase *DBstruct) UpLoadOrderByID(ctx context.Context, userID int64, ord
 
 func (dataBase *DBstruct) GetIDByToken(ctx context.Context, token string, tokenID *int64) error {
 	db := dataBase.DB
-
 	order := "SELECT usercode from " + "tokens" + " WHERE token =  $1 ;"
 	row := db.QueryRow(ctx, order, token)
 	var id int64
@@ -225,9 +225,9 @@ func (dataBase *DBstruct) GetIDByToken(ctx context.Context, token string, tokenI
 	*tokenID = id
 	return nil
 }
+
 func (dataBase *DBstruct) GetIDByOrder(ctx context.Context, orderNum int64, orderID *int64) error {
 	db := dataBase.DB
-
 	order := "SELECT usercode from " + "orders" + " WHERE orderNumber =  $1 ;"
 	row := db.QueryRow(ctx, order, orderNum)
 	var id int64

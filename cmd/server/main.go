@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var host = "localhost:8088"
+var host = "localhost:8080"
 
 var sugar zap.SugaredLogger
 var ctx context.Context

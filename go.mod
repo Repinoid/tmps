@@ -5,10 +5,12 @@ go 1.22.0
 toolchain go1.22.3
 
 require (
+	github.com/go-resty/resty/v2 v2.16.5
 	github.com/golang-jwt/jwt/v4 v4.5.1
 	github.com/gorilla/mux v1.8.1
 	github.com/jackc/pgx/v5 v5.7.2
 	github.com/stretchr/testify v1.8.4
+	github.com/theplant/luhn v0.0.0-20170224032821-81a1a381387a
 	go.uber.org/zap v1.27.0
 )
 
@@ -23,6 +25,7 @@ require (
 	github.com/rogpeppe/go-internal v1.13.1 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
+	golang.org/x/net v0.33.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 

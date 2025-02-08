@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	//  "os"
 
@@ -11,7 +12,7 @@ import (
 	yc "github.com/ydb-platform/ydb-go-yc"
 )
 
-func main() {
+func main1() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	db, err := ydb.Open(ctx,
@@ -33,5 +34,20 @@ func main() {
 	}
 
 	fmt.Println(whoAmI.String())
+
+}
+
+func main() {
+
+	t:= time.Now().Add(2*time.Second)
+
+	time.Sleep(9*time.Second)
+	u := time.Until(t)
+	fmt.Println(u)
+
+	time.Sleep(u)
+
+	fmt.Println(t, "\n", time.Now())
+
 
 }
