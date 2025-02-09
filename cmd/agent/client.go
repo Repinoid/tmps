@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"log"
 	"math/rand/v2"
+	"os/exec"
 	"strconv"
+	"time"
 
 	"github.com/go-resty/resty/v2"
 )
@@ -33,27 +35,34 @@ var host = "localhost:8080"
 
 func main() {
 
-	// cmnd := exec.Command("./acc.exe", "-d=postgres://postgres:passwordas@localhost:5432/forgo")
-	// //cmnd.Run() // and wait
-	// cmnd.Start()
+	cmnd := exec.Command("./acc.exe", "-d=postgres://postgres:passwordas@localhost:5432/forgo")
+	cmnd.Start()
+
+	time.Sleep(time.Second)
 
 	if err := run(); err != nil {
 		panic(err)
 	}
+
 }
 
 func run() error {
 
-	marks := []buyback{{Match: "Bork", Reward: 10, Reward_type: "%"},
+	marks := []buyback{
 		{Match: "Acer", Reward: 20, Reward_type: "pt"},
+		{Match: "Bork", Reward: 10, Reward_type: "%"},
+		{Match: "Asus", Reward: 20, Reward_type: "pt"},
 		{Match: "Samsung", Reward: 25, Reward_type: "%"},
 		{Match: "Apple", Reward: 35, Reward_type: "%"},
 	}
 	for _, r := range marks {
-		buyM, _ := json.Marshal(r)
+		buyM, err := json.Marshal(r)
+		if err != nil {
+			return fmt.Errorf("err %w", err)
+		}
 		poster("/api/goods", buyM)
 	}
-
+// "{\"match\":\"Acer\",\"reward\":20,\"reward_type\":\"pt\"}"
 	ordera := []orda{}
 	for i := range 30 {
 		ord := orda{Order: strconv.Itoa(Luhner(i)), Goods: []tovar{
@@ -67,7 +76,7 @@ func run() error {
 		buyM, _ := json.Marshal(ord)
 		poster("/api/orders", buyM)
 	}
-
+// "{\"order\":\"0\",\"goods\":[{\"description\":\"Smth Acer 0\",\"price\":729}]}"
 	getorder(1)
 	getorder(2)
 	getorder(3)

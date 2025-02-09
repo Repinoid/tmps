@@ -51,6 +51,8 @@ func (dataBase *DBstruct) OrdersTableCreation(ctx context.Context) error {
 			"(id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY," +
 			"userCode INT NOT NULL," +
 			"orderNumber BIGINT NOT NULL UNIQUE," +
+			"orderStatus VARCHAR(20)," +
+			"accrual FLOAT8," +
 			"order_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
 			"FOREIGN KEY (userCode) REFERENCES " + "accounts" + "(id) ON DELETE CASCADE);"
 

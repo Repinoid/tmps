@@ -64,6 +64,7 @@ func TestDBstruct_AddUser(t *testing.T) {
 		fmt.Printf("database connection error  %v", err)
 		return
 	}
+	defer dataBase.DB.Close(ctx)
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -150,7 +151,8 @@ func TestDBstruct_AddOrder(t *testing.T) {
 		fmt.Printf("database connection error  %v", err)
 		return
 	}
-
+	defer dataBase.DB.Close(ctx)
+	
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := dataBase.AddOrder(ctx, tt.args.userName, tt.args.orderNumber)

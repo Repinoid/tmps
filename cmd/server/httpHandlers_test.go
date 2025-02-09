@@ -56,15 +56,8 @@ func Test_UserRegister(t *testing.T) {
 		want want
 	}{
 		{
-			testName: "Right case",
-			urla:     "/api/user/register",
-			userName: "us1",
-			password: "pass1",
-			want: want{
-				code:        http.StatusOK,
-				noMarshErr:  true,
-				contentType: "application/json",
-			},
+			testName: "Right case", urla: "/api/user/register", userName: "us1", password: "pass1",
+			want: want{code: http.StatusOK, noMarshErr: true, contentType: "application/json"},
 		},
 		{
 			testName: "Right case",
@@ -266,11 +259,11 @@ func Test_PutOrder(t *testing.T) {
 		{
 			testName:    "Right PUT",
 			urla:        "/api/user/orders",
-			userName:    "us1",
+			userName:    "us1", // first user
 			orderNum:    111,
 			ContentType: "text/plain",
 			want: want{
-				code:        http.StatusAccepted,
+				code:        http.StatusAccepted, // 202
 				response:    `{"status":"StatusAccepted"}`,
 				contentType: "application/json",
 			},
@@ -283,7 +276,7 @@ func Test_PutOrder(t *testing.T) {
 			orderNum:    222,
 			ContentType: "text/plain",
 			want: want{
-				code:        http.StatusAccepted,
+				code:        http.StatusAccepted, // 202
 				response:    `{"status":"StatusAccepted"}`,
 				contentType: "application/json",
 			},
@@ -292,11 +285,11 @@ func Test_PutOrder(t *testing.T) {
 		{
 			testName:    "Already PUT",
 			urla:        "/api/user/orders",
-			userName:    "us1",
+			userName:    "us1", // first user
 			orderNum:    111,
 			ContentType: "text/plain",
 			want: want{
-				code:        http.StatusOK,
+				code:        http.StatusOK, // 200
 				response:    `{"status":"StatusOK"}`,
 				contentType: "application/json",
 			},
@@ -305,7 +298,7 @@ func Test_PutOrder(t *testing.T) {
 		{
 			testName:    "Other PUT",
 			urla:        "/api/user/orders",
-			userName:    "us1",
+			userName:    "us1", // first user but other's order
 			orderNum:    222,
 			ContentType: "text/plain",
 			want: want{
@@ -321,7 +314,7 @@ func Test_PutOrder(t *testing.T) {
 			urla:        "/api/user/orders",
 			userName:    "us1",
 			orderNum:    111,
-			ContentType: "application/json",
+			ContentType: "application/json", // text/plain should be
 			want: want{
 				code:        http.StatusBadRequest,
 				response:    `{"status":"StatusBadRequest"}`,
@@ -353,19 +346,19 @@ func Test_PutOrder(t *testing.T) {
 				response:    `{"status":"StatusUnauthorized"}`,
 				contentType: "application/json",
 			},
-			TokenSuffix: ">>",
+			TokenSuffix: ">>", // bad string
 		},
 	}
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		panic("cannot initialize zap")
-	}
-	defer logger.Sync()
-	sugar = *logger.Sugar()
+	// logger, err := zap.NewDevelopment()
+	// if err != nil {
+	// 	panic("cannot initialize zap")
+	// }
+	// defer logger.Sync()
+	// sugar := *logger.Sugar()
 
 	ctx = context.Background()
 	//	var err error
-	DB, err = securitate.ConnectToDB(ctx)
+	DB, err := securitate.ConnectToDB(ctx)
 	if err != nil {
 		fmt.Printf("database connection error  %v", err)
 		return
@@ -391,7 +384,5 @@ func Test_PutOrder(t *testing.T) {
 			assert.JSONEq(t, tt.want.response, string(resBody))
 
 		})
-
 	}
-
 }
