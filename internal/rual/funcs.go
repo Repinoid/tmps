@@ -3,7 +3,10 @@ package rual
 import (
 	"encoding/json"
 	"log"
+	"net/http"
 	"strconv"
+	"sync"
+	"time"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/theplant/luhn"
@@ -29,6 +32,7 @@ type OrderStatus struct {
 }
 
 var accrualhost = "localhost:8080"
+var Time429 time.Time
 
 // func main() {
 
@@ -80,6 +84,10 @@ func Luhner(numb int) int {
 
 // OrderStatus - {номер заказа; статус расчёта начисления; рассчитанные баллы к начислению}
 func GetFromAccrual(number string) (orderStat OrderStatus, StatusCode int, err error) {
+
+	wait429 := time.Until(Time429) // время до разморозки
+	time.Sleep(wait429)
+
 	httpc := resty.New() //
 	httpc.SetBaseURL("http://" + accrualhost)
 	getReq := httpc.R()
@@ -90,5 +98,32 @@ func GetFromAccrual(number string) (orderStat OrderStatus, StatusCode int, err e
 		SetHeader("Content-Type", "application/json").
 		Get("/api/orders/" + number)
 
+		contentType := resp.Header().Get("Content-Type")
+		
+		if resp.StatusCode() == 429 && contentType == "text/plain" {
+			delayTime := resp.Header().Get("Retry-After")
+			dTime, err := strconv.Atoi(delayTime)
+			if err == nil {
+				var mutter sync.Mutex
+				mutter.Lock()  
+				Time429 = time.Now().Add(time.Duration(dTime)*time.Second)
+				mutter.Unlock()
+				time.Sleep(time.Duration(dTime)*time.Second)
+			}
+		}
+
 	return orderStat, resp.StatusCode(), err
 }
+
+/*
+t:= time.Now().Add(2*time.Second)
+
+time.Sleep(9*time.Second)
+u := time.Until(t)
+fmt.Println(u)
+
+time.Sleep(u)
+
+fmt.Println(t, "\n", time.Now())
+
+*/

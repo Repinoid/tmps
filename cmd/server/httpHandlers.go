@@ -175,9 +175,9 @@ func PutOrder(rwr http.ResponseWriter, req *http.Request) {
 	}
 	defer req.Body.Close()
 
-	orderStr := string(telo)                            // telo - []byte
+	orderStr := string(telo)                            // telo - []byte. В нём только номер заказа
 	orderNum, err := strconv.ParseInt(orderStr, 10, 64) //
-	if err != nil || (!luhn.Valid(int(orderNum))) {		// если не распарсилось или не по ЛУНУ
+	if err != nil || (!luhn.Valid(int(orderNum))) {     // если не распарсилось или не по ЛУНУ
 		rwr.WriteHeader(http.StatusUnprocessableEntity) // 422 — неверный формат номера заказа;
 		fmt.Fprintf(rwr, `{"status":"StatusUnprocessableEntity"}`)
 		sugar.Debug("ordernum err\n")
@@ -186,7 +186,8 @@ func PutOrder(rwr http.ResponseWriter, req *http.Request) {
 	var orderID int64
 	err = DataBase.GetIDByOrder(ctx, orderNum, &orderID)
 	if err != nil { // если такого номера заказа нет в базе записываем его
-		err = DataBase.UpLoadOrderByID(ctx, tokenID, orderNum, "status", 77.77)
+		
+		err = DataBase.UpLoadOrderByID(ctx, tokenID, orderNum, "status", 77.77) // tokenID)	- ID пользователя по полученному токену
 		if err != nil {
 			rwr.WriteHeader(http.StatusInternalServerError) //500 — внутренняя ошибка сервера.
 			fmt.Fprintf(rwr, `{"status":"StatusInternalServerError"}`)
