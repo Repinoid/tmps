@@ -16,7 +16,7 @@ var host = "localhost:8080"
 
 var sugar zap.SugaredLogger
 var ctx context.Context
-var DB *securitate.DBstruct
+var DataBase *securitate.DBstruct
 
 func main() {
 	logger, err := zap.NewDevelopment()
@@ -35,9 +35,9 @@ func run() error {
 	var err error
 	ctx = context.Background()
 
-	DB, err = securitate.ConnectToDB(ctx)
+	DataBase, err = securitate.ConnectToDB(ctx)
 
-	//	DB, err = ConnectUsersTable(ctx, dbEndPoint)
+	//	DataBase, err = ConnectUsersTable(ctx, dbEndPoint)
 
 	if err != nil {
 		fmt.Printf("database connection error  %v", err)

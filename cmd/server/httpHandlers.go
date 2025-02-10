@@ -56,14 +56,14 @@ func registerUser(rwr http.ResponseWriter, req *http.Request) {
 	}
 	sugar.Debugf("json.Unmarshal %+v err %+v\n", logos, err)
 
-	err = DB.IfUserExists(ctx, logos.UserName)
+	err = DataBase.IfUserExists(ctx, logos.UserName)
 	if err == nil {
 		fmt.Printf("User exists %v\n", err)
 		rwr.WriteHeader(http.StatusConflict) // 409 — логин уже занят;
 		fmt.Fprintf(rwr, `{"status":"StatusConflict"}`)
 		return
 	}
-	err = DB.AddUser(ctx, logos.UserName, logos.Password, Token)
+	err = DataBase.AddUser(ctx, logos.UserName, logos.Password, Token)
 	if err != nil {
 		rwr.WriteHeader(http.StatusBadRequest) // 400 — неверный формат запроса;
 		fmt.Fprintf(rwr, `{"status":"StatusBadRequest"}`)
@@ -109,14 +109,14 @@ func loginUser(rwr http.ResponseWriter, req *http.Request) {
 	}
 	sugar.Debugf("json.Unmarshal %+v err %+v\n", logos, err)
 
-	err = DB.IfUserExists(ctx, logos.UserName)
+	err = DataBase.IfUserExists(ctx, logos.UserName)
 	if err != nil {
 		fmt.Printf("User does NOT exist ERR %v\n", err)
 		rwr.WriteHeader(http.StatusUnauthorized) // 401 — неверная пара логин/пароль;
 		fmt.Fprintf(rwr, `{"status":"StatusUnauthorized"}`)
 		return
 	}
-	err = DB.CheckUserPassword(ctx, logos.UserName, logos.Password)
+	err = DataBase.CheckUserPassword(ctx, logos.UserName, logos.Password)
 	if err != nil {
 		fmt.Printf("Wrong password ERR %v\n", err)
 		rwr.WriteHeader(http.StatusUnauthorized) // 401 — неверная пара логин/пароль;
@@ -128,7 +128,7 @@ func loginUser(rwr http.ResponseWriter, req *http.Request) {
 		fmt.Printf("%v\n", err)
 		return
 	}
-	err = DB.UpdateToken(ctx, logos.UserName, Token)
+	err = DataBase.UpdateToken(ctx, logos.UserName, Token)
 	if err != nil {
 		rwr.WriteHeader(http.StatusInternalServerError) //500 — внутренняя ошибка сервера.
 		fmt.Fprintf(rwr, `{"status":"StatusInternalServerError"}`)
@@ -159,9 +159,9 @@ func PutOrder(rwr http.ResponseWriter, req *http.Request) {
 	tokenStr, niceS := strings.CutSuffix(tokenStr, ">")
 
 	var tokenID int64
-	//	err := DB.GetIDByToken(ctx, tokenStr, &tokenID)	// получаем ID пользователя по полученному токену
+	//	err := DataBase.GetIDByToken(ctx, tokenStr, &tokenID)	// получаем ID пользователя по полученному токену
 
-	if (!niceP) || (!niceS) || (DB.GetIDByToken(ctx, tokenStr, &tokenID) != nil) { // если неверная строка в Authorization - до GetIDByToken дело не дойдёт
+	if (!niceP) || (!niceS) || (DataBase.GetIDByToken(ctx, tokenStr, &tokenID) != nil) { // если неверная строка в Authorization - до GetIDByToken дело не дойдёт
 		rwr.WriteHeader(http.StatusUnauthorized)            // 401 — неверная пара логин/пароль;
 		fmt.Fprintf(rwr, `{"status":"StatusUnauthorized"}`) // либо токена неверный формат, либо по нему нет юзера в базе
 		sugar.Debug("Authorization header\n")
@@ -186,9 +186,9 @@ func PutOrder(rwr http.ResponseWriter, req *http.Request) {
 		return
 	}
 	var orderID int64
-	err = DB.GetIDByOrder(ctx, orderNum, &orderID)
+	err = DataBase.GetIDByOrder(ctx, orderNum, &orderID)
 	if err != nil { // если такого номера заказа нет в базе записываем его
-		err = DB.UpLoadOrderByID(ctx, tokenID, orderNum)
+		err = DataBase.UpLoadOrderByID(ctx, tokenID, orderNum)
 		if err != nil {
 			rwr.WriteHeader(http.StatusInternalServerError) //500 — внутренняя ошибка сервера.
 			fmt.Fprintf(rwr, `{"status":"StatusInternalServerError"}`)

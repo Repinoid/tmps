@@ -21,15 +21,15 @@ import (
 func Test_DropTables(t *testing.T) {
 	ctx = context.Background()
 	//	var err error
-	DB, err := securitate.ConnectToDB(ctx)
+	DataBase, err := securitate.ConnectToDB(ctx)
 	if err != nil {
 		fmt.Printf("database connection error  %v", err)
 		return
 	}
-	defer DB.DB.Close(ctx)
+	defer DataBase.DB.Close(ctx)
 	for _, tab := range []string{"orders", "tokens", "withdrawn", "accounts"} {
 		dropOrder := "DROP TABLE " + tab + " ;"
-		tag, err := DB.DB.Exec(ctx, dropOrder)
+		tag, err := DataBase.DB.Exec(ctx, dropOrder)
 		if err != nil {
 			fmt.Printf("error DROP users table. Tag is \"%s\" error is %v", tag.String(), err)
 			return
@@ -110,12 +110,12 @@ func Test_UserRegister(t *testing.T) {
 
 	ctx = context.Background()
 	var err error
-	DB, err = securitate.ConnectToDB(ctx)
+	DataBase, err = securitate.ConnectToDB(ctx)
 	if err != nil {
 		fmt.Printf("database connection error  %v", err)
 		return
 	}
-	defer DB.DB.Close(ctx)
+	defer DataBase.DB.Close(ctx)
 
 	for _, tt := range tests {
 		t.Run(tt.testName, func(t *testing.T) {
@@ -140,7 +140,7 @@ func Test_UserRegister(t *testing.T) {
 				require.NotEqual(t, tok.Token, "")
 
 				var tokenFromBase string
-				err = DB.GetToken(ctx, tt.userName, &tokenFromBase)
+				err = DataBase.GetToken(ctx, tt.userName, &tokenFromBase)
 				if err != nil {
 					fmt.Printf("tst %v", err)
 					return
@@ -205,15 +205,15 @@ func Test_UserLogin(t *testing.T) {
 			},
 		},
 	}
-	
+
 	ctx = context.Background()
 	var err error
-	DB, err = securitate.ConnectToDB(ctx)
+	DataBase, err = securitate.ConnectToDB(ctx)
 	if err != nil {
 		fmt.Printf("database connection error  %v", err)
 		return
 	}
-	defer DB.DB.Close(ctx)
+	defer DataBase.DB.Close(ctx)
 
 	for _, tt := range tests {
 		t.Run(tt.testName, func(t *testing.T) {
@@ -371,7 +371,7 @@ func Test_PutOrder(t *testing.T) {
 
 	ctx = context.Background()
 	var err error
-	DB, err = securitate.ConnectToDB(ctx)
+	DataBase, err = securitate.ConnectToDB(ctx)
 	if err != nil {
 		fmt.Printf("database connection error  %v", err)
 		return
@@ -380,7 +380,7 @@ func Test_PutOrder(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.testName, func(t *testing.T) {
 			var token string
-			err = DB.GetToken(ctx, tt.userName, &token)
+			err = DataBase.GetToken(ctx, tt.userName, &token)
 			tokenStr := "Bearer <" + token + tt.TokenSuffix
 
 			request := httptest.NewRequest(http.MethodPost, tt.urla, bytes.NewBufferString(strconv.Itoa(tt.orderNum)))
