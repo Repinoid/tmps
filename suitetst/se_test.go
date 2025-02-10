@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *TS) Test0Example5() {
+func (suite *TS) TestExample5() {
 	assert.Equal(suite.T(), 5, suite.VariableThatShouldStartAtFive)
 	log.Println("testexample5")
 	suite.Equal(5, suite.VariableThatShouldStartAtFive)
