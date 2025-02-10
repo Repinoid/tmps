@@ -4,15 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"oppa/internal/securitate"
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/go-resty/resty/v2"
-	"github.com/gorilla/mux"
 )
 
 func registerUser(rwr http.ResponseWriter, req *http.Request) {
@@ -188,7 +184,7 @@ func PutOrder(rwr http.ResponseWriter, req *http.Request) {
 	var orderID int64
 	err = DataBase.GetIDByOrder(ctx, orderNum, &orderID)
 	if err != nil { // если такого номера заказа нет в базе записываем его
-		err = DataBase.UpLoadOrderByID(ctx, tokenID, orderNum)
+		err = DataBase.UpLoadOrderByID(ctx, tokenID, orderNum, "status", 77.77)
 		if err != nil {
 			rwr.WriteHeader(http.StatusInternalServerError) //500 — внутренняя ошибка сервера.
 			fmt.Fprintf(rwr, `{"status":"StatusInternalServerError"}`)
@@ -208,25 +204,4 @@ func PutOrder(rwr http.ResponseWriter, req *http.Request) {
 	rwr.WriteHeader(http.StatusConflict) // 409 — номер заказа уже был загружен другим пользователем;
 	fmt.Fprintf(rwr, `{"status":"StatusConflict"}`)
 	sugar.Debug("ordernum err\n")
-}
-
-func GetOrders(rwr http.ResponseWriter, req *http.Request) {
-	rwr.Header().Set("Content-Type", "application/json")
-	vars := mux.Vars(req)
-	namba := vars["number"]
-	var orderStat orderStatus
-	//	getCMD := fmt.Sprintf("/api/orders/%s", strconv.Itoa(Luhner(number)))
-	getCMD := fmt.Sprintf("/api/orders/%s", namba)
-	httpc := resty.New() //
-	httpc.SetBaseURL("http://" + host)
-	getReq := httpc.R()
-	// 	SetHeader("Content-Type", "application/json").
-	// 	SetBody(wts)
-	resp, err := getReq.
-		SetResult(&orderStat).
-		SetDoNotParseResponse(false).
-		Get(getCMD) //
-	rwr.WriteHeader(resp.StatusCode())
-	log.Printf("GET %s order %+v  body is %+v err is %+v\n", namba, resp.StatusCode(), orderStat, err)
-
 }

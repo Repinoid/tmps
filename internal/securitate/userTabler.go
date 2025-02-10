@@ -190,17 +190,17 @@ func (dataBase *DBstruct) ChangePassword(ctx context.Context, userName string, p
 	return nil
 }
 
-func (dataBase *DBstruct) AddOrder(ctx context.Context, userName string, orderNumber int64) error {
-	db := dataBase.DB
+// func (dataBase *DBstruct) AddOrder(ctx context.Context, userName string, orderNumber int64, orderStatus string, accrual float64) error {
+// 	db := dataBase.DB
 
-	order := "INSERT INTO orders(userCode, ordernumber) VALUES ((select id from accounts where login = $1), $2) ;"
+// 	order := "INSERT INTO orders(userCode, ordernumber, orderStatus, accrual) VALUES ((select id from accounts where login = $1), $2, $3, $4) ;"
 
-	_, err := db.Exec(ctx, order, userName, orderNumber)
-	if err != nil {
-		return fmt.Errorf("add ORDER %w", err)
-	}
-	return nil
-}
+// 	_, err := db.Exec(ctx, order, userName, orderNumber, orderStatus, accrual)
+// 	if err != nil {
+// 		return fmt.Errorf("add ORDER %w", err)
+// 	}
+// 	return nil
+// }
 
 func (dataBase *DBstruct) UpdateToken(ctx context.Context, userName string, tokenString string) error {
 	db := dataBase.DB
@@ -226,10 +226,10 @@ func (dataBase *DBstruct) GetToken(ctx context.Context, userName string, tokenSt
 	return nil
 }
 
-func (dataBase *DBstruct) UpLoadOrderByID(ctx context.Context, userID int64, orderNumber int64) error {
+func (dataBase *DBstruct) UpLoadOrderByID(ctx context.Context, userID int64, orderNumber int64, orderStatus string, accrual float64) error {
 	db := dataBase.DB
-	order := "INSERT INTO orders(userCode, orderNumber) VALUES ($1, $2) ;"
-	_, err := db.Exec(ctx, order, userID, orderNumber)
+	order := "INSERT INTO orders(userCode, orderNumber, orderStatus, accrual) VALUES ($1, $2, $3, $4) ;"
+	_, err := db.Exec(ctx, order, userID, orderNumber, orderStatus, accrual)
 	if err != nil {
 		return fmt.Errorf("add ORDER %w", err)
 	}

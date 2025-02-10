@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"net/http"
 	"oppa/internal/securitate"
+	
 
-	"github.com/theplant/luhn"
+	
 
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
@@ -60,14 +61,3 @@ func run() error {
 // curl localhost:8080/api/goods -H "Content-Type":"application/json" -d "{\"match\":\"acer\",\"reward\":10,\"reward_type\":\"pt\"}" -v
 // curl localhost:8080/api/orders -H "Content-Type":"application/json" -d "{\"order\":\"0\",\"goods\":[{\"description\":\"Smth Acer 0\",\"price\":729}]}" -v
 
-func Luhner(numb int) int {
-	// if luhn.Valid(numb) {
-	// 	return numb
-	// }
-	return 10*numb + luhn.CalculateLuhn(numb)
-}
-type orderStatus struct {
-	Order   string  `json:"order"`
-	Status  string  `json:"status"`
-	Accrual float64 `json:"accrual"`
-}
