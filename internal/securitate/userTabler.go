@@ -119,6 +119,11 @@ func ConnectToDB(ctx context.Context) (*DBstruct, error) {
 		fmt.Printf("tbl: %v", err)
 		return nil, err
 	}
+	err = DB.WithdrawalsTableCreation(ctx)
+	if err != nil {
+		fmt.Printf("tbl: %v", err)
+		return nil, err
+	}
 	return DB, nil
 }
 
@@ -197,15 +202,15 @@ func (dataBase *DBstruct) AddOrder(ctx context.Context, userName string, orderNu
 	return nil
 }
 
-//	func (dataBase *DBstruct) AddToken(ctx context.Context, userName string, tokenString string) error {
-//		db := dataBase.DB
-//		order := "INSERT INTO tokens(userCode, token) VALUES ((select id from accounts where login = $1), $2) ;"
-//		_, err := db.Exec(ctx, order, userName, tokenString)
-//		if err != nil {
-//			return fmt.Errorf("add TOKEN %w", err)
-//		}
-//		return nil
-//	}
+func (dataBase *DBstruct) UpdateToken(ctx context.Context, userName string, tokenString string) error {
+	db := dataBase.DB
+	order := "UPDATE tokens SET token = $2 WHERE userCode = (select id from accounts where login = $1) ;"
+	_, err := db.Exec(ctx, order, userName, tokenString)
+	if err != nil {
+		return fmt.Errorf("add TOKEN %w", err)
+	}
+	return nil
+}
 
 func (dataBase *DBstruct) GetToken(ctx context.Context, userName string, tokenString *string) error {
 	db := dataBase.DB

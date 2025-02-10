@@ -128,6 +128,13 @@ func loginUser(rwr http.ResponseWriter, req *http.Request) {
 		fmt.Printf("%v\n", err)
 		return
 	}
+	err = DB.UpdateToken(ctx, logos.UserName, Token)
+	if err != nil {
+		rwr.WriteHeader(http.StatusInternalServerError) //500 — внутренняя ошибка сервера.
+		fmt.Fprintf(rwr, `{"status":"StatusInternalServerError"}`)
+		sugar.Debugf("UpdateToken %+v\n", err)
+		return
+	}
 	tok := struct {
 		Token string
 		Until time.Time

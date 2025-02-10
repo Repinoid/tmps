@@ -26,7 +26,8 @@ func Test_DropTables(t *testing.T) {
 		fmt.Printf("database connection error  %v", err)
 		return
 	}
-	for _, tab := range []string{"orders", "tokens", "accounts"} {
+	defer DB.DB.Close(ctx)
+	for _, tab := range []string{"orders", "tokens", "withdrawn", "accounts"} {
 		dropOrder := "DROP TABLE " + tab + " ;"
 		tag, err := DB.DB.Exec(ctx, dropOrder)
 		if err != nil {
@@ -34,6 +35,12 @@ func Test_DropTables(t *testing.T) {
 			return
 		}
 	}
+	logger, err := zap.NewDevelopment()
+	if err != nil {
+		panic("cannot initialize zap")
+	}
+	defer logger.Sync()
+	sugar = *logger.Sugar()
 }
 
 func Test_UserRegister(t *testing.T) {
@@ -56,11 +63,18 @@ func Test_UserRegister(t *testing.T) {
 		want want
 	}{
 		{
-			testName: "Right case", urla: "/api/user/register", userName: "us1", password: "pass1",
-			want: want{code: http.StatusOK, noMarshErr: true, contentType: "application/json"},
+			testName: "Right case1",
+			urla:     "/api/user/register",
+			userName: "us1",
+			password: "pass1",
+			want: want{
+				code:        http.StatusOK,
+				noMarshErr:  true,
+				contentType: "application/json",
+			},
 		},
 		{
-			testName: "Right case",
+			testName: "Right case111",
 			urla:     "/api/user/register",
 			userName: "us111",
 			password: "pass1",
@@ -71,7 +85,7 @@ func Test_UserRegister(t *testing.T) {
 			},
 		},
 		{
-			testName: "Right case",
+			testName: "Right case222",
 			urla:     "/api/user/register",
 			userName: "us222",
 			password: "pass1",
@@ -93,20 +107,15 @@ func Test_UserRegister(t *testing.T) {
 			},
 		},
 	}
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		panic("cannot initialize zap")
-	}
-	defer logger.Sync()
-	sugar = *logger.Sugar()
 
 	ctx = context.Background()
-	//	var err error
+	var err error
 	DB, err = securitate.ConnectToDB(ctx)
 	if err != nil {
 		fmt.Printf("database connection error  %v", err)
 		return
 	}
+	defer DB.DB.Close(ctx)
 
 	for _, tt := range tests {
 		t.Run(tt.testName, func(t *testing.T) {
@@ -196,20 +205,15 @@ func Test_UserLogin(t *testing.T) {
 			},
 		},
 	}
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		panic("cannot initialize zap")
-	}
-	defer logger.Sync()
-	sugar = *logger.Sugar()
-
+	
 	ctx = context.Background()
-	//	var err error
+	var err error
 	DB, err = securitate.ConnectToDB(ctx)
 	if err != nil {
 		fmt.Printf("database connection error  %v", err)
 		return
 	}
+	defer DB.DB.Close(ctx)
 
 	for _, tt := range tests {
 		t.Run(tt.testName, func(t *testing.T) {
@@ -235,9 +239,24 @@ func Test_UserLogin(t *testing.T) {
 
 				//	assert.JSONEq(t, tt.want.response, string(resBody))
 				assert.Equal(t, tt.want.contentType, res.Header.Get("Content-Type"))
+
+				t.Run(tt.testName, func(t *testing.T) { // проверка на вход с токеном, - размещение заказа
+					request := httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewBufferString(strconv.Itoa(34567)))
+					w := httptest.NewRecorder()
+					request.Header.Set("Content-Type", "text/plain")
+					request.Header.Set("Authorization", "Bearer <"+tok.Token+">")
+					PutOrder(w, request)
+					res := w.Result()
+					defer res.Body.Close()
+					resBody, err := io.ReadAll(res.Body)
+					require.NoError(t, err)
+					assert.Equal(t, http.StatusAccepted, res.StatusCode)
+					assert.Equal(t, "application/json", res.Header.Get("Content-Type"))
+					assert.JSONEq(t, `{"status":"StatusAccepted"}`, string(resBody))
+
+				})
 			}
 		})
-
 	}
 }
 func Test_PutOrder(t *testing.T) {
@@ -349,16 +368,10 @@ func Test_PutOrder(t *testing.T) {
 			TokenSuffix: ">>", // bad string
 		},
 	}
-	// logger, err := zap.NewDevelopment()
-	// if err != nil {
-	// 	panic("cannot initialize zap")
-	// }
-	// defer logger.Sync()
-	// sugar := *logger.Sugar()
 
 	ctx = context.Background()
-	//	var err error
-	DB, err := securitate.ConnectToDB(ctx)
+	var err error
+	DB, err = securitate.ConnectToDB(ctx)
 	if err != nil {
 		fmt.Printf("database connection error  %v", err)
 		return
