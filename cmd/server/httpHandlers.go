@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/theplant/luhn"
 )
 
 func registerUser(rwr http.ResponseWriter, req *http.Request) {
@@ -175,7 +177,7 @@ func PutOrder(rwr http.ResponseWriter, req *http.Request) {
 
 	orderStr := string(telo)                            // telo - []byte
 	orderNum, err := strconv.ParseInt(orderStr, 10, 64) //
-	if err != nil {
+	if err != nil || (!luhn.Valid(int(orderNum))) {		// если не распарсилось или не по ЛУНУ
 		rwr.WriteHeader(http.StatusUnprocessableEntity) // 422 — неверный формат номера заказа;
 		fmt.Fprintf(rwr, `{"status":"StatusUnprocessableEntity"}`)
 		sugar.Debug("ordernum err\n")

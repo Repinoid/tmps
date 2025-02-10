@@ -50,7 +50,7 @@ func run() error {
 	router.HandleFunc("/api/user/register", registerUser).Methods("POST")
 	router.HandleFunc("/api/user/login", loginUser).Methods("POST")
 	router.HandleFunc("/api/user/orders", PutOrder).Methods("POST")
-	router.HandleFunc("/api/orders/{number}", GetOrders).Methods("GET")
+//	router.HandleFunc("/api/orders/{number}", GetOrders).Methods("GET")
 
 	return http.ListenAndServe(host, router)
 }

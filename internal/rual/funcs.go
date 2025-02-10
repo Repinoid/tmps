@@ -2,9 +2,7 @@ package rual
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
-	"math/rand/v2"
 	"strconv"
 
 	"github.com/go-resty/resty/v2"
@@ -12,8 +10,8 @@ import (
 )
 
 type Tovar struct {
-	Description string `json:"description"`
-	Price       int    `json:"price"`
+	Description string  `json:"description"`
+	Price       float64 `json:"price"`
 }
 type Buyback struct {
 	Match       string `json:"match"`
@@ -52,43 +50,9 @@ var marks = []Buyback{
 	{Match: "Apple", Reward: 35, Reward_type: "%"},
 }
 
-func LoadGoogs() error {
-
-	for _, r := range marks {
-		buyM, err := json.Marshal(r)
-		if err != nil {
-			return fmt.Errorf("err %w", err)
-		}
-		err = poster("/api/goods", buyM)
-		if err != nil {
-			return fmt.Errorf("err %w", err)
-		}
-	}
-	// // "{\"match\":\"Acer\",\"reward\":20,\"reward_type\":\"pt\"}"
-	// ordera := []orda{}
-	// for i := range 30 {
-	// 	ord := orda{Order: strconv.Itoa(Luhner(i)), Goods: []tovar{
-	// 		{Description: "Smth " + marks[i%4].Match + " " + strconv.Itoa(i), Price: rand.IntN(1000)}, //+ " " + strconv.Itoa(Luhner(i+rand.IntN(777) + 11111))
-	// 	}}
-	// 	//	log.Printf("desc %s", ord.Order)
-	// 	ordera = append(ordera, ord)
-	// }
-
-	// for _, ord := range ordera {
-	// 	buyM, _ := json.Marshal(ord)
-	// 	poster("/api/orders", buyM)
-	// }
-	// // "{\"order\":\"0\",\"goods\":[{\"description\":\"Smth Acer 0\",\"price\":729}]}"
-	// getorder(1)
-	// getorder(2)
-	// getorder(3)
-
-	return nil
-}
-
-func LoadOrderByNumber(num int) error {
+func LoadGood(num int, goodIdx int, price float64) error {
 	ord := orda{Order: strconv.Itoa(Luhner(num)), Goods: []Tovar{
-		{Description: "Smth " + marks[num%5].Match + " " + strconv.Itoa(num), Price: rand.IntN(1000)}}}
+		{Description: "Smth " + marks[goodIdx].Match + " " + strconv.Itoa(num), Price: price}}}
 	buyM, _ := json.Marshal(ord)
 	err := poster("/api/orders", buyM)
 	return err
@@ -107,25 +71,24 @@ func poster(postCMD string, wts []byte) error {
 	return err
 }
 
-func getorder(number int) (OrderStatus, int, error) {
-	getCMD := fmt.Sprintf("/api/orders/%s", strconv.Itoa(Luhner(number)))
-	httpc := resty.New() //
-	httpc.SetBaseURL("http://" + accrualhost)
-	req := httpc.R()
-	// 	SetHeader("Content-Type", "application/json").
-	// 	SetBody(wts)
-	var orderStat OrderStatus
-	resp, err := req.
-		SetResult(&orderStat).
-		SetDoNotParseResponse(false).
-		Get(getCMD) //
-	log.Printf("GET %d order %+v  body is %+v\n", number, resp.StatusCode(), orderStat)
-	return orderStat, resp.StatusCode(), err
-}
-
 func Luhner(numb int) int {
 	// if luhn.Valid(numb) {
 	// 	return numb
 	// }
 	return 10*numb + luhn.CalculateLuhn(numb)
+}
+
+// OrderStatus - {номер заказа; статус расчёта начисления; рассчитанные баллы к начислению}
+func GetFromAccrual(number string) (orderStat OrderStatus, StatusCode int, err error) {
+	httpc := resty.New() //
+	httpc.SetBaseURL("http://" + accrualhost)
+	getReq := httpc.R()
+
+	resp, err := getReq.
+		SetResult(&orderStat).
+		SetDoNotParseResponse(false).
+		SetHeader("Content-Type", "application/json").
+		Get("/api/orders/" + number)
+
+	return orderStat, resp.StatusCode(), err
 }
