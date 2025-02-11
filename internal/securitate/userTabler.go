@@ -10,6 +10,7 @@ import (
 type DBstruct struct {
 	DB *pgx.Conn
 }
+
 var DataBase *DBstruct
 
 var dbEndPoint = "postgres://postgres:passwordas@forgo.c7wegmiakpkw.us-west-1.rds.amazonaws.com:5432/forgo"
@@ -34,7 +35,7 @@ func (dataBase *DBstruct) UsersTableCreation(ctx context.Context) error {
 	// В PostgreSQL нельзя передавать название таблицы в качестве параметра
 	creatorOrder :=
 		"CREATE TABLE IF NOT EXISTS " + "accounts" +
-			"(id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY ," +
+			"(userCode INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY ," +
 			"login VARCHAR(100) UNIQUE," +
 			"password VARCHAR(200) NOT NULL," +
 			"user_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);"
@@ -55,7 +56,7 @@ func (dataBase *DBstruct) OrdersTableCreation(ctx context.Context) error {
 			"orderStatus VARCHAR(20)," +
 			"accrual FLOAT8," +
 			"order_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
-			"FOREIGN KEY (userCode) REFERENCES " + "accounts" + "(id) ON DELETE CASCADE);"
+			"FOREIGN KEY (userCode) REFERENCES " + "accounts" + "(usercode) ON DELETE CASCADE);"
 
 	_, err := db.Exec(ctx, creatorOrder)
 	if err != nil {
@@ -70,12 +71,12 @@ func (dataBase *DBstruct) TokensTableCreation(ctx context.Context) error {
 		"CREATE TABLE IF NOT EXISTS " + "tokens" +
 			"(id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY," +
 			"userCode INT NOT NULL UNIQUE," +
-			"balance BIGINT DEFAULT 0," +
-			"bonus BIGINT DEFAULT 0," +
+			"balance FLOAT8 DEFAULT 0," +
+			"bonus FLOAT8 DEFAULT 0," +
 			"token VARCHAR(1000) NOT NULL," +
 			"token_valid_until TIMESTAMP," +
 			"token_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
-			"FOREIGN KEY (userCode) REFERENCES " + "accounts" + "(id) ON DELETE CASCADE);"
+			"FOREIGN KEY (userCode) REFERENCES " + "accounts" + "(usercode) ON DELETE CASCADE);"
 	_, err := db.Exec(ctx, creatorOrder)
 	if err != nil {
 		return fmt.Errorf("create orders table. %w", err)
@@ -91,7 +92,7 @@ func (dataBase *DBstruct) WithdrawalsTableCreation(ctx context.Context) error {
 			"orderNumber BIGINT NOT NULL UNIQUE," +
 			"withdrawn FLOAT8 DEFAULT 0," +
 			"processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
-			"FOREIGN KEY (userCode) REFERENCES " + "accounts" + "(id) ON DELETE CASCADE);"
+			"FOREIGN KEY (userCode) REFERENCES " + "accounts" + "(usercode) ON DELETE CASCADE);"
 	_, err := db.Exec(ctx, creatorOrder)
 	if err != nil {
 		return fmt.Errorf("create orders table. %w", err)
@@ -142,7 +143,7 @@ func (dataBase *DBstruct) AddUser(ctx context.Context, userName, password, token
 	if err != nil {
 		return fmt.Errorf("add user error is %w", err)
 	}
-	order = "INSERT INTO tokens(userCode, token) VALUES ((select id from accounts where login = $1), $2) ;"
+	order = "INSERT INTO tokens(userCode, token) VALUES ((select usercode from accounts where login = $1), $2) ;"
 	_, err = tx.Exec(ctx, order, userName, tokenString)
 	if err != nil {
 		return fmt.Errorf("add TOKEN %w", err)
@@ -205,7 +206,7 @@ func (dataBase *DBstruct) ChangePassword(ctx context.Context, userName string, p
 
 func (dataBase *DBstruct) UpdateToken(ctx context.Context, userName string, tokenString string) error {
 	db := dataBase.DB
-	order := "UPDATE tokens SET token = $2 WHERE userCode = (select id from accounts where login = $1) ;"
+	order := "UPDATE tokens SET token = $2 WHERE userCode = (select usercode from accounts where login = $1) ;"
 	_, err := db.Exec(ctx, order, userName, tokenString)
 	if err != nil {
 		return fmt.Errorf("add TOKEN %w", err)
@@ -216,7 +217,7 @@ func (dataBase *DBstruct) UpdateToken(ctx context.Context, userName string, toke
 func (dataBase *DBstruct) GetToken(ctx context.Context, userName string, tokenString *string) error {
 	db := dataBase.DB
 	//				получить токен из токен-таблицы  где код пользователя равен коду юзера из юзер-таблицы с именем UserName
-	order := "SELECT token from " + "tokens" + " WHERE userCode = (select id from " + "accounts" + " where login = $1) ;"
+	order := "SELECT token from " + "tokens" + " WHERE userCode = (select usercode from " + "accounts" + " where login = $1) ;"
 	row := db.QueryRow(ctx, order, userName)
 	var str string
 	err := row.Scan(&str)
