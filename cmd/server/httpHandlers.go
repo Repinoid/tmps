@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"oppa/internal/rual"
 	"oppa/internal/securitate"
 	"strconv"
 	"strings"
@@ -185,10 +186,12 @@ func PutOrder(rwr http.ResponseWriter, req *http.Request) {
 	}
 	var orderID int64
 	err = DataBase.GetIDByOrder(ctx, orderNum, &orderID)
-	if err != nil { // если такого номера заказа нет в базе записываем его
-		
-		err = DataBase.UpLoadOrderByID(ctx, tokenID, orderNum, "status", 77.77) // tokenID)	- ID пользователя по полученному токену
-		if err != nil {
+	if err != nil { // если такого номера заказа нет в базе вносим его
+
+		orderStat, statusCode := rual.GetFromAccrual(orderStr)
+
+		//err =  // tokenID)	- ID пользователя по полученному токену
+		if statusCode != http.StatusOK || DataBase.UpLoadOrderByID(ctx, tokenID, orderNum, orderStat.Status, orderStat.Accrual) != nil {
 			rwr.WriteHeader(http.StatusInternalServerError) //500 — внутренняя ошибка сервера.
 			fmt.Fprintf(rwr, `{"status":"StatusInternalServerError"}`)
 			sugar.Debug("ordernum err\n")

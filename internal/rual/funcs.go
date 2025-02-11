@@ -83,7 +83,7 @@ func Luhner(numb int) int {
 }
 
 // OrderStatus - {номер заказа; статус расчёта начисления; рассчитанные баллы к начислению}
-func GetFromAccrual(number string) (orderStat OrderStatus, StatusCode int, err error) {
+func GetFromAccrual(number string) (orderStat OrderStatus, StatusCode int) {
 
 	wait429 := time.Until(Time429) // время до разморозки
 	time.Sleep(wait429)
@@ -97,22 +97,28 @@ func GetFromAccrual(number string) (orderStat OrderStatus, StatusCode int, err e
 		SetDoNotParseResponse(false).
 		SetHeader("Content-Type", "application/json").
 		Get("/api/orders/" + number)
+	if err != nil {
+		return orderStat, http.StatusInternalServerError // 500
+	}
 
-		contentType := resp.Header().Get("Content-Type")
-		
-		if resp.StatusCode() == 429 && contentType == "text/plain" {
-			delayTime := resp.Header().Get("Retry-After")
-			dTime, err := strconv.Atoi(delayTime)
-			if err == nil {
-				var mutter sync.Mutex
-				mutter.Lock()  
-				Time429 = time.Now().Add(time.Duration(dTime)*time.Second)
-				mutter.Unlock()
-				time.Sleep(time.Duration(dTime)*time.Second)
-			}
+	contentType := resp.Header().Get("Content-Type")
+
+	if resp.StatusCode() == http.StatusTooManyRequests && contentType == "text/plain" { // http.StatusTooManyRequests 429
+		delayTime := resp.Header().Get("Retry-After")
+		dTime, err := strconv.Atoi(delayTime)
+		if err == nil {
+			var mutter sync.Mutex	// установка wait429 - everybody sleeps until this
+			mutter.Lock()
+			Time429 = time.Now().Add(time.Duration(dTime) * time.Second)
+			mutter.Unlock()
+			time.Sleep(time.Duration(dTime) * time.Second)
 		}
-
-	return orderStat, resp.StatusCode(), err
+	}
+	status := resp.StatusCode()
+	if status == http.StatusTooManyRequests {
+		status = http.StatusOK
+	}
+	return orderStat, status
 }
 
 /*
