@@ -14,9 +14,6 @@ import (
 
 var host = "localhost:8080"
 
-var DataBase = securitate.DataBase
-var ctx = models.Ctx
-
 func main() {
 	logger, err := zap.NewDevelopment()
 	if err != nil {
@@ -32,9 +29,9 @@ func main() {
 
 func run() error {
 	var err error
-	ctx = context.Background()
+	ctx := context.Background()
 
-	DataBase, err = securitate.ConnectToDB(ctx)
+	securitate.DataBase, err = securitate.ConnectToDB(ctx)
 
 	//	DataBase, err = ConnectUsersTable(ctx, dbEndPoint)
 

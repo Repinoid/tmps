@@ -10,7 +10,6 @@ import (
 	"net/http/httptest"
 	"oppa/internal/models"
 	"oppa/internal/securitate"
-	"strconv"
 	"testing"
 	"time"
 
@@ -18,6 +17,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 )
+
+var ctx context.Context
 
 func Test_DropTables(t *testing.T) {
 	logger, err := zap.NewDevelopment()
@@ -29,15 +30,15 @@ func Test_DropTables(t *testing.T) {
 
 	ctx = context.Background()
 	//	var err error
-	DataBase, err := securitate.ConnectToDB(ctx)
+	securitate.DataBase, err = securitate.ConnectToDB(ctx)
 	if err != nil {
 		fmt.Printf("database connection error  %v", err)
 		return
 	}
-	defer DataBase.DB.Close(ctx)
+	defer securitate.DataBase.DB.Close(ctx)
 	for _, tab := range []string{"orders", "tokens", "withdrawn", "accounts"} {
 		dropOrder := "DROP TABLE " + tab + " ;"
-		tag, err := DataBase.DB.Exec(ctx, dropOrder)
+		tag, err := securitate.DataBase.DB.Exec(ctx, dropOrder)
 		if err != nil {
 			fmt.Printf("error DROP users table. Tag is \"%s\" error is %v", tag.String(), err)
 			return
@@ -113,7 +114,7 @@ func Test_UserRegister(t *testing.T) {
 
 	ctx = context.Background()
 	var err error
-	DataBase, err = securitate.ConnectToDB(ctx)
+	DataBase, err := securitate.ConnectToDB(ctx)
 	if err != nil {
 		fmt.Printf("database connection error  %v", err)
 		return
@@ -156,6 +157,8 @@ func Test_UserRegister(t *testing.T) {
 	}
 
 }
+
+/*
 func aTest_UserLogin(t *testing.T) {
 	type logos struct {
 		UserName string `json:"login"`
@@ -211,7 +214,7 @@ func aTest_UserLogin(t *testing.T) {
 
 	ctx = context.Background()
 	var err error
-	DataBase, err = securitate.ConnectToDB(ctx)
+	DataBase, err := securitate.ConnectToDB(ctx)
 	if err != nil {
 		fmt.Printf("database connection error  %v", err)
 		return
@@ -374,7 +377,7 @@ func aTest_PutOrder(t *testing.T) {
 
 	ctx = context.Background()
 	var err error
-	DataBase, err = securitate.ConnectToDB(ctx)
+	DataBase, err := securitate.ConnectToDB(ctx)
 	if err != nil {
 		fmt.Printf("database connection error  %v", err)
 		return
@@ -402,3 +405,4 @@ func aTest_PutOrder(t *testing.T) {
 		})
 	}
 }
+*/

@@ -10,7 +10,6 @@ import (
 type DBstruct struct {
 	DB *pgx.Conn
 }
-
 var DataBase *DBstruct
 
 var dbEndPoint = "postgres://postgres:passwordas@forgo.c7wegmiakpkw.us-west-1.rds.amazonaws.com:5432/forgo"
