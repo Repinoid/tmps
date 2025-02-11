@@ -2,6 +2,7 @@ package rual
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -62,6 +63,26 @@ func LoadGood(num int, goodIdx int, price float64) error {
 	return err
 }
 
+func InitAccrualForTests() error {
+	for _, r := range marks { // load to accrual good's type and buybacks
+		buyM, err := json.Marshal(r)
+		if err != nil {
+			return fmt.Errorf("%w", err)
+		}
+		err = poster("/api/goods", buyM)
+		if err != nil {
+			return fmt.Errorf("%w", err)
+		}
+	}
+	for idx := range marks {
+		err := LoadGood(idx, idx%5, 1000)
+		if err != nil {
+			return fmt.Errorf("%w", err)
+		}
+	}
+	return nil
+}
+
 func poster(postCMD string, wts []byte) error {
 	httpc := resty.New() //
 	httpc.SetBaseURL("http://" + accrualhost)
@@ -107,7 +128,7 @@ func GetFromAccrual(number string) (orderStat OrderStatus, StatusCode int) {
 		delayTime := resp.Header().Get("Retry-After")
 		dTime, err := strconv.Atoi(delayTime)
 		if err == nil {
-			var mutter sync.Mutex	// установка wait429 - everybody sleeps until this
+			var mutter sync.Mutex // установка wait429 - everybody sleeps until this
 			mutter.Lock()
 			Time429 = time.Now().Add(time.Duration(dTime) * time.Second)
 			mutter.Unlock()

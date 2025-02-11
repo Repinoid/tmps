@@ -11,10 +11,7 @@ import (
 
 func (suite *TSuite) Test01Setup() {
 
-	for idx := range marks {
-		err := LoadGood(idx, idx%5, 1000)
-		assert.NoErrorf(suite.T(), err, "err %w", err)
-	}
+
 	log.Println("testexample5")
 
 }

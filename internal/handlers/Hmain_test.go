@@ -2,11 +2,13 @@ package handlers
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"oppa/internal/models"
+	"oppa/internal/rual"
 	"oppa/internal/securitate"
+	"os/exec"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
@@ -14,35 +16,42 @@ import (
 
 type TstHandlers struct {
 	suite.Suite
+	cmnd *exec.Cmd
 }
 
 func (suite *TstHandlers) SetupSuite() {
 	//var err error
+	suite.cmnd = exec.Command("/acc.exe", "-d=postgres://postgres:passwordas@localhost:5432/forgo")
+	err := suite.cmnd.Start()
+	suite.Require().NoErrorf(err, "err %v", err)
+	time.Sleep(time.Second)
+
 	ctx := context.Background()
-	dataBase, err := securitate.ConnectToDB(ctx)
-	if err != nil {
-		fmt.Printf("database connection error  %v", err)
-		return
-	}
+	dataBase, err := securitate.ConnectToDB(ctx) // local DB
+	suite.Require().NoErrorf(err, "err %v", err)
 	defer dataBase.DB.Close(ctx)
+
 	for _, tab := range []string{"orders", "tokens", "withdrawn", "accounts"} {
 		dropOrder := "DROP TABLE " + tab + " ;"
 		_, err := dataBase.DB.Exec(ctx, dropOrder)
-		if err != nil {
-			log.Printf("error DROP %s table. %v", tab, err)
-			return
-		}
+		suite.Assert().NoErrorf(err, "err %v", err)
 	}
+
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		panic("cannot initialize zap")
 	}
 	defer logger.Sync()
 	models.Sugar = *logger.Sugar()
+	
 	log.Println("SetupTest() ---------------------")
+	err = rual.InitAccrualForTests()
+	suite.Require().NoErrorf(err, "err %v", err)
 }
 
 func (suite *TstHandlers) TearDownSuite() {
+	err := suite.cmnd.Process.Kill()
+	suite.Assert().NoErrorf(err, "err %v", err)
 }
 
 //	func (suite *TSuite) BeforeTest(suiteName, testName string) {

@@ -2,7 +2,6 @@ package rual
 
 // Basic imports
 import (
-	"encoding/json"
 	"log"
 	"os/exec"
 	"testing"
@@ -15,22 +14,17 @@ import (
 
 type TSuite struct {
 	suite.Suite
-	cmnd                          *exec.Cmd
-	VariableThatShouldStartAtFive int
+	cmnd *exec.Cmd
 }
 
 func (suite *TSuite) SetupSuite() {
-	suite.cmnd = exec.Command("Y:/acc.exe", "-d=postgres://postgres:passwordas@localhost:5432/forgo")
+	suite.cmnd = exec.Command("/acc.exe", "-d=postgres://postgres:passwordas@localhost:5432/forgo")
 	err := suite.cmnd.Start()
 	require.NoErrorf(suite.T(), err, "err %v", err)
 	time.Sleep(time.Second)
 
-	for _, r := range marks { // load to accrual good's type and buybacks
-		buyM, err := json.Marshal(r)
-		require.NoErrorf(suite.T(), err, "err %v", err)
-		err = poster("/api/goods", buyM)
-		require.NoErrorf(suite.T(), err, "err %v", err)
-	}
+	err = InitAccrualForTests()
+	suite.Require().NoErrorf(err, "err %v", err)
 	log.Println("SetupTest() ---------------------")
 }
 

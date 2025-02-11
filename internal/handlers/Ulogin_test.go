@@ -9,7 +9,9 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"oppa/internal/rual"
 	"oppa/internal/securitate"
+	"strconv"
 	"time"
 
 	"github.com/stretchr/testify/assert"
@@ -103,21 +105,22 @@ func (suite *TstHandlers) Test02UserLogin() {
 				//	assert.JSONEq(t, tt.want.response, string(resBody))
 				suite.Assert().Equal(tt.want.contentType, res.Header.Get("Content-Type"))
 
-				// suite.Run(tt.testName, func() { // проверка на вход с токеном, - размещение заказа
-				// 	request := httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewBufferString(strconv.Itoa(34567)))
-				// 	w := httptest.NewRecorder()
-				// 	request.Header.Set("Content-Type", "text/plain")
-				// 	request.Header.Set("Authorization", "Bearer <"+tok.Token+">")
-				// 	PutOrder(w, request)
-				// 	res := w.Result()
-				// 	defer res.Body.Close()
-				// 	resBody, err := io.ReadAll(res.Body)
-				// 	suite.Require().NoError(err)
-				// 	suite.Assert().Equal(http.StatusAccepted, res.StatusCode)
-				// 	suite.Assert().Equal("application/json", res.Header.Get("Content-Type"))
-				// 	suite.Assert().JSONEq(`{"status":"StatusAccepted"}`, string(resBody))
+				suite.Run(tt.testName, func() { // проверка на вход с токеном, - размещение заказа
+					request := httptest.NewRequest(http.MethodPost, "/api/user/orders",
+						bytes.NewBufferString(strconv.Itoa(rual.Luhner(4))))
+					w := httptest.NewRecorder()
+					request.Header.Set("Content-Type", "text/plain")
+					request.Header.Set("Authorization", "Bearer <"+tok.Token+">")
+					PutOrder(w, request)
+					res := w.Result()
+					defer res.Body.Close()
+					resBody, err := io.ReadAll(res.Body)
+					suite.Require().NoError(err)
+					suite.Assert().Equal(http.StatusAccepted, res.StatusCode)
+					suite.Assert().Equal("application/json", res.Header.Get("Content-Type"))
+					suite.Assert().JSONEq(`{"status":"StatusAccepted"}`, string(resBody))
 
-				// })
+				})
 			}
 		})
 	}
