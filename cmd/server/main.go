@@ -4,10 +4,9 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"oppa/internal/handlers"
+	"oppa/internal/models"
 	"oppa/internal/securitate"
-	
-
-	
 
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
@@ -15,9 +14,8 @@ import (
 
 var host = "localhost:8080"
 
-var sugar zap.SugaredLogger
-var ctx context.Context
-var DataBase *securitate.DBstruct
+var DataBase = securitate.DataBase
+var ctx = models.Ctx
 
 func main() {
 	logger, err := zap.NewDevelopment()
@@ -25,7 +23,7 @@ func main() {
 		panic("cannot initialize zap")
 	}
 	defer logger.Sync()
-	sugar = *logger.Sugar()
+	models.Sugar = *logger.Sugar()
 
 	if err := run(); err != nil {
 		panic(err)
@@ -47,10 +45,10 @@ func run() error {
 
 	router := mux.NewRouter()
 
-	router.HandleFunc("/api/user/register", registerUser).Methods("POST")
-	router.HandleFunc("/api/user/login", loginUser).Methods("POST")
-	router.HandleFunc("/api/user/orders", PutOrder).Methods("POST")
-//	router.HandleFunc("/api/orders/{number}", GetOrders).Methods("GET")
+	router.HandleFunc("/api/user/register", handlers.RegisterUser).Methods("POST")
+	router.HandleFunc("/api/user/login", handlers.LoginUser).Methods("POST")
+	router.HandleFunc("/api/user/orders", handlers.PutOrder).Methods("POST")
+	//	router.HandleFunc("/api/orders/{number}", GetOrders).Methods("GET")
 
 	return http.ListenAndServe(host, router)
 }
@@ -60,4 +58,3 @@ func run() error {
 
 // curl localhost:8080/api/goods -H "Content-Type":"application/json" -d "{\"match\":\"acer\",\"reward\":10,\"reward_type\":\"pt\"}" -v
 // curl localhost:8080/api/orders -H "Content-Type":"application/json" -d "{\"order\":\"0\",\"goods\":[{\"description\":\"Smth Acer 0\",\"price\":729}]}" -v
-
