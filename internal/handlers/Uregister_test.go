@@ -9,12 +9,52 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"oppa/internal/rual"
 	"oppa/internal/securitate"
+	"strconv"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func (suite *TstHandlers) Test04Add5Users() {
+	type logos struct {
+		UserName string `json:"login"`
+		Password string `json:"password"`
+	}
+	for i := range 5 {
+		userName := fmt.Sprintf("user%02d", i+1)
+		password := fmt.Sprintf("pass%02d", i+1)
+		lo, _ := json.Marshal(logos{UserName: userName, Password: password})
+		request := httptest.NewRequest(http.MethodPost, "/api/user/register", bytes.NewBuffer(lo))
+		request.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		RegisterUser(w, request)
+		res := w.Result()
+		defer res.Body.Close()
+		_, err := io.ReadAll(res.Body)
+		require.NoError(suite.T(), err)
+
+		var token string
+		for j := range 2 {
+			err := securitate.DataBase.GetToken(ctx, userName, &token)
+			suite.Require().NoError(err, "GetToken err")
+			tokenStr := "Bearer <" + token + ">"
+
+			num := rual.Luhner(i*20+j+1)
+			request = httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewBufferString(strconv.Itoa(num)))
+			w = httptest.NewRecorder()
+			request.Header.Set("Content-Type", "text/plain")
+			request.Header.Set("Authorization", tokenStr)
+			PutOrder(w, request)
+			res := w.Result()
+			defer res.Body.Close()
+			_, err = io.ReadAll(res.Body)
+			suite.Require().NoError(err, "io.ReadAll(res.Body) err")
+		}
+	}
+}
 
 func (suite *TstHandlers) Test01UserRegister() {
 	type logos struct {
@@ -32,8 +72,7 @@ func (suite *TstHandlers) Test01UserRegister() {
 		urla     string
 		userName string
 		password string
-
-		want want
+		want     want
 	}{
 		{
 			testName: "Right case1",

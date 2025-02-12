@@ -3,7 +3,7 @@ package rual
 import (
 	"encoding/json"
 	"fmt"
-	"log"
+	"math/rand"
 	"net/http"
 	"strconv"
 	"sync"
@@ -74,8 +74,8 @@ func InitAccrualForTests() error {
 			return fmt.Errorf("%w", err)
 		}
 	}
-	for idx := range marks {
-		err := LoadGood(idx, idx%5, 1000)
+	for idx := range 99 {
+		err := LoadGood(idx+1, int(rand.Int63n(5)), 1000)
 		if err != nil {
 			return fmt.Errorf("%w", err)
 		}
@@ -89,10 +89,10 @@ func poster(postCMD string, wts []byte) error {
 	req := httpc.R().
 		SetHeader("Content-Type", "application/json").
 		SetBody(wts)
-	resp, err := req.
+	_, err := req.
 		SetDoNotParseResponse(false).
 		Post(postCMD) //
-	log.Printf("%s responce from server %+v  body is %s\n", postCMD, resp.StatusCode(), resp.Body())
+		//	log.Printf("%s responce from server %+v  body is %s\n", postCMD, resp.StatusCode(), resp.Body())
 	return err
 }
 

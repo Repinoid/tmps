@@ -17,10 +17,12 @@ import (
 type TstHandlers struct {
 	suite.Suite
 	cmnd *exec.Cmd
+	t    time.Time
 }
 
 func (suite *TstHandlers) SetupSuite() {
 	//var err error
+	suite.t = time.Now()
 	suite.cmnd = exec.Command("/acc.exe", "-d=postgres://postgres:passwordas@localhost:5432/forgo")
 	err := suite.cmnd.Start()
 	suite.Require().NoErrorf(err, "err %v", err)
@@ -43,7 +45,7 @@ func (suite *TstHandlers) SetupSuite() {
 	}
 	defer logger.Sync()
 	models.Sugar = *logger.Sugar()
-	
+
 	log.Println("SetupTest() ---------------------")
 	err = rual.InitAccrualForTests()
 	suite.Require().NoErrorf(err, "err %v", err)
@@ -52,6 +54,7 @@ func (suite *TstHandlers) SetupSuite() {
 func (suite *TstHandlers) TearDownSuite() {
 	err := suite.cmnd.Process.Kill()
 	suite.Assert().NoErrorf(err, "err %v", err)
+	log.Printf("Spent %v\n", time.Since(suite.t))
 }
 
 //	func (suite *TSuite) BeforeTest(suiteName, testName string) {

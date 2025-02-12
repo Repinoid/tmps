@@ -52,7 +52,7 @@ func PutOrder(rwr http.ResponseWriter, req *http.Request) {
 	if err != nil || (!luhn.Valid(int(orderNum))) {     // если не распарсилось или не по ЛУНУ
 		rwr.WriteHeader(http.StatusUnprocessableEntity) // 422 — неверный формат номера заказа;
 		fmt.Fprintf(rwr, `{"status":"StatusUnprocessableEntity"}`)
-		models.Sugar.Debug("ordernum err\n")
+		models.Sugar.Debugf("422 — неверный формат номера заказа; %d\n", orderNum)
 		return
 	}
 	var orderID int64
@@ -66,7 +66,7 @@ func PutOrder(rwr http.ResponseWriter, req *http.Request) {
 			securitate.DataBase.UpLoadOrderByID(context.Background(), tokenID, orderNum, orderStat.Status, orderStat.Accrual) != nil {
 			rwr.WriteHeader(http.StatusInternalServerError) //500 — внутренняя ошибка сервера.
 			fmt.Fprintf(rwr, `{"status":"StatusInternalServerError"}`)
-			models.Sugar.Debug("ordernum err\n")
+			models.Sugar.Debug("500 — внутренняя ошибка сервера.\n")
 			return
 		}
 		rwr.WriteHeader(http.StatusAccepted) //202 — новый номер заказа принят в обработку;
@@ -76,10 +76,10 @@ func PutOrder(rwr http.ResponseWriter, req *http.Request) {
 	if orderID == tokenID {
 		rwr.WriteHeader(http.StatusOK) // 200 — номер заказа уже был загружен ЭТИМ пользователем;
 		fmt.Fprintf(rwr, `{"status":"StatusOK"}`)
-		models.Sugar.Debug("ordernum err\n")
+		models.Sugar.Debug("200 — номер заказа уже был загружен ЭТИМ пользователем;\n")
 		return
 	}
 	rwr.WriteHeader(http.StatusConflict) // 409 — номер заказа уже был загружен другим пользователем;
 	fmt.Fprintf(rwr, `{"status":"StatusConflict"}`)
-	models.Sugar.Debug("ordernum err\n")
+	models.Sugar.Debug("409 — номер заказа уже был загружен другим пользователем;\n")
 }
