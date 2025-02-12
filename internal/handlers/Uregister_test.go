@@ -38,7 +38,7 @@ func (suite *TstHandlers) Test04Add5Users() {
 
 		var token string
 		for j := range 2 {
-			err := securitate.DataBase.GetToken(ctx, userName, &token)
+			err := securitate.DataBase.GetToken(context.Background(), userName, &token)
 			suite.Require().NoError(err, "GetToken err")
 			tokenStr := "Bearer <" + token + ">"
 

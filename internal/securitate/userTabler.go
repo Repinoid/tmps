@@ -55,7 +55,7 @@ func (dataBase *DBstruct) OrdersTableCreation(ctx context.Context) error {
 			"orderNumber BIGINT NOT NULL UNIQUE," +
 			"orderStatus VARCHAR(20)," +
 			"accrual FLOAT8," +
-			"order_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+			"uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
 			"FOREIGN KEY (userCode) REFERENCES " + "accounts" + "(usercode) ON DELETE CASCADE);"
 
 	_, err := db.Exec(ctx, creatorOrder)
