@@ -71,8 +71,8 @@ func (dataBase *DBstruct) TokensTableCreation(ctx context.Context) error {
 		"CREATE TABLE IF NOT EXISTS " + "tokens" +
 			"(id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY," +
 			"userCode INT NOT NULL UNIQUE," +
-			"balance FLOAT8 DEFAULT 0," +
-			"bonus FLOAT8 DEFAULT 0," +
+//			"balance FLOAT8 DEFAULT 0," +
+//			"bonus FLOAT8 DEFAULT 0," +
 			"token VARCHAR(1000) NOT NULL," +
 			"token_valid_until TIMESTAMP," +
 			"token_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
@@ -217,7 +217,7 @@ func (dataBase *DBstruct) UpdateToken(ctx context.Context, userName string, toke
 func (dataBase *DBstruct) GetToken(ctx context.Context, userName string, tokenString *string) error {
 	db := dataBase.DB
 	//				получить токен из токен-таблицы  где код пользователя равен коду юзера из юзер-таблицы с именем UserName
-	order := "SELECT token from " + "tokens" + " WHERE userCode = (select usercode from " + "accounts" + " where login = $1) ;"
+	order := "SELECT token from " + "tokens" + " WHERE userCode = (select usercode from accounts where login = $1) ;"
 	row := db.QueryRow(ctx, order, userName)
 	var str string
 	err := row.Scan(&str)

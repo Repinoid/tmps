@@ -81,7 +81,7 @@ func (suite *TstHandlers) Test01UserRegister() {
 		},
 	}
 
-	ctx = context.Background()
+	ctx := context.Background()
 	var err error
 	securitate.DataBase, err = securitate.ConnectToDB(ctx)
 	if err != nil {

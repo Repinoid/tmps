@@ -123,7 +123,7 @@ func (suite *TstHandlers) Test03OrderPut() {
 		},
 	}
 
-	ctx = context.Background()
+	ctx := context.Background()
 	var err error
 	securitate.DataBase, err = securitate.ConnectToDB(ctx)
 	if err != nil {
