@@ -1,11 +1,9 @@
 package handlers
 
 import (
-	"context"
 	"log"
 	"oppa/internal/models"
 	"oppa/internal/rual"
-	"oppa/internal/securitate"
 	"os/exec"
 	"testing"
 	"time"
@@ -28,16 +26,10 @@ func (suite *TstHandlers) SetupSuite() {
 	suite.Require().NoErrorf(err, "err %v", err)
 	time.Sleep(time.Second)
 
-	ctx := context.Background()
-	dataBase, err := securitate.ConnectToDB(ctx) // local DB
-	suite.Require().NoErrorf(err, "err %v", err)
-	defer dataBase.DB.Close(ctx)
-
-	for _, tab := range []string{"orders", "tokens", "withdrawn", "accounts"} {
-		dropOrder := "DROP TABLE " + tab + " ;"
-		_, err := dataBase.DB.Exec(ctx, dropOrder)
-		suite.Assert().NoErrorf(err, "err %v", err)
-	}
+	// ctx := context.Background()
+	// dataBase, err := securitate.ConnectToDB(ctx) // local DB
+	// suite.Require().NoErrorf(err, "err %v", err)
+	// defer dataBase.DB.Close(ctx)
 
 	logger, err := zap.NewDevelopment()
 	if err != nil {

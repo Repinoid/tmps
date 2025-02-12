@@ -37,12 +37,12 @@ func (suite *TstHandlers) Test04Add5Users() {
 		require.NoError(suite.T(), err)
 
 		var token string
-		for j := range 2 {
+		for j := range 10 {
 			err := securitate.DataBase.GetToken(context.Background(), userName, &token)
 			suite.Require().NoError(err, "GetToken err")
 			tokenStr := "Bearer <" + token + ">"
 
-			num := rual.Luhner(i*20+j+1)
+			num := rual.Luhner(i*20 + j + 1)
 			request = httptest.NewRequest(http.MethodPost, "/api/user/orders", bytes.NewBufferString(strconv.Itoa(num)))
 			w = httptest.NewRecorder()
 			request.Header.Set("Content-Type", "text/plain")
@@ -56,6 +56,17 @@ func (suite *TstHandlers) Test04Add5Users() {
 	}
 }
 
+func (suite *TstHandlers) Test00DropTables() {
+	ctx := context.Background()
+	dataBase, err := securitate.ConnectToDB(ctx) // local DB
+	suite.Require().NoErrorf(err, "err %v", err)
+	for _, tab := range []string{"orders", "tokens", "withdrawn", "accounts"} {
+		dropOrder := "DROP TABLE " + tab + " ;"
+		_, err := dataBase.DB.Exec(ctx, dropOrder)
+		suite.Assert().NoErrorf(err, "err %v", err)
+	}
+	dataBase.DB.Close(ctx)
+}
 func (suite *TstHandlers) Test01UserRegister() {
 	type logos struct {
 		UserName string `json:"login"`
@@ -127,6 +138,7 @@ func (suite *TstHandlers) Test01UserRegister() {
 		fmt.Printf("database connection error  %v", err)
 		return
 	}
+
 	defer securitate.DataBase.DB.Close(ctx)
 
 	for _, tt := range tests {
