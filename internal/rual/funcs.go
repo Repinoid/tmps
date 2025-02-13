@@ -74,7 +74,7 @@ func InitAccrualForTests() error {
 			return fmt.Errorf("%w", err)
 		}
 	}
-	for idx := range 99 {
+	for idx := range 999 {
 		err := LoadGood(idx+1, int(rand.Int63n(5)), 1000)
 		if err != nil {
 			return fmt.Errorf("%w", err)

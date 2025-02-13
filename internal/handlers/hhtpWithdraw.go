@@ -28,11 +28,12 @@ func Withdraw(rwr http.ResponseWriter, req *http.Request) {
 	tokenStr, niceP := strings.CutPrefix(tokenStr, "Bearer <") // обрезаем -- Bearer <token>
 	tokenStr, niceS := strings.CutSuffix(tokenStr, ">")
 
-	var tokenID int64
-	//	err := DataBase.GetIDByToken(context.Background(), tokenStr, &tokenID)	// получаем ID пользователя по полученному токену
+	var UserID int64
+	//	err := DataBase.GetIDByToken(context.Background(), tokenStr, &UserID)	// получаем ID пользователя по полученному токену
 
-	if (!niceP) || (!niceS) || (securitate.DataBase.GetIDByToken(context.Background(), tokenStr, &tokenID) != nil) { // если неверная строка в Authorization - до GetIDByToken дело не дойдёт
-		rwr.WriteHeader(http.StatusUnauthorized)            // 401 — неверная пара логин/пароль;
+	if (!niceP) || (!niceS) || (securitate.DataBase.GetIDByToken(context.Background(), tokenStr, &UserID) != nil) { // если неверная строка в Authorization - до GetIDByToken дело не дойдёт
+		rwr.WriteHeader(http.StatusUnauthorized) //
+		//  — неверная пара логин/пароль;
 		fmt.Fprintf(rwr, `{"status":"StatusUnauthorized"}`) // либо токена неверный формат, либо по нему нет юзера в базе
 		models.Sugar.Debug("Authorization header\n")
 		return
@@ -68,7 +69,7 @@ func Withdraw(rwr http.ResponseWriter, req *http.Request) {
 		//		ordr := "select SUM(accrual) from orders where usercode=$1;"
 		ordr := "SELECT (SELECT SUM(orders.accrual) FROM orders where orders.usercode=$1)- " +
 			"(SELECT COALESCE(SUM(withdrawn.amount),0) FROM withdrawn where withdrawn.usercode=$1) ;"
-		row := db.QueryRow(context.Background(), ordr, orderID) //
+		row := db.QueryRow(context.Background(), ordr, UserID) //
 		var accs float64                                        // денег на счету
 		err := row.Scan(&accs)
 		if err != nil {
@@ -85,7 +86,7 @@ func Withdraw(rwr http.ResponseWriter, req *http.Request) {
 		}
 		// -------------------------------------------------------------------------
 		ordr = "INSERT INTO withdrawn(userCode, orderNumber, amount) VALUES ($1, $2, $3) ;"
-		_, err = db.Exec(context.Background(), ordr, orderID, orderNum, wdrStruct.Sum)
+		_, err = db.Exec(context.Background(), ordr, UserID, orderNum, wdrStruct.Sum)
 		if err != nil {
 			rwr.WriteHeader(http.StatusInternalServerError) //500 — внутренняя ошибка сервера.
 			fmt.Fprintf(rwr, `{"status":"StatusInternalServerError"}`)
@@ -94,9 +95,9 @@ func Withdraw(rwr http.ResponseWriter, req *http.Request) {
 		}
 
 		orderStat, statusCode := rual.GetFromAccrual(wdrStruct.Order)
-		//err =  // tokenID)	- ID пользователя по полученному токену
+		//err =  // UserID)	- ID пользователя по полученному токену
 		if statusCode != http.StatusOK ||
-			securitate.DataBase.UpLoadOrderByID(context.Background(), tokenID, orderNum, orderStat.Status, orderStat.Accrual) != nil {
+			securitate.DataBase.UpLoadOrderByID(context.Background(), UserID, orderNum, orderStat.Status, orderStat.Accrual) != nil {
 			rwr.WriteHeader(http.StatusInternalServerError) //500 — внутренняя ошибка сервера.
 			fmt.Fprintf(rwr, `{"status":"StatusInternalServerError"}`)
 			models.Sugar.Debug("500 — внутренняя ошибка сервера.\n")
@@ -106,7 +107,7 @@ func Withdraw(rwr http.ResponseWriter, req *http.Request) {
 		fmt.Fprintf(rwr, `{"status":"StatusOK"}`)
 		return
 	}
-	// if orderID == tokenID {
+	// if orderID == UserID {
 	// 	rwr.WriteHeader(http.StatusOK) // 200 — номер заказа уже был загружен ЭТИМ пользователем;
 	// 	fmt.Fprintf(rwr, `{"status":"StatusOK"}`)
 	// 	models.Sugar.Debug("200 — номер заказа уже был загружен ЭТИМ пользователем;\n")

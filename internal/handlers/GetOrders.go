@@ -24,10 +24,10 @@ func GetOrders(rwr http.ResponseWriter, req *http.Request) {
 	tokenStr, niceP := strings.CutPrefix(tokenStr, "Bearer <") // обрезаем -- Bearer <token>
 	tokenStr, niceS := strings.CutSuffix(tokenStr, ">")
 
-	var tokenID int64
-	//	err := DataBase.GetIDByToken(context.Background(), tokenStr, &tokenID)	// получаем ID пользователя по полученному токену
+	var UserID int64
+	//	err := DataBase.GetIDByToken(context.Background(), tokenStr, &UserID)	// получаем ID пользователя по полученному токену
 
-	if (!niceP) || (!niceS) || (securitate.DataBase.GetIDByToken(context.Background(), tokenStr, &tokenID) != nil) { // если неверная строка в Authorization - до GetIDByToken дело не дойдёт
+	if (!niceP) || (!niceS) || (securitate.DataBase.GetIDByToken(context.Background(), tokenStr, &UserID) != nil) { // если неверная строка в Authorization - до GetIDByToken дело не дойдёт
 		rwr.WriteHeader(http.StatusUnauthorized)            // 401 — неверная пара логин/пароль;
 		fmt.Fprintf(rwr, `{"status":"StatusUnauthorized"}`) // либо токена неверный формат, либо по нему нет юзера в базе
 		models.Sugar.Debug("Authorization header\n")
@@ -37,7 +37,7 @@ func GetOrders(rwr http.ResponseWriter, req *http.Request) {
 	db := securitate.DataBase.DB
 	order := "select ordernumber as number, orderstatus as status, accrual, uploaded_at from orders where usercode=$1 order by uploaded_at ;"
 
-	rows, err := db.Query(context.Background(), order, tokenID) //
+	rows, err := db.Query(context.Background(), order, UserID) //
 	if err != nil {
 		rwr.WriteHeader(http.StatusInternalServerError) //500 — внутренняя ошибка сервера.
 		fmt.Fprintf(rwr, `{"status":"StatusInternalServerError"}`)

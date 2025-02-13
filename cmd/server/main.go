@@ -48,6 +48,8 @@ func run() error {
 
 	router.HandleFunc("/api/user/orders", handlers.PutOrder).Methods("POST")
 	router.HandleFunc("/api/user/orders", handlers.GetOrders).Methods("GET")
+	router.HandleFunc("/api/user/withdrawals", handlers.GetWithDrawals).Methods("GET")
+	router.HandleFunc("/api/user/balance", handlers.GetBalance).Methods("GET")
 
 	return http.ListenAndServe(host, router)
 }
