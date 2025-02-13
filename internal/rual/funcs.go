@@ -32,7 +32,7 @@ type OrderStatus struct {
 	Accrual float64 `json:"accrual"`
 }
 
-var accrualhost = "localhost:8080"
+var Accrualhost = "localhost:8080"
 var Time429 time.Time
 
 // func main() {
@@ -85,7 +85,7 @@ func InitAccrualForTests() error {
 
 func poster(postCMD string, wts []byte) error {
 	httpc := resty.New() //
-	httpc.SetBaseURL("http://" + accrualhost)
+	httpc.SetBaseURL("http://" + Accrualhost)
 	req := httpc.R().
 		SetHeader("Content-Type", "application/json").
 		SetBody(wts)
@@ -110,7 +110,7 @@ func GetFromAccrual(number string) (orderStat OrderStatus, StatusCode int) {
 	time.Sleep(wait429)
 
 	httpc := resty.New() //
-	httpc.SetBaseURL("http://" + accrualhost)
+	httpc.SetBaseURL("http://" + Accrualhost)
 	getReq := httpc.R()
 
 	resp, err := getReq.

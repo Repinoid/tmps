@@ -13,18 +13,18 @@ type DBstruct struct {
 
 var DataBase *DBstruct
 
-var dbEndPoint = "postgres://postgres:passwordas@forgo.c7wegmiakpkw.us-west-1.rds.amazonaws.com:5432/forgo"
+var DBEndPoint = "postgres://postgres:passwordas@forgo.c7wegmiakpkw.us-west-1.rds.amazonaws.com:5432/forgo"
 
 //var "accounts" = "accounts"
 //var "orders" = "orders"
 //var "tokens" = "tokens"
 
 // соединение с базой данных
-func ConnectUsersTable(ctx context.Context, dbEndPoint string) (*DBstruct, error) {
+func ConnectUsersTable(ctx context.Context, DBEndPoint string) (*DBstruct, error) {
 	dataBase := &DBstruct{}
-	baza, err := pgx.Connect(ctx, dbEndPoint)
+	baza, err := pgx.Connect(ctx, DBEndPoint)
 	if err != nil {
-		return nil, fmt.Errorf("can't connect to DB %s err %w", dbEndPoint, err)
+		return nil, fmt.Errorf("can't connect to DB %s err %w", DBEndPoint, err)
 	}
 	dataBase.DB = baza
 	return dataBase, nil
@@ -101,7 +101,7 @@ func (dataBase *DBstruct) WithdrawalsTableCreation(ctx context.Context) error {
 }
 
 func ConnectToDB(ctx context.Context) (*DBstruct, error) {
-	DB, err := ConnectUsersTable(ctx, dbEndPoint)
+	DB, err := ConnectUsersTable(ctx, DBEndPoint)
 	if err != nil {
 		fmt.Printf("database connection error  %v", err)
 		return nil, err
