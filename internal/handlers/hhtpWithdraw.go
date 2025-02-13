@@ -65,9 +65,11 @@ func Withdraw(rwr http.ResponseWriter, req *http.Request) {
 	if err != nil { // если такого номера заказа нет в базе вносим его
 
 		db := securitate.DataBase.DB
-		ordr := "select SUM(accrual) from orders where usercode=$1;"
+		//		ordr := "select SUM(accrual) from orders where usercode=$1;"
+		ordr := "SELECT (SELECT SUM(orders.accrual) FROM orders where orders.usercode=$1)- " +
+			"(SELECT COALESCE(SUM(withdrawn.amount),0) FROM withdrawn where withdrawn.usercode=$1) ;"
 		row := db.QueryRow(context.Background(), ordr, orderID) //
-		var accs float64                                       // денег на счету
+		var accs float64                                        // денег на счету
 		err := row.Scan(&accs)
 		if err != nil {
 			rwr.WriteHeader(http.StatusUnprocessableEntity) // 422 — неверный формат номера заказа;
@@ -81,10 +83,15 @@ func Withdraw(rwr http.ResponseWriter, req *http.Request) {
 			models.Sugar.Debug("402 Payment Required\n")
 			return
 		}
-// -------------------------------------------------------------------------
-		ordr = "BEGIN;" +
-		""
-
+		// -------------------------------------------------------------------------
+		ordr = "INSERT INTO withdrawn(userCode, orderNumber, amount) VALUES ($1, $2, $3) ;"
+		_, err = db.Exec(context.Background(), ordr, orderID, orderNum, wdrStruct.Sum)
+		if err != nil {
+			rwr.WriteHeader(http.StatusInternalServerError) //500 — внутренняя ошибка сервера.
+			fmt.Fprintf(rwr, `{"status":"StatusInternalServerError"}`)
+			models.Sugar.Debug("error insert 2 withdrawn.\n")
+			return
+		}
 
 		orderStat, statusCode := rual.GetFromAccrual(wdrStruct.Order)
 		//err =  // tokenID)	- ID пользователя по полученному токену

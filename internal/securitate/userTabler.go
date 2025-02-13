@@ -90,7 +90,7 @@ func (dataBase *DBstruct) WithdrawalsTableCreation(ctx context.Context) error {
 			"(id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY," +
 			"userCode INT NOT NULL," +
 			"orderNumber BIGINT NOT NULL UNIQUE," +
-			"withdrawn FLOAT8 DEFAULT 0," +
+			"amount FLOAT8 DEFAULT 0," +
 			"processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
 			"FOREIGN KEY (userCode) REFERENCES " + "accounts" + "(usercode) ON DELETE CASCADE);"
 	_, err := db.Exec(ctx, creatorOrder)
