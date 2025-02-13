@@ -44,6 +44,8 @@ func run() error {
 
 	router.HandleFunc("/api/user/register", handlers.RegisterUser).Methods("POST")
 	router.HandleFunc("/api/user/login", handlers.LoginUser).Methods("POST")
+	router.HandleFunc("/api/user/balance/withdraw", handlers.Withdraw).Methods("POST")
+
 	router.HandleFunc("/api/user/orders", handlers.PutOrder).Methods("POST")
 	router.HandleFunc("/api/user/orders", handlers.GetOrders).Methods("GET")
 
