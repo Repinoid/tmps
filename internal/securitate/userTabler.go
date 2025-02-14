@@ -27,6 +27,11 @@ func ConnectUsersTable(ctx context.Context, DBEndPoint string) (*DBstruct, error
 		return nil, fmt.Errorf("can't connect to DB %s err %w", DBEndPoint, err)
 	}
 	dataBase.DB = baza
+
+	_, err = baza.Exec(ctx, "CREATE EXTENSION pgcrypto;") // расширение для хэширования паролей
+	if err != nil {
+		return nil, fmt.Errorf("CREATE EXTENSION pgcrypto %w", err)
+	}
 	return dataBase, nil
 }
 
@@ -106,25 +111,17 @@ func ConnectToDB(ctx context.Context) (*DBstruct, error) {
 		fmt.Printf("database connection error  %v", err)
 		return nil, err
 	}
-	err = DB.UsersTableCreation(ctx)
-	if err != nil {
-		fmt.Printf("tbl: %v", err)
-		return nil, err
+	if err := DB.UsersTableCreation(ctx); err != nil {
+		return nil, fmt.Errorf("UsersTableCreation %w", err)
 	}
-	err = DB.OrdersTableCreation(ctx)
-	if err != nil {
-		fmt.Printf("tbl: %v", err)
-		return nil, err
+	if err := DB.OrdersTableCreation(ctx); err != nil {
+		return nil, fmt.Errorf("OrdersTableCreation %w", err)
 	}
-	err = DB.TokensTableCreation(ctx)
-	if err != nil {
-		fmt.Printf("tbl: %v", err)
-		return nil, err
+	if err := DB.TokensTableCreation(ctx); err != nil {
+		return nil, fmt.Errorf("TokensTableCreation %w", err)
 	}
-	err = DB.WithdrawalsTableCreation(ctx)
-	if err != nil {
-		fmt.Printf("tbl: %v", err)
-		return nil, err
+	if err := DB.WithdrawalsTableCreation(ctx); err != nil {
+		return nil, fmt.Errorf("WithdrawalsTableCreation %w", err)
 	}
 	return DB, nil
 }
