@@ -5,10 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"oppa/internal/models"
-	"oppa/internal/securitate"
 	"strings"
 	"time"
+
+	"github.com/Repinoid/kurs/internal/models"
+	"github.com/Repinoid/kurs/internal/securitate"
 )
 
 type WithStruct struct {

@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"oppa/internal/models"
-	"oppa/internal/rual"
-	"oppa/internal/securitate"
 	"strconv"
 	"strings"
+
+	"github.com/Repinoid/kurs/internal/models"
+	"github.com/Repinoid/kurs/internal/rual"
+	"github.com/Repinoid/kurs/internal/securitate"
 
 	"github.com/theplant/luhn"
 )

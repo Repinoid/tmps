@@ -9,10 +9,11 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"oppa/internal/rual"
-	"oppa/internal/securitate"
 	"strconv"
 	"time"
+
+	"github.com/Repinoid/kurs/internal/rual"
+	"github.com/Repinoid/kurs/internal/securitate"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

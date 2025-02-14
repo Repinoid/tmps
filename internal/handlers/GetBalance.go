@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"oppa/internal/models"
-	"oppa/internal/securitate"
 	"strings"
+
+	"github.com/Repinoid/kurs/internal/models"
+	"github.com/Repinoid/kurs/internal/securitate"
 )
 
 type BalanceStruct struct {

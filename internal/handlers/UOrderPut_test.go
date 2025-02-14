@@ -8,9 +8,10 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"oppa/internal/rual"
-	"oppa/internal/securitate"
 	"strconv"
+
+	"github.com/Repinoid/kurs/internal/rual"
+	"github.com/Repinoid/kurs/internal/securitate"
 )
 
 func (suite *TstHandlers) Test03OrderPut() {

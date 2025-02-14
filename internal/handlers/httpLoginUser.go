@@ -6,10 +6,11 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"oppa/internal/models"
-	"oppa/internal/securitate"
 	"strings"
 	"time"
+
+	"github.com/Repinoid/kurs/internal/models"
+	"github.com/Repinoid/kurs/internal/securitate"
 )
 
 func LoginUser(rwr http.ResponseWriter, req *http.Request) {

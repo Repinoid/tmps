@@ -9,7 +9,8 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
-	"oppa/internal/securitate"
+
+	"github.com/Repinoid/kurs/internal/securitate"
 )
 
 func (suite *TstHandlers) Test08GetDraws() {

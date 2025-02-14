@@ -2,11 +2,12 @@ package handlers
 
 import (
 	"log"
-	"oppa/internal/models"
-	"oppa/internal/rual"
 	"os/exec"
 	"testing"
 	"time"
+
+	"github.com/Repinoid/kurs/internal/models"
+	"github.com/Repinoid/kurs/internal/rual"
 
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"

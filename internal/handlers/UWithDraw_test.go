@@ -9,9 +9,10 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"oppa/internal/rual"
-	"oppa/internal/securitate"
 	"strconv"
+
+	"github.com/Repinoid/kurs/internal/rual"
+	"github.com/Repinoid/kurs/internal/securitate"
 )
 
 func (suite *TstHandlers) Test06WithDraw() {
@@ -44,7 +45,7 @@ func (suite *TstHandlers) Test06WithDraw() {
 		},
 		{
 			testName:    "No money",
-			userName:    "user01",        // first user
+			userName:    "user01",         // first user
 			orderNum:    rual.Luhner(111), // accrual loaded until 99 order
 			ContentType: "application/json",
 			Sum:         999999.99,

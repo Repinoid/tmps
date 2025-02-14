@@ -6,11 +6,12 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"oppa/internal/models"
-	"oppa/internal/rual"
-	"oppa/internal/securitate"
 	"strconv"
 	"strings"
+
+	"github.com/Repinoid/kurs/internal/models"
+	"github.com/Repinoid/kurs/internal/rual"
+	"github.com/Repinoid/kurs/internal/securitate"
 
 	"github.com/theplant/luhn"
 )
@@ -70,7 +71,7 @@ func Withdraw(rwr http.ResponseWriter, req *http.Request) {
 		ordr := "SELECT (SELECT SUM(orders.accrual) FROM orders where orders.usercode=$1)- " +
 			"(SELECT COALESCE(SUM(withdrawn.amount),0) FROM withdrawn where withdrawn.usercode=$1) ;"
 		row := db.QueryRow(context.Background(), ordr, UserID) //
-		var accs float64                                        // денег на счету
+		var accs float64                                       // денег на счету
 		err := row.Scan(&accs)
 		if err != nil {
 			rwr.WriteHeader(http.StatusUnprocessableEntity) // 422 — неверный формат номера заказа;

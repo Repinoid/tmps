@@ -9,7 +9,8 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
-	"oppa/internal/securitate"
+
+	"github.com/Repinoid/kurs/internal/securitate"
 )
 
 func (suite *TstHandlers) Test07GetDraws() {
@@ -20,7 +21,7 @@ func (suite *TstHandlers) Test07GetDraws() {
 	tests := []struct {
 		testName string
 		username string
-		want want
+		want     want
 	}{
 		{
 			testName: "Right case",

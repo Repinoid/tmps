@@ -8,7 +8,8 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"oppa/internal/securitate"
+
+	"github.com/Repinoid/kurs/internal/securitate"
 )
 
 func (suite *TstHandlers) Test05GetOrders() {
