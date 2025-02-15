@@ -10,8 +10,8 @@ import (
 	"net/http/httptest"
 	"strconv"
 
-	"github.com/Repinoid/kurs/internal/rual"
-	"github.com/Repinoid/kurs/internal/securitate"
+	"github.com/Repinoid/ku/internal/rual"
+	"github.com/Repinoid/ku/internal/securitate"
 )
 
 func (suite *TstHandlers) Test03OrderPut() {

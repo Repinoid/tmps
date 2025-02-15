@@ -7,18 +7,20 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Repinoid/kurs/internal/models"
-	"github.com/Repinoid/kurs/internal/securitate"
+	"github.com/Repinoid/ku/internal/models"
+	"github.com/Repinoid/ku/internal/securitate"
 )
 
 type OrdStruct struct {
-	Number      string  `json:"number"`
-	Status      string  `json:"status"`
-	Accrual     float64 `json:"accrual"`
-	Uploaded_at string  `json:"uploaded_at"`
+	Number     string  `json:"number"`
+	Status     string  `json:"status"`
+	Accrual    float64 `json:"accrual"`
+	UploadedAt string  `json:"uploaded_at"`
 }
 
 func GetOrders(rwr http.ResponseWriter, req *http.Request) {
+
+	rwr.Header().Set("Content-Type", "application/json")
 
 	UserID, err := securitate.DataBase.LoginByToken(rwr, req)
 	if err != nil {
@@ -42,7 +44,7 @@ func GetOrders(rwr http.ResponseWriter, req *http.Request) {
 	for rows.Next() {
 		var tm time.Time
 		errScan = rows.Scan(&ord.Number, &ord.Status, &ord.Accrual, &tm)
-		ord.Uploaded_at = tm.Format(time.RFC3339)
+		ord.UploadedAt = tm.Format(time.RFC3339)
 		if errScan != nil {
 			break
 		}
@@ -62,6 +64,7 @@ func GetOrders(rwr http.ResponseWriter, req *http.Request) {
 		return
 	}
 	rwr.WriteHeader(http.StatusOK)
+	models.Sugar.Debugf("orda[0].Status  \"%+v\"\n", orda[0].Status)
 	//	fmt.Fprintf(rwr, `{"status":"StatusOK"}`)
 	json.NewEncoder(rwr).Encode(orda)
 }

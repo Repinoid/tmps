@@ -9,9 +9,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Repinoid/kurs/internal/models"
-	"github.com/Repinoid/kurs/internal/rual"
-	"github.com/Repinoid/kurs/internal/securitate"
+	"github.com/Repinoid/ku/internal/models"
+	"github.com/Repinoid/ku/internal/securitate"
 
 	"github.com/theplant/luhn"
 )
@@ -58,7 +57,6 @@ func Withdraw(rwr http.ResponseWriter, req *http.Request) {
 	if err != nil { // если такого номера заказа нет в базе вносим его
 
 		db := securitate.DataBase.DB
-		//		ordr := "select SUM(accrual) from orders where usercode=$1;"
 		ordr := "SELECT (SELECT SUM(orders.accrual) FROM orders where orders.usercode=$1)- " +
 			"(SELECT COALESCE(SUM(withdrawn.amount),0) FROM withdrawn where withdrawn.usercode=$1) ;"
 		row := db.QueryRow(context.Background(), ordr, UserID) //
@@ -86,25 +84,18 @@ func Withdraw(rwr http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		orderStat, statusCode := rual.GetFromAccrual(wdrStruct.Order)
-		//err =  // UserID)	- ID пользователя по полученному токену
-		if statusCode != http.StatusOK ||
-			securitate.DataBase.UpLoadOrderByID(context.Background(), UserID, orderNum, orderStat.Status, orderStat.Accrual) != nil {
+		err = securitate.DataBase.UpLoadOrderByID(context.Background(), UserID, orderNum, "REGISTERED", 0)
+		if err != nil {
 			rwr.WriteHeader(http.StatusInternalServerError) //500 — внутренняя ошибка сервера.
 			fmt.Fprintf(rwr, `{"status":"StatusInternalServerError"}`)
 			models.Sugar.Debug("500 — внутренняя ошибка сервера.\n")
 			return
 		}
+		//		}
 		rwr.WriteHeader(http.StatusOK) //
 		fmt.Fprintf(rwr, `{"status":"StatusOK"}`)
 		return
 	}
-	// if orderID == UserID {
-	// 	rwr.WriteHeader(http.StatusOK) // 200 — номер заказа уже был загружен ЭТИМ пользователем;
-	// 	fmt.Fprintf(rwr, `{"status":"StatusOK"}`)
-	// 	models.Sugar.Debug("200 — номер заказа уже был загружен ЭТИМ пользователем;\n")
-	// 	return
-	// }
 	rwr.WriteHeader(http.StatusUnprocessableEntity) // 422 — неверный формат номера заказа;
 	fmt.Fprintf(rwr, `{"status":"StatusUnprocessableEntity"}`)
 	models.Sugar.Debug("422 — неверный формат номера заказа;\n")

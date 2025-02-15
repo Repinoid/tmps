@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Repinoid/kurs/internal/models"
+	"github.com/Repinoid/ku/internal/models"
 	pgx "github.com/jackc/pgx/v5"
 )
 
@@ -19,11 +19,6 @@ var DataBase *DBstruct
 
 var DBEndPoint = "postgres://postgres:passwordas@localhost:5432/forgo"
 
-//var DBEndPoint = "postgres://postgres:passwordas@forgo.c7wegmiakpkw.us-west-1.rds.amazonaws.com:5432/forgo"
-
-//var "accounts" = "accounts"
-//var "orders" = "orders"
-//var "tokens" = "tokens"
 
 // соединение с базой данных
 func ConnectUsersTable(ctx context.Context, DBEndPoint string) (*DBstruct, error) {
@@ -218,6 +213,9 @@ func (dataBase *DBstruct) GetToken(ctx context.Context, userName string, tokenSt
 
 func (dataBase *DBstruct) UpLoadOrderByID(ctx context.Context, userID int64, orderNumber int64, orderStatus string, accrual float64) error {
 	db := dataBase.DB
+	if orderStatus == "" || orderStatus == "REGISTERED" {
+		orderStatus = "NEW"
+	}
 	order := "INSERT INTO orders(userCode, orderNumber, orderStatus, accrual) VALUES ($1, $2, $3, $4) ;"
 	_, err := db.Exec(ctx, order, userID, orderNumber, orderStatus, accrual)
 	if err != nil {
@@ -236,6 +234,18 @@ func (dataBase *DBstruct) GetIDByOrder(ctx context.Context, orderNum int64, orde
 		return fmt.Errorf("GT %w", err)
 	}
 	*orderID = id
+	return nil
+}
+
+func (dataBase *DBstruct) AddOrder(ctx context.Context, userName string, orderNumber int64, orderStatus string, accrual float64) error {
+	db := dataBase.DB
+
+	order := "INSERT INTO orders(userCode, ordernumber, orderStatus, accrual) VALUES ((select id from accounts where login = $1), $2, $3, $4) ;"
+
+	_, err := db.Exec(ctx, order, userName, orderNumber, orderStatus, accrual)
+	if err != nil {
+		return fmt.Errorf("add ORDER %w", err)
+	}
 	return nil
 }
 

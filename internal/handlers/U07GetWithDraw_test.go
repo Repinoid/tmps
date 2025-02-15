@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	"github.com/Repinoid/kurs/internal/securitate"
+	"github.com/Repinoid/ku/internal/securitate"
 )
 
 func (suite *TstHandlers) Test07GetDraws() {

@@ -12,8 +12,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Repinoid/kurs/internal/rual"
-	"github.com/Repinoid/kurs/internal/securitate"
+	"github.com/Repinoid/ku/internal/rual"
+	"github.com/Repinoid/ku/internal/securitate"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

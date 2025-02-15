@@ -7,18 +7,20 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Repinoid/kurs/internal/models"
-	"github.com/Repinoid/kurs/internal/securitate"
+	"github.com/Repinoid/ku/internal/models"
+	"github.com/Repinoid/ku/internal/securitate"
 )
 
 type WithStruct struct {
-	Order        string  `json:"order"`
-	Sum          float64 `json:"sum"`
-	Processed_at string  `json:"processed_at"`
+	Order       string  `json:"order"`
+	Sum         float64 `json:"sum"`
+	ProcessedAt string  `json:"processed_at"`
 }
 
 func GetWithDrawals(rwr http.ResponseWriter, req *http.Request) {
 
+	rwr.Header().Set("Content-Type", "application/json")
+	
 	UserID, err := securitate.DataBase.LoginByToken(rwr, req)
 	if err != nil {
 		return
@@ -41,7 +43,7 @@ func GetWithDrawals(rwr http.ResponseWriter, req *http.Request) {
 	for rows.Next() {
 		var tm time.Time
 		errScan = rows.Scan(&ord.Order, &ord.Sum, &tm)
-		ord.Processed_at = tm.Format(time.RFC3339)
+		ord.ProcessedAt = tm.Format(time.RFC3339)
 		if errScan != nil {
 			break
 		}
@@ -61,6 +63,5 @@ func GetWithDrawals(rwr http.ResponseWriter, req *http.Request) {
 		return
 	}
 	rwr.WriteHeader(http.StatusOK)
-	//	fmt.Fprintf(rwr, `{"status":"StatusOK"}`)
 	json.NewEncoder(rwr).Encode(orda)
 }

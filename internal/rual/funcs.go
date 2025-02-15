@@ -18,9 +18,9 @@ type Tovar struct {
 	Price       float64 `json:"price"`
 }
 type Buyback struct {
-	Match       string `json:"match"`
-	Reward      int    `json:"reward"`
-	Reward_type string `json:"reward_type"`
+	Match      string `json:"match"`
+	Reward     int    `json:"reward"`
+	RewardType string `json:"RewardType"`
 }
 type orda struct {
 	Order string  `json:"order"`
@@ -32,27 +32,15 @@ type OrderStatus struct {
 	Accrual float64 `json:"accrual"`
 }
 
-var Accrualhost = "localhost:8080"
+var Accrualhost = "localhost:8089"
 var Time429 time.Time
 
-// func main() {
-
-// 	cmnd := exec.Command("./acc.exe", "-d=postgres://postgres:passwordas@localhost:5432/forgo")
-// 	cmnd.Start()
-
-// 	time.Sleep(time.Second)
-
-// 	if err := run(); err != nil {
-// 		panic(err)
-// 	}
-
-// }
 var marks = []Buyback{
-	{Match: "Acer", Reward: 20, Reward_type: "pt"},
-	{Match: "Bork", Reward: 10, Reward_type: "%"},
-	{Match: "Asus", Reward: 20, Reward_type: "pt"},
-	{Match: "Samsung", Reward: 25, Reward_type: "%"},
-	{Match: "Apple", Reward: 35, Reward_type: "%"},
+	{Match: "Acer", Reward: 20, RewardType: "pt"},
+	{Match: "Bork", Reward: 10, RewardType: "%"},
+	{Match: "Asus", Reward: 20, RewardType: "pt"},
+	{Match: "Samsung", Reward: 25, RewardType: "%"},
+	{Match: "Apple", Reward: 35, RewardType: "%"},
 }
 
 func LoadGood(num int, goodIdx int, price float64) error {
@@ -74,7 +62,7 @@ func InitAccrualForTests() error {
 			return fmt.Errorf("%w", err)
 		}
 	}
-	for idx := range 999 {
+	for idx := range 999 { // затарим ордерами
 		err := LoadGood(idx+1, int(rand.Int63n(5)), 1000)
 		if err != nil {
 			return fmt.Errorf("%w", err)
@@ -92,34 +80,36 @@ func poster(postCMD string, wts []byte) error {
 	_, err := req.
 		SetDoNotParseResponse(false).
 		Post(postCMD) //
-		//	log.Printf("%s responce from server %+v  body is %s\n", postCMD, resp.StatusCode(), resp.Body())
 	return err
 }
 
 func Luhner(numb int) int {
-	// if luhn.Valid(numb) {
+	// if luhn.Valid(numb) {	// если возвращать неизменённым, возникнут коллизии, типа у 2 Лун 26, и у 26 тоже 26
 	// 	return numb
 	// }
 	return 10*numb + luhn.CalculateLuhn(numb)
 }
 
 // OrderStatus - {номер заказа; статус расчёта начисления; рассчитанные баллы к начислению}
-func GetFromAccrual(number string) (orderStat OrderStatus, StatusCode int) {
+func GetFromAccrual(number string) (OrderStatus, int, error) {
 
 	wait429 := time.Until(Time429) // время до разморозки
 	time.Sleep(wait429)
 
 	httpc := resty.New() //
-	httpc.SetBaseURL("http://" + Accrualhost)
+	httpc.SetBaseURL(Accrualhost)
+	//	httpc.SetBaseURL("http://" + Accrualhost)
 	getReq := httpc.R()
 
+	orderStat := &OrderStatus{}
 	resp, err := getReq.
 		SetResult(&orderStat).
 		SetDoNotParseResponse(false).
 		SetHeader("Content-Type", "application/json").
 		Get("/api/orders/" + number)
+
 	if err != nil {
-		return orderStat, http.StatusInternalServerError // 500
+		return *orderStat, http.StatusInternalServerError, err // 500
 	}
 
 	contentType := resp.Header().Get("Content-Type")
@@ -132,25 +122,8 @@ func GetFromAccrual(number string) (orderStat OrderStatus, StatusCode int) {
 			mutter.Lock()
 			Time429 = time.Now().Add(time.Duration(dTime) * time.Second)
 			mutter.Unlock()
-			time.Sleep(time.Duration(dTime) * time.Second)
+			//		time.Sleep(time.Duration(dTime) * time.Second)
 		}
 	}
-	status := resp.StatusCode()
-	if status == http.StatusTooManyRequests {
-		status = http.StatusOK
-	}
-	return orderStat, status
+	return *orderStat, resp.StatusCode(), nil
 }
-
-/*
-t:= time.Now().Add(2*time.Second)
-
-time.Sleep(9*time.Second)
-u := time.Until(t)
-fmt.Println(u)
-
-time.Sleep(u)
-
-fmt.Println(t, "\n", time.Now())
-
-*/
