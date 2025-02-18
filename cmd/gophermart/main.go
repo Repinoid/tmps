@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var host = "localhost:8081"
+var host = "localhost:8080"
 
 // пока без горутин select for update и проч
 

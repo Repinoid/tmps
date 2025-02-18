@@ -17,8 +17,9 @@ type DBstruct struct {
 
 var DataBase *DBstruct
 
-var DBEndPoint = "postgres://postgres:passwordas@localhost:5432/forgo"
+//var DBEndPoint = "postgres://naeel:n@localhost:5434/forgo"
 
+var DBEndPoint = "postgres://postgres:passwordas@localhost:5432/forgo"
 
 // соединение с базой данных
 func ConnectUsersTable(ctx context.Context, DBEndPoint string) (*DBstruct, error) {

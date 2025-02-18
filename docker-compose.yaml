@@ -1,0 +1,39 @@
+services:
+  # postgres:
+  #   image: postgres:14.8-alpine3.18
+  #   environment:
+  #     POSTGRES_DB: "db"
+  #     POSTGRES_USER: "naeel"
+  #     POSTGRES_PASSWORD: "n"
+  #     PGDATA: "/var/lib/postgresql/data/pgdata"
+  #   volumes:
+  #     - ../2. Init Database:/docker-entrypoint-initdb.d
+  #     - habrdb-data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5434:5432"
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U naeel -d db"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 10s
+  #   restart: unless-stopped
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         cpus: '1'
+  #         memory: 4G
+  server:
+    build: .
+    command: go run .
+    ports:
+    -  target: "8080"
+       host_ip: 127.0.1.1
+       published: "8002"
+       protocol: tcp
+       mode: host
+#    - "8085:8088"
+#     # depends_on:
+#     #   - postgres
+# volumes:
+#   habrdb-data:

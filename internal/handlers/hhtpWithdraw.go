@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/Repinoid/ku/internal/models"
+	"github.com/Repinoid/ku/internal/rual"
 	"github.com/Repinoid/ku/internal/securitate"
 
 	"github.com/theplant/luhn"
@@ -84,14 +85,17 @@ func Withdraw(rwr http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		err = securitate.DataBase.UpLoadOrderByID(context.Background(), UserID, orderNum, "REGISTERED", 0)
+		orderStat, cod, _ := rual.GetFromAccrual(wdrStruct.Order) /////////
+		models.Sugar.Debugf("OREDERSTAT %+v wdrStruct %+v code %d\n", orderStat, wdrStruct, cod)
+
+		err = securitate.DataBase.UpLoadOrderByID(context.Background(), UserID, orderNum, orderStat.Status, orderStat.Accrual)
+		//		err = securitate.DataBase.UpLoadOrderByID(context.Background(), UserID, orderNum, "REGISTERED", 0)
 		if err != nil {
 			rwr.WriteHeader(http.StatusInternalServerError) //500 — внутренняя ошибка сервера.
 			fmt.Fprintf(rwr, `{"status":"StatusInternalServerError"}`)
 			models.Sugar.Debug("500 — внутренняя ошибка сервера.\n")
 			return
 		}
-		//		}
 		rwr.WriteHeader(http.StatusOK) //
 		fmt.Fprintf(rwr, `{"status":"StatusOK"}`)
 		return
