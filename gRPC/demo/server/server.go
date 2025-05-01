@@ -5,8 +5,12 @@ import (
 	"context"
 	pb "demo/proto"
 	"fmt"
+	"log"
+	"net"
 	"sort"
 	"sync"
+
+	"google.golang.org/grpc"
 )
 
 // UsersServer поддерживает все необходимые методы сервера.
@@ -17,6 +21,24 @@ type UsersServer struct {
 
 	// используем sync.Map для хранения пользователей
 	users sync.Map
+}
+
+func main() {
+	// определяем порт для сервера
+	listen, err := net.Listen("tcp", ":3200")
+	if err != nil {
+		log.Fatal(err)
+	}
+	// создаём gRPC-сервер без зарегистрированной службы
+	s := grpc.NewServer()
+	// регистрируем сервис
+	pb.RegisterUsersServer(s, &UsersServer{})
+
+	fmt.Println("Сервер gRPC начал работу")
+	// получаем запрос gRPC
+	if err := s.Serve(listen); err != nil {
+		log.Fatal(err)
+	}
 }
 
 // AddUser реализует интерфейс добавления пользователя.
