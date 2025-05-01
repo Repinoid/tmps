@@ -4,6 +4,12 @@ package demo;
 
 option go_package = "demo/proto";
 
+// enum Sex {
+//     UNSPECIFIED = 0;
+//     MALE = 1;
+//     FEMALE = 2;
+// }
+
 message User {
   string name = 1;  // имя пользователя
   enum Sex {
