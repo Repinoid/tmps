@@ -21,60 +21,65 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type User_Sex int32
+type Sex int32
 
 const (
-	User_UNSPECIFIED User_Sex = 0
-	User_MALE        User_Sex = 1
-	User_FEMALE      User_Sex = 2
+	Sex_UNSPECIFIED Sex = 0
+	Sex_MALE        Sex = 1
+	Sex_FEMALE      Sex = 2
 )
 
-// Enum value maps for User_Sex.
+// Enum value maps for Sex.
 var (
-	User_Sex_name = map[int32]string{
+	Sex_name = map[int32]string{
 		0: "UNSPECIFIED",
 		1: "MALE",
 		2: "FEMALE",
 	}
-	User_Sex_value = map[string]int32{
+	Sex_value = map[string]int32{
 		"UNSPECIFIED": 0,
 		"MALE":        1,
 		"FEMALE":      2,
 	}
 )
 
-func (x User_Sex) Enum() *User_Sex {
-	p := new(User_Sex)
+func (x Sex) Enum() *Sex {
+	p := new(Sex)
 	*p = x
 	return p
 }
 
-func (x User_Sex) String() string {
+func (x Sex) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (User_Sex) Descriptor() protoreflect.EnumDescriptor {
+func (Sex) Descriptor() protoreflect.EnumDescriptor {
 	return file_proto_demo_proto_enumTypes[0].Descriptor()
 }
 
-func (User_Sex) Type() protoreflect.EnumType {
+func (Sex) Type() protoreflect.EnumType {
 	return &file_proto_demo_proto_enumTypes[0]
 }
 
-func (x User_Sex) Number() protoreflect.EnumNumber {
+func (x Sex) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use User_Sex.Descriptor instead.
-func (User_Sex) EnumDescriptor() ([]byte, []int) {
-	return file_proto_demo_proto_rawDescGZIP(), []int{0, 0}
+// Deprecated: Use Sex.Descriptor instead.
+func (Sex) EnumDescriptor() ([]byte, []int) {
+	return file_proto_demo_proto_rawDescGZIP(), []int{0}
 }
 
 type User struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`                   // имя пользователя
-	Sex           User_Sex               `protobuf:"varint,2,opt,name=sex,proto3,enum=demo.User_Sex" json:"sex,omitempty"` // пол
-	Email         string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`                 // email
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Name  string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"` // имя пользователя
+	//	enum Sex {
+	//	    UNSPECIFIED = 0;
+	//	    MALE = 1;
+	//	    FEMALE = 2;
+	//	}
+	Sex           Sex    `protobuf:"varint,2,opt,name=sex,proto3,enum=demo.Sex" json:"sex,omitempty"` // пол
+	Email         string `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`            // email
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -116,11 +121,11 @@ func (x *User) GetName() string {
 	return ""
 }
 
-func (x *User) GetSex() User_Sex {
+func (x *User) GetSex() Sex {
 	if x != nil {
 		return x.Sex
 	}
-	return User_UNSPECIFIED
+	return Sex_UNSPECIFIED
 }
 
 func (x *User) GetEmail() string {
@@ -510,16 +515,11 @@ var File_proto_demo_proto protoreflect.FileDescriptor
 
 const file_proto_demo_proto_rawDesc = "" +
 	"\n" +
-	"\x10proto/demo.proto\x12\x04demo\"\x80\x01\n" +
+	"\x10proto/demo.proto\x12\x04demo\"M\n" +
 	"\x04User\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
-	"\x03sex\x18\x02 \x01(\x0e2\x0e.demo.User.SexR\x03sex\x12\x14\n" +
-	"\x05email\x18\x03 \x01(\tR\x05email\",\n" +
-	"\x03Sex\x12\x0f\n" +
-	"\vUNSPECIFIED\x10\x00\x12\b\n" +
-	"\x04MALE\x10\x01\x12\n" +
-	"\n" +
-	"\x06FEMALE\x10\x02\"0\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1b\n" +
+	"\x03sex\x18\x02 \x01(\x0e2\t.demo.SexR\x03sex\x12\x14\n" +
+	"\x05email\x18\x03 \x01(\tR\x05email\"0\n" +
 	"\x0eAddUserRequest\x12\x1e\n" +
 	"\x04user\x18\x01 \x01(\v2\n" +
 	".demo.UserR\x04user\"'\n" +
@@ -540,7 +540,12 @@ const file_proto_demo_proto_rawDesc = "" +
 	"\x0eDelUserRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\"'\n" +
 	"\x0fDelUserResponse\x12\x14\n" +
-	"\x05error\x18\x01 \x01(\tR\x05error2\xed\x01\n" +
+	"\x05error\x18\x01 \x01(\tR\x05error*,\n" +
+	"\x03Sex\x12\x0f\n" +
+	"\vUNSPECIFIED\x10\x00\x12\b\n" +
+	"\x04MALE\x10\x01\x12\n" +
+	"\n" +
+	"\x06FEMALE\x10\x022\xed\x01\n" +
 	"\x05Users\x126\n" +
 	"\aAddUser\x12\x14.demo.AddUserRequest\x1a\x15.demo.AddUserResponse\x12<\n" +
 	"\tListUsers\x12\x16.demo.ListUsersRequest\x1a\x17.demo.ListUsersResponse\x126\n" +
@@ -563,7 +568,7 @@ func file_proto_demo_proto_rawDescGZIP() []byte {
 var file_proto_demo_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_proto_demo_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_proto_demo_proto_goTypes = []any{
-	(User_Sex)(0),             // 0: demo.User.Sex
+	(Sex)(0),                  // 0: demo.Sex
 	(*User)(nil),              // 1: demo.User
 	(*AddUserRequest)(nil),    // 2: demo.AddUserRequest
 	(*AddUserResponse)(nil),   // 3: demo.AddUserResponse
@@ -575,7 +580,7 @@ var file_proto_demo_proto_goTypes = []any{
 	(*DelUserResponse)(nil),   // 9: demo.DelUserResponse
 }
 var file_proto_demo_proto_depIdxs = []int32{
-	0, // 0: demo.User.sex:type_name -> demo.User.Sex
+	0, // 0: demo.User.sex:type_name -> demo.Sex
 	1, // 1: demo.AddUserRequest.user:type_name -> demo.User
 	1, // 2: demo.GetUserResponse.user:type_name -> demo.User
 	2, // 3: demo.Users.AddUser:input_type -> demo.AddUserRequest
