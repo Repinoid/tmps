@@ -12,12 +12,11 @@ provider "yandex" {
   folder_id = var.folder_id
   zone      = var.compute-default-zone
 }
-///////////////////////////////////////////////////////////////////
 // Создает архив. Пакует папку source_dir в архив с именем output_path
 data "archive_file" "lambda" {
   type        = "zip"
   source_dir  = "./tozip/"  // путь в папке с кодом
-  output_path = "goim.zip"  // zip пакуется сюда
+  output_path = "ydber.zip"  // zip пакуется сюда
 }
 
 

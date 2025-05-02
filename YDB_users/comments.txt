@@ -1,0 +1,18 @@
+Вызов функции в Cloud Functions
+https://yandex.cloud/ru/docs/functions/concepts/function-invoke
+
+Использование pgcrypto в Managed Service for PostgreSQL
+https://yandex.cloud/ru/docs/managed-postgresql/operations/extensions/pgcrypto
+
+F.26.2.1. crypt() 
+crypt(password text, salt text) returns text
+Calculates a crypt(3)-style hash of password. When storing a new password, you need to use gen_salt() to generate a new salt value. 
+To check a password, pass the stored hash value as salt, and test whether the result matches the stored value.
+
+Example of setting a new password:
+UPDATE ... SET pswhash = crypt('new password', gen_salt('md5'));
+
+Example of authentication:
+SELECT (pswhash = crypt('entered password', pswhash)) AS pswmatch FROM ... ;
+
+This returns true if the entered password is correct.
