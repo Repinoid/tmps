@@ -46,6 +46,7 @@ message GetUserRequest {
 message GetUserResponse {
   User   user = 1;
   string error = 2;
+  string token = 3;
 }
 
 message DelUserRequest {

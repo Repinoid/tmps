@@ -370,6 +370,7 @@ type GetUserResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	User          *User                  `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
 	Error         string                 `protobuf:"bytes,2,opt,name=error,proto3" json:"error,omitempty"`
+	Token         string                 `protobuf:"bytes,3,opt,name=token,proto3" json:"token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -414,6 +415,13 @@ func (x *GetUserResponse) GetUser() *User {
 func (x *GetUserResponse) GetError() string {
 	if x != nil {
 		return x.Error
+	}
+	return ""
+}
+
+func (x *GetUserResponse) GetToken() string {
+	if x != nil {
+		return x.Token
 	}
 	return ""
 }
@@ -532,11 +540,12 @@ const file_proto_demo_proto_rawDesc = "" +
 	"\x05count\x18\x01 \x01(\x05R\x05count\x12\x16\n" +
 	"\x06emails\x18\x02 \x03(\tR\x06emails\"&\n" +
 	"\x0eGetUserRequest\x12\x14\n" +
-	"\x05email\x18\x01 \x01(\tR\x05email\"G\n" +
+	"\x05email\x18\x01 \x01(\tR\x05email\"]\n" +
 	"\x0fGetUserResponse\x12\x1e\n" +
 	"\x04user\x18\x01 \x01(\v2\n" +
 	".demo.UserR\x04user\x12\x14\n" +
-	"\x05error\x18\x02 \x01(\tR\x05error\"&\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error\x12\x14\n" +
+	"\x05token\x18\x03 \x01(\tR\x05token\"&\n" +
 	"\x0eDelUserRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\"'\n" +
 	"\x0fDelUserResponse\x12\x14\n" +

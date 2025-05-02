@@ -8,7 +8,10 @@ import (
 	"log"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 )
 
 func main() {
@@ -64,16 +67,34 @@ func TestUsers(c pb.UsersClient) {
 	// во втором случае должна вернуться ошибка:
 	// пользователь с email serge@example.com не найден
 	for _, userEmail := range []string{"sveta@example.com", "serge@example.com"} {
-		resp, err := c.GetUser(context.Background(), &pb.GetUserRequest{
+		md := metadata.New(map[string]string{"token": "12345"})
+		ctx := metadata.NewOutgoingContext(context.Background(), md)
+
+		resp, err := c.GetUser(ctx, &pb.GetUserRequest{
 			Email: userEmail,
 		})
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
 		if err != nil {
-			log.Fatal(err)
+			if e, ok := status.FromError(err); ok {
+				if e.Code() == codes.NotFound {
+					// выведет, что пользователь не найден
+					fmt.Println(`NOT FOUND`, e.Message())
+				} else {
+					// в остальных случаях выводим код ошибки в виде строки и сообщение
+					fmt.Println(e.Code(), e.Message())
+				}
+			} else {
+				fmt.Printf("Не получилось распарсить ошибку %v", err)
+			}
+			// ...
 		}
-		if resp.Error == "" {
-			fmt.Println(resp.User)
+
+		if resp.GetError() == "" {
+			fmt.Println(resp.GetUser(), resp.Token)
 		} else {
-			fmt.Println(resp.Error)
+			fmt.Println(resp.GetError())
 		}
 	}
 

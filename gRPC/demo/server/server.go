@@ -11,6 +11,9 @@ import (
 	"sync"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 )
 
 // UsersServer поддерживает все необходимые методы сервера.
@@ -80,17 +83,40 @@ func (s *UsersServer) ListUsers(ctx context.Context, in *pb.ListUsersRequest) (*
 	return &response, nil
 }
 
-// GetUser реализует интерфейс получения информации о пользователе.
 func (s *UsersServer) GetUser(ctx context.Context, in *pb.GetUserRequest) (*pb.GetUserResponse, error) {
 	var response pb.GetUserResponse
+
+	var token string
+
+	md, ok := metadata.FromIncomingContext(ctx)
+	if ok {
+		values := md.Get("token")
+		if len(values) > 0 {
+			// ключ содержит слайс строк, получаем первую строку
+			token = values[0]
+		}
+	}
 
 	if user, ok := s.users.Load(in.Email); ok {
 		response.User = user.(*pb.User)
 	} else {
-		response.Error = fmt.Sprintf("Пользователь с email %s не найден", in.Email)
+		return nil, status.Errorf(codes.NotFound, `Пользователь с email %s не найден`, in.Email)
 	}
+	response.Token = token
 	return &response, nil
 }
+
+// GetUser реализует интерфейс получения информации о пользователе.
+// func (s *UsersServer) GetUser(ctx context.Context, in *pb.GetUserRequest) (*pb.GetUserResponse, error) {
+// 	var response pb.GetUserResponse
+
+// 	if user, ok := s.users.Load(in.Email); ok {
+// 		response.User = user.(*pb.User)
+// 	} else {
+// 		response.Error = fmt.Sprintf("Пользователь с email %s не найден", in.Email)
+// 	}
+// 	return &response, nil
+// }
 
 // DelUser реализует интерфейс удаления информации о пользователе.
 func (s *UsersServer) DelUser(ctx context.Context, in *pb.DelUserRequest) (*pb.DelUserResponse, error) {
