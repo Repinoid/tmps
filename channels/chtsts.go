@@ -1,23 +1,33 @@
 package main
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
 func main() {
-	cha := make(chan int)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+//	cancel()
+
 	stop := make(chan int)
-	go func() {
-		generatoras(cha, 5)
-	}()
+	//	go func() {
+	cha := generatoras(ctx, 5)
+	//	}()
 	go func() {
 		for c := range cha {
 			fmt.Println("-->> read cha ", c)
+			if c == 0 {
+				cancel()
+			}
 		}
 		fmt.Println("ALL <-cha, Unlock STOP ", <-stop)
-	//	fmt.Println(<-stop)
-		
+		//	fmt.Println(<-stop)
+
 	}()
 
-	fmt.Println("lock EXIT from main by write to STOP") 
+	fmt.Println("lock EXIT from main by write to STOP")
 	stop <- 7
 	//	<-cha
 	//	fmt.Println(<-cha)
@@ -25,16 +35,20 @@ func main() {
 
 }
 
-func generatoras(cha chan int, n int) chan int {
-	//cha = make(chan int)
-	defer func() {
-		close(cha)
-		fmt.Println("cha closed by defer")
+func generatoras(ctx context.Context, n int) (cha chan int) {
+	cha = make(chan int)
+	go func() {
+		defer close(cha)
+		for i := range n {
+			select {
+			case <-ctx.Done():
+				fmt.Println("cancel ON  ", i)
+				return
+			default:
+				fmt.Println("Generate ", i)
+				cha <- i
+			}
+		}
 	}()
-
-	for i := range n {
-		fmt.Println("Generate ", i)
-		cha <- i
-	}
-	return cha
+	return
 }
