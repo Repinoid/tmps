@@ -4,26 +4,46 @@ import (
 	"context"
 	"fmt"
 	"sync"
-	"time"
 )
 
 func main() {
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	//	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	//	cancel()
 
-	//	stop := make(chan int)
+	stop := make(chan int)
 
-	var wg sync.WaitGroup
+	//var wg sync.WaitGroup
 	//	wg.Add(1)
-	in := generateInts(ctx, 5, &wg)
+	in := generateInts(ctx, 5, stop)
 	//	wg.Wait()
 
 	//	wg.Add(1)
 	//readCha(ctx, in, &wg)
-	out := readCha(ctx, in, &wg)
+//	out := readCha(ctx, in, stop)
+//	_ = out
 	//	wg.Wait()
+
+	cha := make(chan int)
+	go func() {
+		defer close(cha)
+
+		//	defer wg.Done()
+		for c := range in {
+			//	time.Sleep(400*time.Millisecond)
+			select {
+			case <-ctx.Done():
+				fmt.Println("read cancel ON  ", c)
+				return
+			case cha <- c:
+				fmt.Println("READed  ", c)
+				<-stop
+			}
+		}
+	}()
+
 
 	// out := duplicateChannels(ctx, in , 5, &wg)
 
@@ -38,22 +58,35 @@ func main() {
 	// }()
 
 	fmt.Println("lock EXIT from main by write to STOP")
-	//	stop <- 7
+	//makeExit(ctx, stop)
+	stop <- 7
 	//	<-cha
 	//	fmt.Println(<-cha)
 	fmt.Println("all ok, exit")
-	for res := range out {
-		_ = res
-		//fmt.Println("out ",res)
-	}
+	// for res := range out {
+	// 	_ = res
+	// 	//fmt.Println("out ",res)
+	// }
 
 }
 
-func generateInts(ctx context.Context, n int, wg *sync.WaitGroup) (cha chan int) {
+func makeExit(ctx context.Context, stop chan int) {
+	go func() {
+		select {
+		case <-ctx.Done():
+			<-stop
+			return
+		}
+	}()
+}
+
+func generateInts(ctx context.Context, n int, stop chan int) (cha chan int) {
 	cha = make(chan int)
 	go func() {
-		defer close(cha)
 		//	defer wg.Done()
+		defer func() {
+			close(cha)
+		}()
 
 		for i := range n {
 			select {
@@ -68,19 +101,21 @@ func generateInts(ctx context.Context, n int, wg *sync.WaitGroup) (cha chan int)
 	return
 }
 
-func readCha(ctx context.Context, in chan int, wg *sync.WaitGroup) (cha chan int) {
+func readCha(ctx context.Context, in chan int, stop chan int) (cha chan int) {
 	cha = make(chan int)
 	go func() {
 		defer close(cha)
+
 		//	defer wg.Done()
 		for c := range in {
-			time.Sleep(400*time.Millisecond)
+			//	time.Sleep(400*time.Millisecond)
 			select {
 			case <-ctx.Done():
 				fmt.Println("read cancel ON  ", c)
 				return
 			case cha <- c:
 				fmt.Println("READed  ", c)
+				<-stop
 			}
 		}
 	}()
