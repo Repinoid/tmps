@@ -19,18 +19,24 @@ func main() {
 	// }()
 
 	g := generateInts(ctx, 5, stop)
-	readChan(ctx, g, stop)
+	out := readChan(ctx, g, stop)
+	_ = out
 
 	fmt.Println("stopped point ")
-	stop <- 666
+	//stop <- 666
 	fmt.Println("exit ")
+
+	// for res := range out {
+	// 	_ = res
+	// 	//fmt.Println("out ",res)
+	// }
 
 }
 
-func readChan(ctx context.Context, in chan int, stop chan int) { // } (cha chan int) {
-	//	cha = make(chan int)
+func readChan(ctx context.Context, in chan int, stop chan int) (cha chan int) {
+	cha = make(chan int)
 	go func() {
-		//		defer close(cha)
+		defer close(cha)
 
 		//	defer wg.Done()
 		for c := range in {
@@ -39,13 +45,14 @@ func readChan(ctx context.Context, in chan int, stop chan int) { // } (cha chan 
 			case <-ctx.Done():
 				fmt.Println("read cancel ON  ", c)
 				return
-			case a := <-in:
-				fmt.Println("READed  ", a)
+				//			case a := <-in:
+			case cha <- c:
+				fmt.Println("READed  ", c)
 			}
 		}
-		<-stop
+		//	<-stop
 	}()
-	//	return
+	return
 }
 
 func generateInts(ctx context.Context, n int, stop chan int) (chaGenerated chan int) {
