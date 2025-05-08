@@ -11,6 +11,7 @@ import (
 	"net"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 )
 
 // UsersServer поддерживает все необходимые методы сервера.
@@ -58,6 +59,15 @@ func (s *MetricServer) AddBunch(ctx context.Context, in *pb.MBunch) (*pb.BunchRe
 
 		fmt.Printf("server %d %+v\n", i, metr)
 
+	}
+
+	md, ok := metadata.FromIncomingContext(ctx)
+	if ok {
+		values := md.Get("token")
+		if len(values) > 0 {
+			// ключ содержит слайс строк, получаем первую строку
+			fmt.Printf("token %+v\n", values[0])
+		}
 	}
 
 	return &response, nil
