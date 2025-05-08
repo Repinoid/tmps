@@ -11,6 +11,7 @@ import (
 	"net"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -25,13 +26,19 @@ type MetricServer struct {
 }
 
 func main() {
+
+	creds, err := credentials.NewServerTLSFromFile("cert.pem", "key.pem")
+	if err != nil {
+		log.Fatalf("failed to load credentials: %v", err)
+	}
+
 	// определяем порт для сервера
 	listen, err := net.Listen("tcp", ":3200")
 	if err != nil {
 		log.Fatal(err)
 	}
 	// создаём gRPC-сервер без зарегистрированной службы
-	s := grpc.NewServer()
+	s := grpc.NewServer(grpc.Creds(creds))
 	// регистрируем сервис
 	pb.RegisterMetricServer(s, &MetricServer{})
 

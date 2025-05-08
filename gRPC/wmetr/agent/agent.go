@@ -9,14 +9,28 @@ import (
 	pb "metr/proto"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
 )
 
+func generateTLSCreds() (credentials.TransportCredentials, error) {
+	// Здесь нужно указать полный путь к файлу
+	certFile := "../server/cert.pem"
+
+	return credentials.NewClientTLSFromFile(certFile, "")
+}
+
 func main() {
+
+	tlsCreds, err := generateTLSCreds()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// устанавливаем соединение с сервером
 	//	conn, err := grpc.Dial(":3200", grpc.WithTransportCredentials(insecure.NewCredentials()))
-	conn, err := grpc.NewClient(":3200", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	//conn, err := grpc.NewClient(":3200", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(":3200", grpc.WithTransportCredentials(tlsCreds))
 	if err != nil {
 		log.Fatal(err)
 	}
