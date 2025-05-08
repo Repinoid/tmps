@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package metr;
+
+option go_package = "metr/proto";
+
+
+message  GMetr  {
+	string  ID      = 1; 
+	string  MType   = 2;    
+	int64   Delta   = 3;
+	double  Value   = 4;
+}
+
+message MBunch {
+    repeated GMetr bunch = 1;
+}
+
+message BunchResponse {
+  string error = 1; // ошибка
+  string outData = 2;
+}
+
+service Metric {
+  rpc AddBunch(MBunch) returns (BunchResponse);
+
+}

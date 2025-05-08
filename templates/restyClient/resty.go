@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"net"
 	"time"
 
 	"github.com/go-resty/resty/v2"
@@ -42,7 +43,7 @@ func postal() {
 		SetHeader("Accept", "text/html").
 		SetHeader("Content-Type", "text/html").
 		SetHeader("Accept-Encoding", "gzip").
-		SetHeader("X-Real-IP", "127.0.0.1")
+		SetHeader("X-Real-IP", GetLocalIP())
 
 	req.Header.Add("hzz", "WTF")
 	resp, err := req.
@@ -50,4 +51,20 @@ func postal() {
 		Post("/g")
 
 	log.Printf("StatusCode %d\tErr %v\tResult %s\n", resp.StatusCode(), err, resp)
+}
+
+func GetLocalIP() string {
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return ""
+	}
+	for _, address := range addrs {
+		// check the address type and if it is not a loopback the display it
+		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				return ipnet.IP.String()
+			}
+		}
+	}
+	return ""
 }
