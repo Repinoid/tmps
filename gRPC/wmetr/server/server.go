@@ -16,63 +16,60 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
+//var isCoded = false
+
+var isCoded = true
+
 // UsersServer поддерживает все необходимые методы сервера.
 type MetricServer struct {
-	// нужно встраивать тип pb.Unimplemented<TypeName>
-	// для совместимости с будущими версиями
+	// нужно встраивать тип pb.Unimplemented<TypeName> для совместимости с будущими версиями
 	pb.UnimplementedMetricServer
-
-	// используем sync.Map для хранения пользователей
-	//users sync.Map
 }
 
-func loadTLSCredentials() (credentials.TransportCredentials, error) {
+// loadTLSCredentials загрузка сертификатов
+func loadTLSCredentials(cert, key string) (credentials.TransportCredentials, error) {
 	// Load server's certificate and private key
-	serverCert, err := tls.LoadX509KeyPair("../pems/cert.pem", "../pems/key.pem")
+	serverCert, err := tls.LoadX509KeyPair(cert, key)
 	if err != nil {
 		return nil, err
 	}
-
 	// Create the credentials and return it
 	config := &tls.Config{
 		Certificates: []tls.Certificate{serverCert},
 		ClientAuth:   tls.NoClientCert,
 	}
-
 	return credentials.NewTLS(config), nil
 }
 
 func main() {
-
-	// creds, err := credentials.NewServerTLSFromFile("../pems/cert.pem", "../pems/key.pem")
-	// if err != nil {
-	// 	log.Fatalf("failed to load credentials: %v", err)
-	// }
-
-	// Load TLS credentials
-	creds, err := loadTLSCredentials()
-	if err != nil {
-		log.Fatalf("failed to load TLS credentials: %v", err)
-	}
-
 	// определяем порт для сервера
 	listen, err := net.Listen("tcp", ":3200")
 	if err != nil {
 		log.Fatal(err)
 	}
-	// создаём gRPC-сервер без зарегистрированной службы
-	s := grpc.NewServer(grpc.Creds(creds))
+	var srv *grpc.Server
+	if isCoded {
+		// Load TLS credentials
+		creds, err := loadTLSCredentials("../pems/cert.pem", "../pems/key.pem")
+		if err != nil {
+			log.Fatalf("failed to load TLS credentials: %v", err)
+		}
+		srv = grpc.NewServer(grpc.Creds(creds))
+	} else {
+		// без шифровки
+		srv = grpc.NewServer()
+	}
 	// регистрируем сервис
-	pb.RegisterMetricServer(s, &MetricServer{})
+	pb.RegisterMetricServer(srv, &MetricServer{})
 
 	fmt.Println("Сервер gRPC начал работу")
 	// получаем запрос gRPC
-	if err := s.Serve(listen); err != nil {
+	if err := srv.Serve(listen); err != nil {
 		log.Fatal(err)
 	}
 }
 
-// AddUser реализует интерфейс добавления пользователя.
+// 
 func (s *MetricServer) AddBunch(ctx context.Context, in *pb.MBunch) (*pb.BunchResponse, error) {
 	var response pb.BunchResponse
 
