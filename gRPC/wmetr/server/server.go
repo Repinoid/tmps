@@ -66,7 +66,12 @@ func (s *MetricServer) AddBunch(ctx context.Context, in *pb.MBunch) (*pb.BunchRe
 		values := md.Get("token")
 		if len(values) > 0 {
 			// ключ содержит слайс строк, получаем первую строку
-			fmt.Printf("token %+v\n", values[0])
+			fmt.Printf("token %+v len %d\n", values[0], len(values))
+		}
+		values = md.Get("hz")
+		if len(values) > 0 {
+			// ключ содержит слайс строк, получаем первую строку
+			fmt.Printf("hz %+v len %d\n", values[0], len(values))
 		}
 	}
 
