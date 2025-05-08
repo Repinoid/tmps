@@ -4,6 +4,7 @@ import (
 	// импортируем пакет со сгенерированными protobuf-файлами
 
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -25,11 +26,33 @@ type MetricServer struct {
 	//users sync.Map
 }
 
+func loadTLSCredentials() (credentials.TransportCredentials, error) {
+	// Load server's certificate and private key
+	serverCert, err := tls.LoadX509KeyPair("../pems/cert.pem", "../pems/key.pem")
+	if err != nil {
+		return nil, err
+	}
+
+	// Create the credentials and return it
+	config := &tls.Config{
+		Certificates: []tls.Certificate{serverCert},
+		ClientAuth:   tls.NoClientCert,
+	}
+
+	return credentials.NewTLS(config), nil
+}
+
 func main() {
 
-	creds, err := credentials.NewServerTLSFromFile("cert.pem", "key.pem")
+	// creds, err := credentials.NewServerTLSFromFile("../pems/cert.pem", "../pems/key.pem")
+	// if err != nil {
+	// 	log.Fatalf("failed to load credentials: %v", err)
+	// }
+
+	// Load TLS credentials
+	creds, err := loadTLSCredentials()
 	if err != nil {
-		log.Fatalf("failed to load credentials: %v", err)
+		log.Fatalf("failed to load TLS credentials: %v", err)
 	}
 
 	// определяем порт для сервера
