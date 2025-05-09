@@ -70,10 +70,10 @@ func main() {
 }
 
 // 
-func (s *MetricServer) AddBunch(ctx context.Context, in *pb.MBunch) (*pb.BunchResponse, error) {
+func (s *MetricServer) AddBunch(ctx context.Context, in *pb.Bunch) (*pb.BunchResponse, error) {
 	var response pb.BunchResponse
 
-	b := in.Bunch
+	b := in.Meters
 
 	bout, err := json.Marshal(b)
 

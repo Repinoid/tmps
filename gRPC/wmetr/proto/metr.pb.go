@@ -21,7 +21,8 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type GMetr struct {
+// Metr - а-ля структура метрики
+type Metr struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ID            string                 `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
 	MType         string                 `protobuf:"bytes,2,opt,name=MType,proto3" json:"MType,omitempty"`
@@ -31,20 +32,20 @@ type GMetr struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GMetr) Reset() {
-	*x = GMetr{}
+func (x *Metr) Reset() {
+	*x = Metr{}
 	mi := &file_proto_metr_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GMetr) String() string {
+func (x *Metr) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GMetr) ProtoMessage() {}
+func (*Metr) ProtoMessage() {}
 
-func (x *GMetr) ProtoReflect() protoreflect.Message {
+func (x *Metr) ProtoReflect() protoreflect.Message {
 	mi := &file_proto_metr_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -56,60 +57,61 @@ func (x *GMetr) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GMetr.ProtoReflect.Descriptor instead.
-func (*GMetr) Descriptor() ([]byte, []int) {
+// Deprecated: Use Metr.ProtoReflect.Descriptor instead.
+func (*Metr) Descriptor() ([]byte, []int) {
 	return file_proto_metr_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *GMetr) GetID() string {
+func (x *Metr) GetID() string {
 	if x != nil {
 		return x.ID
 	}
 	return ""
 }
 
-func (x *GMetr) GetMType() string {
+func (x *Metr) GetMType() string {
 	if x != nil {
 		return x.MType
 	}
 	return ""
 }
 
-func (x *GMetr) GetDelta() int64 {
+func (x *Metr) GetDelta() int64 {
 	if x != nil {
 		return x.Delta
 	}
 	return 0
 }
 
-func (x *GMetr) GetValue() float64 {
+func (x *Metr) GetValue() float64 {
 	if x != nil {
 		return x.Value
 	}
 	return 0
 }
 
-type MBunch struct {
+// слайс метрик
+type Bunch struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Bunch         []*GMetr               `protobuf:"bytes,1,rep,name=bunch,proto3" json:"bunch,omitempty"`
+	Meters        []*Metr                `protobuf:"bytes,1,rep,name=meters,proto3" json:"meters,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *MBunch) Reset() {
-	*x = MBunch{}
+func (x *Bunch) Reset() {
+	*x = Bunch{}
 	mi := &file_proto_metr_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *MBunch) String() string {
+func (x *Bunch) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*MBunch) ProtoMessage() {}
+func (*Bunch) ProtoMessage() {}
 
-func (x *MBunch) ProtoReflect() protoreflect.Message {
+func (x *Bunch) ProtoReflect() protoreflect.Message {
 	mi := &file_proto_metr_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -121,14 +123,14 @@ func (x *MBunch) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use MBunch.ProtoReflect.Descriptor instead.
-func (*MBunch) Descriptor() ([]byte, []int) {
+// Deprecated: Use Bunch.ProtoReflect.Descriptor instead.
+func (*Bunch) Descriptor() ([]byte, []int) {
 	return file_proto_metr_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *MBunch) GetBunch() []*GMetr {
+func (x *Bunch) GetMeters() []*Metr {
 	if x != nil {
-		return x.Bunch
+		return x.Meters
 	}
 	return nil
 }
@@ -189,19 +191,20 @@ var File_proto_metr_proto protoreflect.FileDescriptor
 
 const file_proto_metr_proto_rawDesc = "" +
 	"\n" +
-	"\x10proto/metr.proto\x12\x04metr\"Y\n" +
-	"\x05GMetr\x12\x0e\n" +
+	"\x10proto/metr.proto\x12\x04metr\"X\n" +
+	"\x04Metr\x12\x0e\n" +
 	"\x02ID\x18\x01 \x01(\tR\x02ID\x12\x14\n" +
 	"\x05MType\x18\x02 \x01(\tR\x05MType\x12\x14\n" +
 	"\x05Delta\x18\x03 \x01(\x03R\x05Delta\x12\x14\n" +
 	"\x05Value\x18\x04 \x01(\x01R\x05Value\"+\n" +
-	"\x06MBunch\x12!\n" +
-	"\x05bunch\x18\x01 \x03(\v2\v.metr.GMetrR\x05bunch\"?\n" +
+	"\x05Bunch\x12\"\n" +
+	"\x06meters\x18\x01 \x03(\v2\n" +
+	".metr.MetrR\x06meters\"?\n" +
 	"\rBunchResponse\x12\x14\n" +
 	"\x05error\x18\x01 \x01(\tR\x05error\x12\x18\n" +
-	"\aoutData\x18\x02 \x01(\tR\aoutData27\n" +
-	"\x06Metric\x12-\n" +
-	"\bAddBunch\x12\f.metr.MBunch\x1a\x13.metr.BunchResponseB\fZ\n" +
+	"\aoutData\x18\x02 \x01(\tR\aoutData26\n" +
+	"\x06Metric\x12,\n" +
+	"\bAddBunch\x12\v.metr.Bunch\x1a\x13.metr.BunchResponseB\fZ\n" +
 	"metr/protob\x06proto3"
 
 var (
@@ -218,13 +221,13 @@ func file_proto_metr_proto_rawDescGZIP() []byte {
 
 var file_proto_metr_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_proto_metr_proto_goTypes = []any{
-	(*GMetr)(nil),         // 0: metr.GMetr
-	(*MBunch)(nil),        // 1: metr.MBunch
+	(*Metr)(nil),          // 0: metr.Metr
+	(*Bunch)(nil),         // 1: metr.Bunch
 	(*BunchResponse)(nil), // 2: metr.BunchResponse
 }
 var file_proto_metr_proto_depIdxs = []int32{
-	0, // 0: metr.MBunch.bunch:type_name -> metr.GMetr
-	1, // 1: metr.Metric.AddBunch:input_type -> metr.MBunch
+	0, // 0: metr.Bunch.meters:type_name -> metr.Metr
+	1, // 1: metr.Metric.AddBunch:input_type -> metr.Bunch
 	2, // 2: metr.Metric.AddBunch:output_type -> metr.BunchResponse
 	2, // [2:3] is the sub-list for method output_type
 	1, // [1:2] is the sub-list for method input_type

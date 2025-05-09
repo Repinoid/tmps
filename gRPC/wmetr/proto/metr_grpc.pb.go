@@ -25,8 +25,10 @@ const (
 // MetricClient is the client API for Metric service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// Metric - нужен всего один метод по записи слайса метрик
 type MetricClient interface {
-	AddBunch(ctx context.Context, in *MBunch, opts ...grpc.CallOption) (*BunchResponse, error)
+	AddBunch(ctx context.Context, in *Bunch, opts ...grpc.CallOption) (*BunchResponse, error)
 }
 
 type metricClient struct {
@@ -37,7 +39,7 @@ func NewMetricClient(cc grpc.ClientConnInterface) MetricClient {
 	return &metricClient{cc}
 }
 
-func (c *metricClient) AddBunch(ctx context.Context, in *MBunch, opts ...grpc.CallOption) (*BunchResponse, error) {
+func (c *metricClient) AddBunch(ctx context.Context, in *Bunch, opts ...grpc.CallOption) (*BunchResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(BunchResponse)
 	err := c.cc.Invoke(ctx, Metric_AddBunch_FullMethodName, in, out, cOpts...)
@@ -50,8 +52,10 @@ func (c *metricClient) AddBunch(ctx context.Context, in *MBunch, opts ...grpc.Ca
 // MetricServer is the server API for Metric service.
 // All implementations must embed UnimplementedMetricServer
 // for forward compatibility.
+//
+// Metric - нужен всего один метод по записи слайса метрик
 type MetricServer interface {
-	AddBunch(context.Context, *MBunch) (*BunchResponse, error)
+	AddBunch(context.Context, *Bunch) (*BunchResponse, error)
 	mustEmbedUnimplementedMetricServer()
 }
 
@@ -62,7 +66,7 @@ type MetricServer interface {
 // pointer dereference when methods are called.
 type UnimplementedMetricServer struct{}
 
-func (UnimplementedMetricServer) AddBunch(context.Context, *MBunch) (*BunchResponse, error) {
+func (UnimplementedMetricServer) AddBunch(context.Context, *Bunch) (*BunchResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddBunch not implemented")
 }
 func (UnimplementedMetricServer) mustEmbedUnimplementedMetricServer() {}
@@ -87,7 +91,7 @@ func RegisterMetricServer(s grpc.ServiceRegistrar, srv MetricServer) {
 }
 
 func _Metric_AddBunch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MBunch)
+	in := new(Bunch)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -99,7 +103,7 @@ func _Metric_AddBunch_Handler(srv interface{}, ctx context.Context, dec func(int
 		FullMethod: Metric_AddBunch_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MetricServer).AddBunch(ctx, req.(*MBunch))
+		return srv.(MetricServer).AddBunch(ctx, req.(*Bunch))
 	}
 	return interceptor(ctx, in, info, handler)
 }
