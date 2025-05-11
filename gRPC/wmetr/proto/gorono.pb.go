@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        v6.30.2
-// source: proto/metr.proto
+// source: proto/gorono.proto
 
 package proto
 
@@ -33,7 +33,7 @@ type GMetr struct {
 
 func (x *GMetr) Reset() {
 	*x = GMetr{}
-	mi := &file_proto_metr_proto_msgTypes[0]
+	mi := &file_proto_gorono_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -45,7 +45,7 @@ func (x *GMetr) String() string {
 func (*GMetr) ProtoMessage() {}
 
 func (x *GMetr) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_metr_proto_msgTypes[0]
+	mi := &file_proto_gorono_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -58,7 +58,7 @@ func (x *GMetr) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GMetr.ProtoReflect.Descriptor instead.
 func (*GMetr) Descriptor() ([]byte, []int) {
-	return file_proto_metr_proto_rawDescGZIP(), []int{0}
+	return file_proto_gorono_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *GMetr) GetID() string {
@@ -98,7 +98,7 @@ type MBunch struct {
 
 func (x *MBunch) Reset() {
 	*x = MBunch{}
-	mi := &file_proto_metr_proto_msgTypes[1]
+	mi := &file_proto_gorono_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -110,7 +110,7 @@ func (x *MBunch) String() string {
 func (*MBunch) ProtoMessage() {}
 
 func (x *MBunch) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_metr_proto_msgTypes[1]
+	mi := &file_proto_gorono_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -123,7 +123,7 @@ func (x *MBunch) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MBunch.ProtoReflect.Descriptor instead.
 func (*MBunch) Descriptor() ([]byte, []int) {
-	return file_proto_metr_proto_rawDescGZIP(), []int{1}
+	return file_proto_gorono_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *MBunch) GetBunch() []*GMetr {
@@ -143,7 +143,7 @@ type BunchResponse struct {
 
 func (x *BunchResponse) Reset() {
 	*x = BunchResponse{}
-	mi := &file_proto_metr_proto_msgTypes[2]
+	mi := &file_proto_gorono_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -155,7 +155,7 @@ func (x *BunchResponse) String() string {
 func (*BunchResponse) ProtoMessage() {}
 
 func (x *BunchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_metr_proto_msgTypes[2]
+	mi := &file_proto_gorono_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -168,7 +168,7 @@ func (x *BunchResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BunchResponse.ProtoReflect.Descriptor instead.
 func (*BunchResponse) Descriptor() ([]byte, []int) {
-	return file_proto_metr_proto_rawDescGZIP(), []int{2}
+	return file_proto_gorono_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *BunchResponse) GetError() string {
@@ -185,47 +185,46 @@ func (x *BunchResponse) GetOutData() string {
 	return ""
 }
 
-var File_proto_metr_proto protoreflect.FileDescriptor
+var File_proto_gorono_proto protoreflect.FileDescriptor
 
-const file_proto_metr_proto_rawDesc = "" +
+const file_proto_gorono_proto_rawDesc = "" +
 	"\n" +
-	"\x10proto/metr.proto\x12\x04metr\"Y\n" +
+	"\x12proto/gorono.proto\x12\x06gorono\"Y\n" +
 	"\x05GMetr\x12\x0e\n" +
 	"\x02ID\x18\x01 \x01(\tR\x02ID\x12\x14\n" +
 	"\x05MType\x18\x02 \x01(\tR\x05MType\x12\x14\n" +
 	"\x05Delta\x18\x03 \x01(\x03R\x05Delta\x12\x14\n" +
-	"\x05Value\x18\x04 \x01(\x01R\x05Value\"+\n" +
-	"\x06MBunch\x12!\n" +
-	"\x05bunch\x18\x01 \x03(\v2\v.metr.GMetrR\x05bunch\"?\n" +
+	"\x05Value\x18\x04 \x01(\x01R\x05Value\"-\n" +
+	"\x06MBunch\x12#\n" +
+	"\x05bunch\x18\x01 \x03(\v2\r.gorono.GMetrR\x05bunch\"?\n" +
 	"\rBunchResponse\x12\x14\n" +
 	"\x05error\x18\x01 \x01(\tR\x05error\x12\x18\n" +
-	"\aoutData\x18\x02 \x01(\tR\aoutData27\n" +
-	"\x06Metric\x12-\n" +
-	"\bAddBunch\x12\f.metr.MBunch\x1a\x13.metr.BunchResponseB\fZ\n" +
-	"metr/protob\x06proto3"
+	"\aoutData\x18\x02 \x01(\tR\aoutData2;\n" +
+	"\x06Metric\x121\n" +
+	"\bAddBunch\x12\x0e.gorono.MBunch\x1a\x15.gorono.BunchResponseB\x0eZ\fgorono/protob\x06proto3"
 
 var (
-	file_proto_metr_proto_rawDescOnce sync.Once
-	file_proto_metr_proto_rawDescData []byte
+	file_proto_gorono_proto_rawDescOnce sync.Once
+	file_proto_gorono_proto_rawDescData []byte
 )
 
-func file_proto_metr_proto_rawDescGZIP() []byte {
-	file_proto_metr_proto_rawDescOnce.Do(func() {
-		file_proto_metr_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_proto_metr_proto_rawDesc), len(file_proto_metr_proto_rawDesc)))
+func file_proto_gorono_proto_rawDescGZIP() []byte {
+	file_proto_gorono_proto_rawDescOnce.Do(func() {
+		file_proto_gorono_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_proto_gorono_proto_rawDesc), len(file_proto_gorono_proto_rawDesc)))
 	})
-	return file_proto_metr_proto_rawDescData
+	return file_proto_gorono_proto_rawDescData
 }
 
-var file_proto_metr_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-var file_proto_metr_proto_goTypes = []any{
-	(*GMetr)(nil),         // 0: metr.GMetr
-	(*MBunch)(nil),        // 1: metr.MBunch
-	(*BunchResponse)(nil), // 2: metr.BunchResponse
+var file_proto_gorono_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_proto_gorono_proto_goTypes = []any{
+	(*GMetr)(nil),         // 0: gorono.GMetr
+	(*MBunch)(nil),        // 1: gorono.MBunch
+	(*BunchResponse)(nil), // 2: gorono.BunchResponse
 }
-var file_proto_metr_proto_depIdxs = []int32{
-	0, // 0: metr.MBunch.bunch:type_name -> metr.GMetr
-	1, // 1: metr.Metric.AddBunch:input_type -> metr.MBunch
-	2, // 2: metr.Metric.AddBunch:output_type -> metr.BunchResponse
+var file_proto_gorono_proto_depIdxs = []int32{
+	0, // 0: gorono.MBunch.bunch:type_name -> gorono.GMetr
+	1, // 1: gorono.Metric.AddBunch:input_type -> gorono.MBunch
+	2, // 2: gorono.Metric.AddBunch:output_type -> gorono.BunchResponse
 	2, // [2:3] is the sub-list for method output_type
 	1, // [1:2] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
@@ -233,26 +232,26 @@ var file_proto_metr_proto_depIdxs = []int32{
 	0, // [0:1] is the sub-list for field type_name
 }
 
-func init() { file_proto_metr_proto_init() }
-func file_proto_metr_proto_init() {
-	if File_proto_metr_proto != nil {
+func init() { file_proto_gorono_proto_init() }
+func file_proto_gorono_proto_init() {
+	if File_proto_gorono_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_metr_proto_rawDesc), len(file_proto_metr_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_gorono_proto_rawDesc), len(file_proto_gorono_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_proto_metr_proto_goTypes,
-		DependencyIndexes: file_proto_metr_proto_depIdxs,
-		MessageInfos:      file_proto_metr_proto_msgTypes,
+		GoTypes:           file_proto_gorono_proto_goTypes,
+		DependencyIndexes: file_proto_gorono_proto_depIdxs,
+		MessageInfos:      file_proto_gorono_proto_msgTypes,
 	}.Build()
-	File_proto_metr_proto = out.File
-	file_proto_metr_proto_goTypes = nil
-	file_proto_metr_proto_depIdxs = nil
+	File_proto_gorono_proto = out.File
+	file_proto_gorono_proto_goTypes = nil
+	file_proto_gorono_proto_depIdxs = nil
 }

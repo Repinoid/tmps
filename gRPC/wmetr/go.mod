@@ -1,4 +1,4 @@
-module metr
+module gorono
 
 go 1.24.2
 

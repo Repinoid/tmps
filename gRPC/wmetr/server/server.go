@@ -8,7 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	pb "metr/proto"
+	pb "gorono/proto"
 	"net"
 
 	"google.golang.org/grpc"
@@ -16,9 +16,9 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-//var isCoded = false
+var isCoded = false
 
-var isCoded = true
+//var isCoded = true
 
 // UsersServer поддерживает все необходимые методы сервера.
 type MetricServer struct {

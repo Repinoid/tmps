@@ -7,8 +7,9 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	pb "gorono/proto"
 	"log"
-	pb "metr/proto"
+	"net"
 	"os"
 
 	"google.golang.org/grpc"
@@ -17,8 +18,9 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-// var isCoded = false
-var isCoded = true
+var isCoded = false
+
+//var isCoded = true
 
 func loadClientTLSCredentials(cert string) (credentials.TransportCredentials, error) {
 	pemServerCA, err := os.ReadFile(cert)
@@ -67,7 +69,7 @@ func main() {
 		{ID: "dd", MType: "counter", Delta: 67},
 		{ID: "dd11", MType: "counter", Delta: 67222}}
 
-	md := metadata.New(map[string]string{"token": "12345"})
+	md := metadata.New(map[string]string{"X-Real-IP": GetLocalIP()})
 	ctx := metadata.NewOutgoingContext(context.Background(), md)
 
 	resp, err := client.AddBunch(ctx, &pb.MBunch{
@@ -80,4 +82,20 @@ func main() {
 		fmt.Println(resp.Error)
 	}
 	fmt.Printf("Client %s\n", resp.OutData)
+}
+
+func GetLocalIP() string {
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return ""
+	}
+	for _, address := range addrs {
+		// check the address type and if it is not a loopback the display it
+		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				return ipnet.IP.String()
+			}
+		}
+	}
+	return ""
 }

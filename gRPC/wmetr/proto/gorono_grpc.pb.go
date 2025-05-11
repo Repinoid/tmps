@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v6.30.2
-// source: proto/metr.proto
+// source: proto/gorono.proto
 
 package proto
 
@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Metric_AddBunch_FullMethodName = "/metr.Metric/AddBunch"
+	Metric_AddBunch_FullMethodName = "/gorono.Metric/AddBunch"
 )
 
 // MetricClient is the client API for Metric service.
@@ -108,7 +108,7 @@ func _Metric_AddBunch_Handler(srv interface{}, ctx context.Context, dec func(int
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Metric_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "metr.Metric",
+	ServiceName: "gorono.Metric",
 	HandlerType: (*MetricServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -117,5 +117,5 @@ var Metric_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/metr.proto",
+	Metadata: "proto/gorono.proto",
 }
