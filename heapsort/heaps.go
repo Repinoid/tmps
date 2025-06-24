@@ -6,11 +6,11 @@ import (
 	"sort"
 	"time"
 )
+const Long = 33333
 
 func main() {
 
 	// создаём случайный массив
-	const Long = 33333
 	mass := make([]byte, Long)
 	n, err := rand.Read(mass)
 	if err != nil || n != Long {
@@ -28,7 +28,7 @@ func main() {
 	HeapSort(&mass)
 
 	//	log.Printf("%v\nspend ms %v\n", mass, time.Since(t))
-	log.Printf("spend %v\n", time.Since(t))
+	log.Printf("HeapSort spend %v\n", time.Since(t))
 
 	for i := 0; i < len(mass)-2; i++ {
 		if mass[i] > mass[i+1] {
@@ -41,7 +41,7 @@ func main() {
 	sort.Slice(mass1, func(i, j int) bool {
 		return mass1[i] < mass1[j]
 	})
-	log.Printf("spend %v\n", time.Since(t))
+	log.Printf("Regular spend %v\n", time.Since(t))
 
 	for i := 0; i < len(mass1)-2; i++ {
 		if mass1[i] > mass1[i+1] {
@@ -52,7 +52,7 @@ func main() {
 
 }
 
-func HeapSort(m *[]byte) {
+func getMaxOnTop(m *[]byte) {
 	mass := *m
 	mLen := len(mass)
 	cycles := mLen / 2
@@ -84,7 +84,7 @@ func HeapSort(m *[]byte) {
 	mass[0], mass[mLen-1] = mass[mLen-1], mass[0]
 }
 
-func getMaxOnTop(m *[]byte) {
+func HeapSort(m *[]byte) {
 	mass := *m
 	for mLen := len(mass); mLen > 0; mLen-- {
 		cycles := mLen / 2

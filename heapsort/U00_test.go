@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/rand"
 	"log"
 	"testing"
 	"time"
@@ -10,7 +11,11 @@ import (
 	"go.uber.org/zap"
 )
 
-var Sugar *zap.SugaredLogger
+var (
+	Sugar    *zap.SugaredLogger
+	baseMass []byte
+)
+//const Long = 33333
 
 type TstHeapSort struct {
 	suite.Suite
@@ -22,6 +27,9 @@ func (suite *TstHeapSort) SetupSuite() { // выполняется перед т
 	suite.ctx = context.Background()
 	suite.t = time.Now()
 
+	baseMass = make([]byte, Long)
+	rand.Read(baseMass)
+
 	log.Println("SetupTest() ---------------------")
 }
 
@@ -29,9 +37,9 @@ func (suite *TstHeapSort) TearDownSuite() { // // выполняется пос�
 	log.Printf("Spent %v\n", time.Since(suite.t))
 }
 
-func TestHandlersSuite(t *testing.T) {
-	testBase := new(TstHeapSort)
-	testBase.ctx = context.Background()
+func TestHeapSortSuite(t *testing.T) {
+	testHeap := new(TstHeapSort)
+	testHeap.ctx = context.Background()
 
 	logger, err := zap.NewDevelopment()
 	if err != nil {
@@ -41,6 +49,6 @@ func TestHandlersSuite(t *testing.T) {
 	Sugar = logger.Sugar()
 
 	log.Println("before run ")
-	suite.Run(t, testBase)
+	suite.Run(t, testHeap)
 
 }
