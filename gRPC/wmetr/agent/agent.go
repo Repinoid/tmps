@@ -65,15 +65,15 @@ func main() {
 
 	client := pb.NewMetricClient(conn)
 
-	m := []*pb.GMetr{
+	m := []*pb.Metr{
 		{ID: "dd", MType: "counter", Delta: 67},
 		{ID: "dd11", MType: "counter", Delta: 67222}}
 
 	md := metadata.New(map[string]string{"X-Real-IP": GetLocalIP()})
 	ctx := metadata.NewOutgoingContext(context.Background(), md)
 
-	resp, err := client.AddBunch(ctx, &pb.MBunch{
-		Bunch: m,
+	resp, err := client.AddBunch(ctx, &pb.Bunch{
+		Meters: m,
 	})
 	if err != nil {
 		log.Fatal(err)

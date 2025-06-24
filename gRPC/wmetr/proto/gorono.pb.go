@@ -21,7 +21,8 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type GMetr struct {
+// Metr - а-ля структура метрики
+type Metr struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ID            string                 `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
 	MType         string                 `protobuf:"bytes,2,opt,name=MType,proto3" json:"MType,omitempty"`
@@ -31,21 +32,32 @@ type GMetr struct {
 	sizeCache     protoimpl.SizeCache
 }
 
+<<<<<<< HEAD:gRPC/wmetr/proto/gorono.pb.go
 func (x *GMetr) Reset() {
 	*x = GMetr{}
 	mi := &file_proto_gorono_proto_msgTypes[0]
+=======
+func (x *Metr) Reset() {
+	*x = Metr{}
+	mi := &file_proto_metr_proto_msgTypes[0]
+>>>>>>> 13bab6a994c509f6136f6992aa11a256d3877fc9:gRPC/wmetr/proto/metr.pb.go
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GMetr) String() string {
+func (x *Metr) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GMetr) ProtoMessage() {}
+func (*Metr) ProtoMessage() {}
 
+<<<<<<< HEAD:gRPC/wmetr/proto/gorono.pb.go
 func (x *GMetr) ProtoReflect() protoreflect.Message {
 	mi := &file_proto_gorono_proto_msgTypes[0]
+=======
+func (x *Metr) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_metr_proto_msgTypes[0]
+>>>>>>> 13bab6a994c509f6136f6992aa11a256d3877fc9:gRPC/wmetr/proto/metr.pb.go
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -56,61 +68,79 @@ func (x *GMetr) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
+<<<<<<< HEAD:gRPC/wmetr/proto/gorono.pb.go
 // Deprecated: Use GMetr.ProtoReflect.Descriptor instead.
 func (*GMetr) Descriptor() ([]byte, []int) {
 	return file_proto_gorono_proto_rawDescGZIP(), []int{0}
+=======
+// Deprecated: Use Metr.ProtoReflect.Descriptor instead.
+func (*Metr) Descriptor() ([]byte, []int) {
+	return file_proto_metr_proto_rawDescGZIP(), []int{0}
+>>>>>>> 13bab6a994c509f6136f6992aa11a256d3877fc9:gRPC/wmetr/proto/metr.pb.go
 }
 
-func (x *GMetr) GetID() string {
+func (x *Metr) GetID() string {
 	if x != nil {
 		return x.ID
 	}
 	return ""
 }
 
-func (x *GMetr) GetMType() string {
+func (x *Metr) GetMType() string {
 	if x != nil {
 		return x.MType
 	}
 	return ""
 }
 
-func (x *GMetr) GetDelta() int64 {
+func (x *Metr) GetDelta() int64 {
 	if x != nil {
 		return x.Delta
 	}
 	return 0
 }
 
-func (x *GMetr) GetValue() float64 {
+func (x *Metr) GetValue() float64 {
 	if x != nil {
 		return x.Value
 	}
 	return 0
 }
 
-type MBunch struct {
+// слайс метрик
+type Bunch struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Bunch         []*GMetr               `protobuf:"bytes,1,rep,name=bunch,proto3" json:"bunch,omitempty"`
+	Meters        []*Metr                `protobuf:"bytes,1,rep,name=meters,proto3" json:"meters,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
+<<<<<<< HEAD:gRPC/wmetr/proto/gorono.pb.go
 func (x *MBunch) Reset() {
 	*x = MBunch{}
 	mi := &file_proto_gorono_proto_msgTypes[1]
+=======
+func (x *Bunch) Reset() {
+	*x = Bunch{}
+	mi := &file_proto_metr_proto_msgTypes[1]
+>>>>>>> 13bab6a994c509f6136f6992aa11a256d3877fc9:gRPC/wmetr/proto/metr.pb.go
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *MBunch) String() string {
+func (x *Bunch) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*MBunch) ProtoMessage() {}
+func (*Bunch) ProtoMessage() {}
 
+<<<<<<< HEAD:gRPC/wmetr/proto/gorono.pb.go
 func (x *MBunch) ProtoReflect() protoreflect.Message {
 	mi := &file_proto_gorono_proto_msgTypes[1]
+=======
+func (x *Bunch) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_metr_proto_msgTypes[1]
+>>>>>>> 13bab6a994c509f6136f6992aa11a256d3877fc9:gRPC/wmetr/proto/metr.pb.go
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -121,14 +151,20 @@ func (x *MBunch) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
+<<<<<<< HEAD:gRPC/wmetr/proto/gorono.pb.go
 // Deprecated: Use MBunch.ProtoReflect.Descriptor instead.
 func (*MBunch) Descriptor() ([]byte, []int) {
 	return file_proto_gorono_proto_rawDescGZIP(), []int{1}
+=======
+// Deprecated: Use Bunch.ProtoReflect.Descriptor instead.
+func (*Bunch) Descriptor() ([]byte, []int) {
+	return file_proto_metr_proto_rawDescGZIP(), []int{1}
+>>>>>>> 13bab6a994c509f6136f6992aa11a256d3877fc9:gRPC/wmetr/proto/metr.pb.go
 }
 
-func (x *MBunch) GetBunch() []*GMetr {
+func (x *Bunch) GetMeters() []*Metr {
 	if x != nil {
-		return x.Bunch
+		return x.Meters
 	}
 	return nil
 }
@@ -189,6 +225,7 @@ var File_proto_gorono_proto protoreflect.FileDescriptor
 
 const file_proto_gorono_proto_rawDesc = "" +
 	"\n" +
+<<<<<<< HEAD:gRPC/wmetr/proto/gorono.pb.go
 	"\x12proto/gorono.proto\x12\x06gorono\"Y\n" +
 	"\x05GMetr\x12\x0e\n" +
 	"\x02ID\x18\x01 \x01(\tR\x02ID\x12\x14\n" +
@@ -202,6 +239,23 @@ const file_proto_gorono_proto_rawDesc = "" +
 	"\aoutData\x18\x02 \x01(\tR\aoutData2;\n" +
 	"\x06Metric\x121\n" +
 	"\bAddBunch\x12\x0e.gorono.MBunch\x1a\x15.gorono.BunchResponseB\x0eZ\fgorono/protob\x06proto3"
+=======
+	"\x10proto/metr.proto\x12\x04metr\"X\n" +
+	"\x04Metr\x12\x0e\n" +
+	"\x02ID\x18\x01 \x01(\tR\x02ID\x12\x14\n" +
+	"\x05MType\x18\x02 \x01(\tR\x05MType\x12\x14\n" +
+	"\x05Delta\x18\x03 \x01(\x03R\x05Delta\x12\x14\n" +
+	"\x05Value\x18\x04 \x01(\x01R\x05Value\"+\n" +
+	"\x05Bunch\x12\"\n" +
+	"\x06meters\x18\x01 \x03(\v2\n" +
+	".metr.MetrR\x06meters\"?\n" +
+	"\rBunchResponse\x12\x14\n" +
+	"\x05error\x18\x01 \x01(\tR\x05error\x12\x18\n" +
+	"\aoutData\x18\x02 \x01(\tR\aoutData26\n" +
+	"\x06Metric\x12,\n" +
+	"\bAddBunch\x12\v.metr.Bunch\x1a\x13.metr.BunchResponseB\fZ\n" +
+	"metr/protob\x06proto3"
+>>>>>>> 13bab6a994c509f6136f6992aa11a256d3877fc9:gRPC/wmetr/proto/metr.pb.go
 
 var (
 	file_proto_gorono_proto_rawDescOnce sync.Once
@@ -215,6 +269,7 @@ func file_proto_gorono_proto_rawDescGZIP() []byte {
 	return file_proto_gorono_proto_rawDescData
 }
 
+<<<<<<< HEAD:gRPC/wmetr/proto/gorono.pb.go
 var file_proto_gorono_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_proto_gorono_proto_goTypes = []any{
 	(*GMetr)(nil),         // 0: gorono.GMetr
@@ -225,6 +280,18 @@ var file_proto_gorono_proto_depIdxs = []int32{
 	0, // 0: gorono.MBunch.bunch:type_name -> gorono.GMetr
 	1, // 1: gorono.Metric.AddBunch:input_type -> gorono.MBunch
 	2, // 2: gorono.Metric.AddBunch:output_type -> gorono.BunchResponse
+=======
+var file_proto_metr_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_proto_metr_proto_goTypes = []any{
+	(*Metr)(nil),          // 0: metr.Metr
+	(*Bunch)(nil),         // 1: metr.Bunch
+	(*BunchResponse)(nil), // 2: metr.BunchResponse
+}
+var file_proto_metr_proto_depIdxs = []int32{
+	0, // 0: metr.Bunch.meters:type_name -> metr.Metr
+	1, // 1: metr.Metric.AddBunch:input_type -> metr.Bunch
+	2, // 2: metr.Metric.AddBunch:output_type -> metr.BunchResponse
+>>>>>>> 13bab6a994c509f6136f6992aa11a256d3877fc9:gRPC/wmetr/proto/metr.pb.go
 	2, // [2:3] is the sub-list for method output_type
 	1, // [1:2] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
