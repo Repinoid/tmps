@@ -31,6 +31,56 @@ func BenchmarkHeapSort(b *testing.B) {
 	}
 	b.ReportMetric(float64(cmps), "compares/op")
 }
+func BenchmarkTopSort(b *testing.B) {
+	var cmps int64
+
+	b.StopTimer()
+
+	baseMass = make([]byte, Long)
+	rand.Read(baseMass)
+
+	mass := make([]byte, Long)
+	copy(mass, baseMass)
+
+	b.StartTimer()
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		cmps++ // увеличиваем счётчик
+		sortByMaxFunc(&mass)
+	}
+	b.ReportMetric(float64(cmps), "compares/op")
+}
+func BenchmarkQuartSort(b *testing.B) {
+	var cmps int64
+
+	baseMass = make([]byte, Long)
+	rand.Read(baseMass)
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		cmps++ // увеличиваем счётчик
+		sortByQuart(&baseMass)
+	}
+	b.ReportMetric(float64(cmps), "compares/op")
+}
+func BenchmarkGrt(b *testing.B) {
+	var cmps int64
+
+	baseMass = make([]byte, Long)
+	rand.Read(baseMass)
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		cmps++ // увеличиваем счётчик
+		sortByGrt(&baseMass)
+	}
+	b.ReportMetric(float64(cmps), "compares/op")
+}
+
 func BenchmarkRegularSort(b *testing.B) {
 	b.StopTimer()
 
@@ -60,3 +110,6 @@ func ABenchmarkEmpty(b *testing.B) {
 
 // go test -bench . -benchmem
 // go tool pprof -http=":9090" -seconds=30 http://localhost:8080/debug/pprof/profile
+// go test -bench=. -benchmem  -cpuprofile=cpu.out
+
+// go tool pprof heap.test.exe cpu.out
