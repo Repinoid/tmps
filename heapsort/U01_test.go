@@ -76,7 +76,7 @@ func BenchmarkGrt(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		cmps++ // увеличиваем счётчик
-		sortByGrt(&baseMass)
+		sortByGrt(&baseMass, moveMaxOnTop, 5)
 	}
 	b.ReportMetric(float64(cmps), "compares/op")
 }

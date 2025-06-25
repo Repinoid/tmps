@@ -64,8 +64,9 @@ func main() {
 	massa := make([]byte, Long)
 	copy(massa, mass)
 	t = time.Now()
-	sortByGrt(&massa)
-	log.Printf("sortBy 4 Gouroutines spend %v\n", time.Since(t))
+	sortByGrt(&massa, simpleTop, 5)
+	//	sortByGrt(&massa, moveMaxOnTop, 5)
+	log.Printf("sort By Gouroutines spend %v\n", time.Since(t))
 
 	for i := 0; i < len(massa)-2; i++ {
 		if massa[i] > massa[i+1] {

@@ -46,9 +46,9 @@ func sortByQuart(m *[]byte) {
 	}
 }
 
-func sortByGrt(m *[]byte) {
+func sortByGrt(m *[]byte, topper func(m *[]byte), N int) {
 
-	N := 4
+	//N := 4
 
 	mass := *m
 	initLen := len(mass)
@@ -74,7 +74,7 @@ func sortByGrt(m *[]byte) {
 			// запускаем горутины
 			go func() {
 				// moveMaxOnTop - в начало каждого подмассива перемещается максимум подмассива
-				moveMaxOnTop(&mLoc)
+				topper(&mLoc)
 				wg.Done()
 			}()
 
@@ -87,10 +87,24 @@ func sortByGrt(m *[]byte) {
 		for i := 1; i < N; i++ {
 			if mass[i*qNum] > maxOf4 {
 				maxOf4 = mass[i*qNum]
-				ind = i*qNum
+				ind = i * qNum
 			}
 		}
 		// свап максимума  с концом массива
 		mass[ind], mass[mLen-1] = mass[mLen-1], mass[ind]
 	}
+}
+
+// simpleTop нахождение максимума массива и перемещение его в начало
+func simpleTop(m *[]byte) {
+	mass := *m
+	max := mass[0]
+	ind := 0
+	for i := 0; i < len(mass); i++ {
+		if mass[i] > max {
+			max = mass[i]
+			ind = i
+		}
+	}
+	mass[ind], mass[0] = mass[0], mass[ind]
 }
