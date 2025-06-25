@@ -3,10 +3,13 @@ package main
 import (
 	"crypto/rand"
 	"log"
+	"net/http"
+	_ "net/http/pprof" // подключаем пакет pprof
 	"sort"
 	"time"
 )
-const Long = 33333
+
+const Long = 100_000
 
 func main() {
 
@@ -49,6 +52,8 @@ func main() {
 			break
 		}
 	}
+
+	http.ListenAndServe(":8080", nil) // запускаем сервер
 
 }
 
@@ -104,12 +109,17 @@ func HeapSort(m *[]byte) {
 			// выбираем правого потомка как бОльшего
 			k := i*2 + 2
 			// если он меньше левого - уменьшаем индекс на 1, получается левый
-			if mass[i*2+2] < mass[i*2+1] {
+//			if mass[k] < mass[k-1] {
+			if mass[k-1] > mass[k] {
 				k = k - 1
 			}
 			// если элемент меньше наследника - свап
-			if mass[i] < mass[k] {
+			//			if mass[i] < mass[k] {
+			if mass[k] > mass[i] {
+				//a := mass[i]
 				mass[i], mass[k] = mass[k], mass[i]
+				//mass[i] = mass[k]
+				//mass[k] = a
 			}
 		}
 		// перекидываем максимум из верхушки в самый хвост
