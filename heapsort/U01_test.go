@@ -6,11 +6,13 @@ import (
 	"testing"
 )
 
-func (suite *TstHeapSort) ATest01() {
+// func (suite *TstHeapSort) ATest01() {
 
-}
+// }
 
 func BenchmarkHeapSort(b *testing.B) {
+	var cmps int64
+
 	b.StopTimer()
 
 	baseMass = make([]byte, Long)
@@ -20,10 +22,65 @@ func BenchmarkHeapSort(b *testing.B) {
 	copy(mass, baseMass)
 
 	b.StartTimer()
+
+	b.ResetTimer()
+
 	for i := 0; i < b.N; i++ {
+		cmps++ // увеличиваем счётчик
 		HeapSort(&mass)
 	}
+	b.ReportMetric(float64(cmps), "compares/op")
 }
+func BenchmarkTopSort(b *testing.B) {
+	var cmps int64
+
+	b.StopTimer()
+
+	baseMass = make([]byte, Long)
+	rand.Read(baseMass)
+
+	mass := make([]byte, Long)
+	copy(mass, baseMass)
+
+	b.StartTimer()
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		cmps++ // увеличиваем счётчик
+		sortByMaxFunc(&mass)
+	}
+	b.ReportMetric(float64(cmps), "compares/op")
+}
+func BenchmarkQuartSort(b *testing.B) {
+	var cmps int64
+
+	baseMass = make([]byte, Long)
+	rand.Read(baseMass)
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		cmps++ // увеличиваем счётчик
+		sortByQuart(&baseMass)
+	}
+	b.ReportMetric(float64(cmps), "compares/op")
+}
+func BenchmarkGrt(b *testing.B) {
+	var cmps int64
+
+	baseMass = make([]byte, Long)
+	rand.Read(baseMass)
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		cmps++ // увеличиваем счётчик
+		sortByGrt(&baseMass)
+	}
+	b.ReportMetric(float64(cmps), "compares/op")
+}
+
 func BenchmarkRegularSort(b *testing.B) {
 	b.StopTimer()
 
@@ -35,6 +92,8 @@ func BenchmarkRegularSort(b *testing.B) {
 
 	b.StartTimer()
 
+	b.ResetTimer()
+
 	for i := 0; i < b.N; i++ {
 		//slices.Sort
 		sort.Slice(mass, func(i, j int) bool {
@@ -43,8 +102,14 @@ func BenchmarkRegularSort(b *testing.B) {
 	}
 }
 
-func BenchmarkEmpty(b *testing.B) {
+func ABenchmarkEmpty(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		// пусто
 	}
 }
+
+// go test -bench . -benchmem
+// go tool pprof -http=":9090" -seconds=30 http://localhost:8080/debug/pprof/profile
+// go test -bench=. -benchmem  -cpuprofile=cpu.out
+
+// go tool pprof heap.test.exe cpu.out
