@@ -91,7 +91,7 @@ func generateInts(ctx context.Context, n, offset int) chan int {
 	chaGenerated := make(chan int)
 	go func() {
 		defer close(chaGenerated)
-		for i := range n {
+		for i := 0; i < n; i++ {
 			select {
 			case chaGenerated <- (i + offset):
 				// fmt.Println("Generate ", i+offset)
