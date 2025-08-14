@@ -21,7 +21,7 @@ func main() {
 	g1 := generateInts(ctx, 30, 10)
 	g2 := generateInts(ctx, 20, 20)
 
-	inout(g, &wg, g1, g2)
+	fanInOut(g, &wg, g1, g2)
 
 	go func() {
 		wg.Wait()
@@ -55,7 +55,7 @@ func receiver(out chan int, readers *sync.WaitGroup, num int) {
 }
 
 // inout засылает в out вычитывая из каналов/канала ins
-func inout(out chan<- int, wg *sync.WaitGroup, ins ...<-chan int) {
+func fanInOut(out chan<- int, wg *sync.WaitGroup, ins ...<-chan int) {
 	for _, in := range ins {
 		wg.Add(1)
 		go func(ch <-chan int) {
