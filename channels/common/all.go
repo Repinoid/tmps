@@ -15,37 +15,55 @@ func main() {
 
 	g := make(chan int)
 	var wg sync.WaitGroup
+	var readers sync.WaitGroup
+	
 
 	//wg.Add(1)
 	g1 := generateInts(ctx, 3, 10)
 	g2 := generateInts(ctx, 2, 20)
 
 	inout(g, &wg, g1, g2)
-	// inout(g, &wg, g2)
 
 	go func() {
 		wg.Wait()
 		close(g)
 	}()
 
-	out := readChan(ctx,  g, stop)
+	out := readChan(ctx, g, stop)
 
-	go func() {
-		for a := range out {
-			fmt.Println("receiver ONE .......", a)
-		}
-	}()
+	receiver(out, &readers, 1)
+	receiver(out, &readers, 2)
 
-	go func() {
-		for a := range out {
-			fmt.Println("receiver TWO.......", a)
-		}
-	}()
+	// go func() {
+	// 	defer readers.Done()
+	// 	for a := range out {
+	// 		fmt.Println("receiver ONE .......", a)
+	// 	}
+	// }()
+
+	// go func() {
+	// 	defer readers.Done()
+	// 	for a := range out {
+	// 		fmt.Println("receiver TWO .......", a)
+	// 	}
+	// }()
 
 	fmt.Println("stopped point ")
 	stop <- 666
+	readers.Wait()
 
 	fmt.Println("exit ")
+}
+
+func receiver(out chan int, readers *sync.WaitGroup, num int) {
+	readers.Add(1)
+	go func() {
+		defer readers.Done()
+		for a := range out {
+			fmt.Println("receiver ONE .......", a, num)
+		}
+	}()
+
 }
 
 // inout засылает в out вычитывая из каналов/канала ins
