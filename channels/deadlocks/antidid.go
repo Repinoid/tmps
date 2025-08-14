@@ -50,7 +50,7 @@ func readChan(ctx context.Context, in chan int, stop chan int) (cha chan int) {
 				fmt.Println("READed  ", c)
 			}
 		}
-		//	<-stop
+		//	<-stop 
 	}()
 	return
 }
