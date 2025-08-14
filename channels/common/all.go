@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"time"
 )
 
 func main() {
@@ -16,11 +17,9 @@ func main() {
 	g := make(chan int)
 	var wg sync.WaitGroup
 	var readers sync.WaitGroup
-	
 
-	//wg.Add(1)
-	g1 := generateInts(ctx, 3, 10)
-	g2 := generateInts(ctx, 2, 20)
+	g1 := generateInts(ctx, 30, 10)
+	g2 := generateInts(ctx, 20, 20)
 
 	inout(g, &wg, g1, g2)
 
@@ -33,20 +32,8 @@ func main() {
 
 	receiver(out, &readers, 1)
 	receiver(out, &readers, 2)
-
-	// go func() {
-	// 	defer readers.Done()
-	// 	for a := range out {
-	// 		fmt.Println("receiver ONE .......", a)
-	// 	}
-	// }()
-
-	// go func() {
-	// 	defer readers.Done()
-	// 	for a := range out {
-	// 		fmt.Println("receiver TWO .......", a)
-	// 	}
-	// }()
+	receiver(out, &readers, 3)
+	receiver(out, &readers, 4)
 
 	fmt.Println("stopped point ")
 	stop <- 666
@@ -60,7 +47,8 @@ func receiver(out chan int, readers *sync.WaitGroup, num int) {
 	go func() {
 		defer readers.Done()
 		for a := range out {
-			fmt.Println("receiver ONE .......", a, num)
+			fmt.Println("receiver .......", a, num)
+			time.Sleep(1 * time.Millisecond)
 		}
 	}()
 
@@ -106,7 +94,7 @@ func generateInts(ctx context.Context, n, offset int) chan int {
 		for i := range n {
 			select {
 			case chaGenerated <- (i + offset):
-				fmt.Println("Generate ", i+offset)
+				// fmt.Println("Generate ", i+offset)
 			case <-ctx.Done():
 				fmt.Println("context cancel ON  ", i)
 				return
