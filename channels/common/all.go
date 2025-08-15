@@ -42,6 +42,7 @@ func main() {
 	fmt.Println("exit ")
 }
 
+// receiver вычитывает из out
 func receiver(out chan int, readers *sync.WaitGroup, num int) {
 	readers.Add(1)
 	go func() {
